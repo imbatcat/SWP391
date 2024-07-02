@@ -48,7 +48,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //get the list of pet of this account has the input id
-        [HttpGet("pets/accounts/{accountId}")]
+        [HttpGet("accounts/{accountId}/pets")]
         public async Task<IEnumerable<Pet>> GetAccountPets([FromRoute] string accountId)
         {
             return await _context.GetAccountPets(accountId);
