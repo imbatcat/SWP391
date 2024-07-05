@@ -38,7 +38,7 @@ function CageList() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const appResponse = await fetch('https://localhost:7206/api/Cages/PetDetail', {
+                const appResponse = await fetch('https://localhost:7206/api/cage-management/cages-pets', {
                     method: 'GET',
                     credentials: 'include',
                 });

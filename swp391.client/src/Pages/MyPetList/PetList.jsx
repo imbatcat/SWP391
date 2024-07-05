@@ -24,7 +24,7 @@ export default function PetList() {
         const getPetList = async (user) => {
             console.log(user.id + '1');
             try {
-                const response = await fetch(`https://localhost:7206/api/accounts/pets/${user.id}`, {
+                const response = await fetch(`https://localhost:7206/api/pet-management/accounts/${user.id}/pets`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

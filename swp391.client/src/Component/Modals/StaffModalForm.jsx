@@ -26,7 +26,7 @@ function StaffModalForm() {
         e.preventDefault();
         console.log(formData);
         try {
-            const response = await fetch('https://localhost:7206/api/Accounts', {
+            const response = await fetch('https://localhost:7206/api/account-management/accounts', {
                 method: 'POST', // *GET, POST, PUT, DELETE, etc.
                 headers: {
                     'Content-Type': 'application/json'

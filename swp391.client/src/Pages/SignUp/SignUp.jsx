@@ -64,7 +64,7 @@ function SignUp() {
                 toast.error("Invalid password format");
                 throw new Error("Invalid password format");
             }
-            const response = await fetch('https://localhost:7206/api/ApplicationAuth/register', {
+            const response = await fetch('https://localhost:7206/api/auth/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -34,9 +34,9 @@ function AppointmentForm({ toggleOpen }) {
     });
 
     const apis = [
-        `https://localhost:7206/api/pets/by-account/${user.id}`,
-        `https://localhost:7206/api/TimeSlots`,
-        `https://localhost:7206/api/byRole/3`
+        `https://localhost:7206/api/pet-management/accounts/${user.id}/pets`,
+        `https://localhost:7206/api/time-slot-management/time-slots`,
+        `https://localhost:7206/api/account-management/roles/3/accounts`
     ];
     const getData = async () => {
         try {
@@ -74,7 +74,7 @@ function AppointmentForm({ toggleOpen }) {
 
     const addAppointment = async () => {
         console.log(formData);
-        const fetchPromise = fetch('https://localhost:7206/api/VNPayAPI', {
+        const fetchPromise = fetch('https://localhost:7206/api/vn-pay-api-management/make-payment', {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json'

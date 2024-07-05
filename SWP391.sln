@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PetHealthcare.Server", "swp
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "pethealthcare.client", "swp391.client\pethealthcare.client.esproj", "{FA728906-1749-4C5C-B175-7756978E6B34}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{93255A78-76A9-47B3-B2D4-4D185662ED74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{FA728906-1749-4C5C-B175-7756978E6B34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA728906-1749-4C5C-B175-7756978E6B34}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FA728906-1749-4C5C-B175-7756978E6B34}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{93255A78-76A9-47B3-B2D4-4D185662ED74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93255A78-76A9-47B3-B2D4-4D185662ED74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93255A78-76A9-47B3-B2D4-4D185662ED74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93255A78-76A9-47B3-B2D4-4D185662ED74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -142,6 +142,7 @@ public class ApplicationAuthController : ControllerBase
         }
         return Ok();
     }
+   
 
     [AllowAnonymous]
     [HttpPost("send-confirm-email")]

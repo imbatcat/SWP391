@@ -10,7 +10,7 @@ function AdminPet() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const petResponse = await fetch('https://localhost:7206/api/Pets', {
+          const petResponse = await fetch('https://localhost:7206/api/pet-management/pets', {
           method: 'GET',
           credentials: 'include',
         });
@@ -19,7 +19,7 @@ function AdminPet() {
         }
         const petData = await petResponse.json();
 
-        const accountResponse = await fetch('https://localhost:7206/api/Accounts', {
+          const accountResponse = await fetch('https://localhost:7206/api/account-management/accounts', {
           method: 'GET',
           credentials: 'include',
         });

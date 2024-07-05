@@ -20,7 +20,7 @@ function AdminAccount() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/Accounts', {
+                const response = await fetch('https://localhost:7206/api/account-management/accounts', {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
@@ -73,7 +73,7 @@ function AdminAccount() {
     const handleSaveChanges = async () => {
         console.log(selectedAccount);
         try {
-            //const response = await fetch(`https://localhost:7206/api/Accounts/${selectedAccount.id}`, {
+            //const response = await fetch(`https://localhost:7206/api/account-management/accounts/${selectedAccount.id}`, {
             //    method: 'PUT',
             //    credentials: 'include',
             //    headers: {

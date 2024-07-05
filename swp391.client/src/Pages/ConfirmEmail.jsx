@@ -21,7 +21,7 @@ const ConfirmEmail = () => {
 
     const confirmEmail = async (userId, token) => {
         try {
-            const response = await fetch(`https://localhost:7206/api/ApplicationAuth/confirm-email?userId=${userId}&token=${token}`, {
+            const response = await fetch(`https://localhost:7206/api/auth/confirm-email?userId=${userId}&token=${token}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

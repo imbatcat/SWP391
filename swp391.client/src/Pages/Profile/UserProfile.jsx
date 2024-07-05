@@ -19,7 +19,7 @@ function UserProfile() {
 
     const getUserDetails = async (user) => {
         try {
-            const response = await fetch(`https://localhost:7206/api/Accounts/${user.id}`, {
+            const response = await fetch(`https://localhost:7206/api/account-management/accounts/${user.id}`, {
                 method: 'GET', // *GET, POST, PUT, DELETE, etc.
                 headers: {
                     'Content-Type': 'application/json'
