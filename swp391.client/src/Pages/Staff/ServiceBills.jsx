@@ -19,7 +19,7 @@ export default function AppointmentCheckin() {
 
     useEffect(() => {
         async function fetchData() {
-            const response = await fetch(`https://localhost:7206/api/ServiceOrder/Staff/getAll`, {
+            const response = await fetch(`https://localhost:7206/api/service-order-management/service-orders/staff`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {

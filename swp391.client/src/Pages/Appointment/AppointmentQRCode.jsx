@@ -9,7 +9,7 @@ const AppointmentQRCode = () => {
 
     const fetchQRCode = async () => {
         try {
-            const response = await fetch(`https://localhost:7206/api/appointment/QRCode?appointmentId=${appointmentId}`, {
+            const response = await fetch(`https://localhost:7206/api/appointment-management/qr-code?appointmentId=${appointmentId}`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {

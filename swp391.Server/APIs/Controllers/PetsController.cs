@@ -6,7 +6,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/pet-controller")]
+    [Route("api/[controller]")]
     [Authorize(Roles = "Customer, Staff, Admin, Vet")]
     [ApiController]
     public class PetsController : ControllerBase
@@ -19,7 +19,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/Pets
-        [HttpGet("get-pets")]
+        [HttpGet("")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Pet>))]
         public async Task<IEnumerable<Pet>> GetPets()
@@ -29,7 +29,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
 
         /*Get single pet by a unique PetId*/
-        [HttpGet("get-pet/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Pet>> GetPet([FromRoute] string id)
         {
             var pet = await _context.GetPetByCondition(a => a.PetId == id);
@@ -41,14 +41,14 @@ namespace PetHealthcare.Server.APIs.Controllers
             return pet;
         }
 
-        [HttpGet("get-pet-info-from-appointment/{appointmentId}")]
+        [HttpGet("/appointment/{appointmentId}")]
         public async Task<PetInfoAppointmentDTO> GetPetInfoFromAppointment([FromRoute] string appointmentId)
         {
             return await _context.GetPetInfoAppointment(appointmentId);
         }
 
         //get the list of pet of this account has the input id
-        [HttpGet("get-account-pets/{accountId}")]
+        [HttpGet("/api/pets/by-account/{accountId}")]
         public async Task<IEnumerable<Pet>> GetAccountPets([FromRoute] string accountId)
         {
             return await _context.GetAccountPets(accountId);
@@ -56,7 +56,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
         // PUT: api/Pets/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("put-pet/{id}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Customer, Admin")]
         public async Task<IActionResult> PutPet(string id, PetDTO pet)
         {
@@ -66,7 +66,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // POST: api/Pets
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("post-pet")]
+        [HttpPost]
         [Authorize(Roles = "Customer,Staff, Admin")]
         public async Task<ActionResult<Pet>> PostPet([FromBody] PetDTO petDTO)
         {
@@ -75,7 +75,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE: api/Pets/5
-        [HttpDelete("delete-pet/{id}")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Customer,Admin")]
         public async Task<ActionResult<Pet>> DeletePet([FromRoute] string id)
         {

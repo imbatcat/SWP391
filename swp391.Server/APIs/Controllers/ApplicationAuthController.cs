@@ -13,7 +13,7 @@ using System.Text;
 
 [Authorize]
 [ApiController]
-[Route("api/application-auth-controller")]
+[Route("api/[controller]")]
 public class ApplicationAuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -109,7 +109,7 @@ public class ApplicationAuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("get-role")]
+    [HttpPost("roles")]
     public async Task<string?> GetRole(string userName)
     {
         var user = await _userManager.FindByNameAsync(userName);
@@ -142,6 +142,7 @@ public class ApplicationAuthController : ControllerBase
         }
         return Ok();
     }
+   
 
     [AllowAnonymous]
     [HttpPost("send-confirm-email")]
@@ -199,7 +200,7 @@ public class ApplicationAuthController : ControllerBase
         return Ok();
     }
     [AllowAnonymous]
-    [HttpGet("set-role")]
+    [HttpGet("setrole")]
     public async Task<IActionResult> SetRole([FromQuery] string userName, [FromQuery] string role)
     {
         try
@@ -217,7 +218,7 @@ public class ApplicationAuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("sign-in-google")]
+    [HttpPost("signinGoogle")]
     public async Task<ActionResult<ResponseUserDTO>> GoogleLogin([FromBody] GoogleLoginModel model)
     {
         var httpClient = new HttpClient();

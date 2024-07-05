@@ -4,9 +4,11 @@ import {
 } 
   from 'mdb-react-ui-kit';
 import SideNavForVet from '../../Component/SideNavForVet/SideNavForVet';
+import { useUser } from '../../Context/UserContext';
 
 
 function MedicalRecordList() {
+    const { user } = useUser();
     const [medicalRecords, setMedicalRecords] = useState([]);
     const [searchInput, setSearchInput] = useState('');
     const [filteredMedicalRecords, setFilteredMedicalRecords] = useState([]);
@@ -14,7 +16,7 @@ function MedicalRecordList() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/MedicalRecords', {
+                const response = await fetch(`https://localhost:7206/api/medical-record-management/vets/${user.id}/medical-records`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {

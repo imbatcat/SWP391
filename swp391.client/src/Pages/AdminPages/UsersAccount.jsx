@@ -21,12 +21,9 @@ function UsersAccount() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/Accounts', {
+                const response = await fetch('https://localhost:7206/api/account-management/roles/1/accounts', {
                     method: 'GET',
                     credentials: 'include',
-                    headers: {
-                        // 'Content-Type': 'application/x-www-form-urlencoded',
-                    }
                 });
                 if (!response.ok) {
                     throw new Error("Error fetching data");
@@ -81,7 +78,7 @@ function UsersAccount() {
         //};
         //console.log(requestBody);
         //try {
-        //    const response = await fetch(`https://localhost:7206/api/Accounts/${selectedAccount.id}`, {
+        //    const response = await fetch(`https://localhost:7206/api/account-management/accounts/${selectedAccount.id}`, {
         //        method: 'PUT',
         //        credentials: 'include',
         //        headers: {

@@ -334,11 +334,15 @@ namespace PetHealthcare.Server.Services
             {
                 return false;
             }
-            else
+            else if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
             {
                 toCheckInAppointment.IsCheckIn = true;
                 toCheckInAppointment.CheckinTime = TimeOnly.FromDateTime(DateTime.Now);
                 await _appointmentRepository.SaveChanges();
+            }
+            else
+            {
+                throw new Exception("Wrong checkin day");
             }
             return true;
         }

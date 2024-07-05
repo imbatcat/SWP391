@@ -12,7 +12,7 @@ using System.Text.Json;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/vn-pay-api-controller")]
+    [Route("api/[controller]")]
     [ApiController]
     public class VNPayAPIController : ControllerBase
     {
@@ -32,7 +32,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         private ITempDataDictionary TempData => _tempDataDictionaryFactory.GetTempData(HttpContext);
         private readonly IVnPayService _vnPayService;
         // GET: VNPayController
-        [HttpPost("create-payment-url")]
+        [HttpPost]
         public async  Task<ActionResult<VNPayResponseUrl>> CreatePaymentUrl([FromBody] CreateAppointmentDTO model)
         {
             CreateAppointmentDTO appointmentDTO = model;
@@ -47,7 +47,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(new VNPayResponseUrl { Url = url });
         }
 
-        [HttpPost("payment-callback")]
+        [HttpPost("PaymentCallback")]
         public async Task<IActionResult> PaymentCallback([FromForm] IFormCollection form)
         {
             var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(string.Join("&", form.Select(x => $"{x.Key}={x.Value}")));

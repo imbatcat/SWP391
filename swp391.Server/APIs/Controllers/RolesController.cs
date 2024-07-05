@@ -6,7 +6,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/role-controller")]
+    [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
     [ApiController]
     public class RolesController : ControllerBase
@@ -20,14 +20,14 @@ namespace PetHealthcare.Server.APIs.Controllers
 
 
         // GET: api/Roles
-        [HttpGet("get-role")]
+        [HttpGet]
         public async Task<IEnumerable<Role>> GetRole()
         {
             return await _context.GetAllRole();
         }
 
         //// GET: api/Roles/5
-        [HttpGet("get-role-by-condition/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Role>> GetRoleByCondition(int id)
         {
             var role = await _context.GetRoleByCondition(r => r.RoleId == id);
@@ -42,7 +42,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         //// PUT: api/Roles/5
         //// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("update-role/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRole([FromRoute] int id, [FromBody] RoleDTO toUpdateRole)
         {
             var role = await _context.GetRoleByCondition(r => r.RoleId == id);
@@ -55,7 +55,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE: api/Services/5
-        [HttpDelete("delete-role/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRole([FromRoute] int id)
         {
             var toDeleteRole = await _context.GetRoleByCondition(r => r.RoleId == id);

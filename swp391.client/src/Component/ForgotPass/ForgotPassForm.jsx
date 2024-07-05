@@ -15,7 +15,7 @@ function ForgotPassForm() {
     };
     var navigate = useNavigate();
     const SendResetPassword = async () => {
-        const fetchPromise = fetch(`https://localhost:7206/api/ApplicationAuth/send-reset-password-email`, {
+        const fetchPromise = fetch(`https://localhost:7206/api/auth/send-reset-password-email`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

@@ -6,7 +6,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/service-order-controller")]
+    [Route("api/[controller]")]
     [Authorize(Roles = "Admin,Vet")]
     [ApiController]
     public class ServicesController : ControllerBase
@@ -19,14 +19,14 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/Services
-        [HttpGet("get-service")]
+        [HttpGet]
         public async Task<IEnumerable<Service>> GetService()
         {
             return await _healthService.GetAllHealthService();
         }
 
         // GET: api/Services/5
-        [HttpGet("get-service-by-condition/{id}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Service>> GetServiceByCondition(int id)
         {
             var service = await _healthService.GetHealthServiceByCondition(s => s.ServiceId == id);
@@ -41,7 +41,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // PUT: api/Services/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("update-service/{id}")]
+        [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateService([FromRoute] int id, [FromBody] HealthServiceDTO toUpdateService)
         {
@@ -56,7 +56,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // POST: api/Services
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost("create-service")]
+        [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Service>> CreateService([FromBody] HealthServiceDTO toCreateService)
         {
@@ -67,7 +67,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE: api/Services/5
-        [HttpDelete("delete-service/{id}")]
+        [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteService([FromRoute] int id)
         {

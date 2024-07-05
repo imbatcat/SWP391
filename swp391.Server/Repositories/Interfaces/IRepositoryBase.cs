@@ -11,4 +11,5 @@ namespace PetHealthcare.Server.Repositories.Interfaces
         void Delete(T entity);
         Task SaveChanges();
     }
+
 }
