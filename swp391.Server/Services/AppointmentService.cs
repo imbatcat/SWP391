@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using NanoidDotNet;
 using PetHealthcare.Server.Core.Constant;
 using PetHealthcare.Server.Core.DTOS;
@@ -369,7 +370,9 @@ namespace PetHealthcare.Server.Services
                         customerName = app.Account.FullName,
                         phoneNumber = app.Account.PhoneNumber,
                         petName = app.Pet.PetName,
-                        status = "Uncheck in",
+                        isCheckin = app.IsCheckIn,
+                        isCheckup = app.IsCheckUp,
+                        isCancel = app.IsCancel,
                         VetName = app.Veterinarian.FullName,
                     });
                 }
@@ -407,7 +410,9 @@ namespace PetHealthcare.Server.Services
                         customerName = app.Account.FullName,
                         phoneNumber = app.Account.PhoneNumber,
                         petName = app.Pet.PetName,
-                        status = _status,
+                        isCancel = app.IsCancel,
+                        isCheckup = app.IsCheckUp,
+                        isCheckin = app.IsCheckIn,
                         VetName = app.Veterinarian.FullName,
                     });
                 }
@@ -425,6 +430,27 @@ namespace PetHealthcare.Server.Services
         public string GetQRCodeByAppointmentId(string appointmentId)
         {
             return _appointmentRepository.GetQRCodeByAppointmentId(appointmentId);
+        }
+
+        public async Task<IEnumerable<AppointmentForStaffDTO>> GetAllAppointmentsForStaff()
+        {
+            var appointmentList = await _appointmentRepository.GetAll();
+            List<AppointmentForStaffDTO> appList = new List<AppointmentForStaffDTO>();
+            foreach(Appointment app in appointmentList)
+            {
+                appList.Add(new AppointmentForStaffDTO
+                {
+                    appointmentId = app.AppointmentId,
+                    customerName = app.Account.FullName,
+                    petName = app.Pet.PetName,
+                    phoneNumber = app.Account.PhoneNumber,
+                    appointmentDate = app.AppointmentDate,
+                    isCancel = app.IsCancel,
+                    isCheckin = app.IsCheckIn,
+                    isCheckup = app.IsCheckUp,
+                });
+            }
+            return appList;
         }
     }
 }

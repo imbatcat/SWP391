@@ -6,9 +6,12 @@
         public string customerName { get; set; }
         public string phoneNumber { get; set; }
         public string petName { get; set; }
-        public string status { get; set; }
+        public bool isCheckin {  get; set; }
+        public bool isCancel {  get; set; }
+        public bool isCheckup {  get; set; }
 
         public string VetName { get; set; }
+        public DateOnly appointmentDate { get; set; }
 
     }
 }
