@@ -10,7 +10,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/appointment-management")]
     [ApiController]
     [Authorize(Roles = "Staff,Admin,Customer,Vet")]
 
@@ -24,7 +24,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/Services
-        [HttpGet("GetAll/{vetId}")]
+        [HttpGet("vets/{vetId}/appointments")]
         public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointment([FromRoute] string vetId)
         {
             return await _appointment.GetAllAppointment(vetId);
@@ -35,7 +35,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         //{
         //    return await _appointment.GetStaffHistoryAppointment();
         //}
-        [HttpGet("Staff/AppointmentList/")]
+        [HttpGet("dates/{date}/time-slots/{timeslot}/appointments/staff")]
         [Authorize(Roles = "Staff, Admin")]
         public async Task<ActionResult<IEnumerable<AppointmentForStaffDTO>>> GetAllAppointmentForStaffWithCondition(DateOnly date, int timeslot, bool isGetAllTimeSlot = true)
         {
@@ -56,7 +56,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
         // GET: api/Services/5
         [Authorize(Roles = "Customer")]
-        [HttpGet("{id}")]
+        [HttpGet("appointments/{id}")]
         public async Task<ActionResult<Appointment>> GetAppointmentByCondition(string id)
         {
             var appointment = await _appointment.GetAppointmentByCondition(a => a.AppointmentId.Equals(id));
@@ -68,7 +68,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
             return appointment;
         }
-        [HttpGet("admin/{accountId}")]
+        [HttpGet("accounts/{accountId}/appointments/admin")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<IEnumerable<GetAllAppointmentForAdminDTO>>> GetAllAppointmentForAdminByAccountId([FromRoute] string accountId)
         {
@@ -88,7 +88,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(appointmentList);
         }
 
-        [HttpGet("AppointmentList/{accountId}&{listType}")]
+        [HttpGet("appointments/accounts/{accountId}/lists/{listType}")]
         [Authorize(Roles = "Customer,Admin, Vet")]
         public async Task<ActionResult<IEnumerable<ResAppListForCustomer>>> GetCustomerAppointmentList([FromRoute] string accountId, [FromRoute] string listType)
         {
@@ -204,7 +204,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
 
         // PUT: api/Services/5
-        [HttpPut("{id}")]
+        [HttpPut("appointments/{id}")]
         //Update TimeSlot, Appointment
         public async Task<IActionResult> UpdateAppointment([FromRoute] string id, [FromBody] CustomerAppointmentDTO toUpdateAppointment)
         {
@@ -254,7 +254,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // POST: api/Services
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("appointments")]
         [Authorize(Roles = "Customer,Staff,Admin")]
         public async Task<ActionResult<CreateAppointmentDTO>> CreateAppointment([FromBody] CreateAppointmentDTO toCreateAppointment)
         {
@@ -270,7 +270,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(toCreateAppointment);
         }
 
-        [HttpPost("Checkin/{appointmentId}")]
+        [HttpPost("appointment/{appointmentId}/check-in")]
         public async Task<IActionResult> CheckInCustomer(string appointmentId) //api for customer to checkin for the customer
         {
             try
@@ -291,7 +291,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(new { message = "Checkin successfully" });
         }
         // DELETE: api/Services/5
-        [HttpDelete("{id}")]
+        [HttpDelete("appointments/{id}")]
         public async Task<IActionResult> DeleteApppointment([FromRoute] string id)
         {
             var appointment = await _appointment.GetAppointmentByCondition(a => a.AppointmentId.Equals(id));

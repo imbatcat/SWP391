@@ -12,7 +12,7 @@ using System.Text.Json;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/vn-pay-api-management")]
     [ApiController]
     public class VNPayAPIController : ControllerBase
     {
@@ -32,7 +32,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         private ITempDataDictionary TempData => _tempDataDictionaryFactory.GetTempData(HttpContext);
         private readonly IVnPayService _vnPayService;
         // GET: VNPayController
-        [HttpPost]
+        [HttpPost("make-payment")]
         public async  Task<ActionResult<VNPayResponseUrl>> CreatePaymentUrl([FromBody] CreateAppointmentDTO model)
         {
             CreateAppointmentDTO appointmentDTO = model;

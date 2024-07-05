@@ -7,7 +7,7 @@ using PetHealthcare.Server.Services.Interfaces;
 namespace PetHealthcare.Server.APIs.Controllers
 {
 
-    [Route("api/[controller]")]
+    [Route("api/admission-record-management")]
     [Authorize(Roles = "Staff,Vet, Customer, Admin")]
     [ApiController]
     public class AdmissionRecordController : ControllerBase
@@ -22,7 +22,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             _context = context;
         }
 
-        [HttpGet("/api/AdmissionRecord")]
+        [HttpGet("admission-records")]
         [Authorize(Roles = "Admin, Staff")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<AdmissionRecord>))]
         public async Task<IEnumerable<AdmissionRecord>> GetAllAdmissionRecords()
@@ -30,7 +30,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return await _context.GetAll();
         }
 
-        [HttpGet("/api/AdmissionRecord/{name}")]
+        [HttpGet("admission-records/{name}")]
         public async Task<ActionResult<ARSearchPetNameDTO>> GetAdmissionRecordByCondition([FromRoute] string name)   //----Get Addmission Record by name
         {
             var service = await _petContext.GetPetByName(a => a.PetName == name);
@@ -49,13 +49,13 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //Get all admission Records of a Pet from Pet Id
-        [HttpGet("/api/admRecByPet/{petId}")]
+        [HttpGet("pets/{petId}/admission-records")]
         public async Task<IEnumerable<AdmissionRecord>> GetAdmissionRecordsByPet([FromRoute] string petId)
         {
             return await _petContext.GetAdmissionRecordsByPet(petId);
         }
 
-        [HttpPut("/api/AdmissionRecord/{id}")]
+        [HttpPut("admission-records/{id}")]
         [Authorize(Roles = "Staff, Admin")]
         public async Task<IActionResult> UpdateAdmissionRecord([FromRoute] string id, [FromBody] AdmissionRecordDTO toUpdate)
         {
@@ -69,7 +69,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(toUpdate);
         }
 
-        [HttpPost("/api/AdmissionRecord")]
+        [HttpPost("admission-records")]
         [Authorize(Roles = "Staff,Admin, Vet")]
         public async Task<ActionResult<AdmissionRecord>> CreateAdmissionRecord([FromBody] AdmissionRecordRegisterDTO _new)
         {

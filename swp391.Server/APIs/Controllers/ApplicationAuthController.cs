@@ -13,7 +13,7 @@ using System.Text;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/auth")]
 public class ApplicationAuthController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
@@ -200,7 +200,7 @@ public class ApplicationAuthController : ControllerBase
         return Ok();
     }
     [AllowAnonymous]
-    [HttpGet("setrole")]
+    [HttpGet("roles")]
     public async Task<IActionResult> SetRole([FromQuery] string userName, [FromQuery] string role)
     {
         try

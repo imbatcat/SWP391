@@ -5,7 +5,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/service-order-detail-management")]
     [ApiController]
     [Authorize(Roles = "Admin,Vet")]
     public class ServiceOrderDetailController : ControllerBase
@@ -18,13 +18,13 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         
-        [HttpGet("Staff/ServiceOrderDetail")]
+        [HttpGet("service-order-details")]
         public async Task<IEnumerable<ServiceOrderDetailDTO>> getAllServieOrderDetail()
         {
             return await serviceOrderDetail.getAllServieOrderDetail();
         }
 
-        [HttpGet("Staff/ServiceOrderDetail/{serviceId}")]
+        [HttpGet("service-order-details/service-orders/{serviceId}")]
         public async Task<IEnumerable<ServiceOrderDetailDTO>> getAllServieOrderDetailByServiceOrderId([FromRoute] string serviceId)
         {
             return await serviceOrderDetail.getAllServieOrderDetailByServiceOrderId(serviceId);

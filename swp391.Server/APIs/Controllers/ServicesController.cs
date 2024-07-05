@@ -6,7 +6,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/service-order-management")]
     [Authorize(Roles = "Admin,Vet")]
     [ApiController]
     public class ServicesController : ControllerBase
@@ -19,14 +19,14 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/Services
-        [HttpGet]
+        [HttpGet("services")]
         public async Task<IEnumerable<Service>> GetService()
         {
             return await _healthService.GetAllHealthService();
         }
 
         // GET: api/Services/5
-        [HttpGet("{id}")]
+        [HttpGet("services/{id}")]
         public async Task<ActionResult<Service>> GetServiceByCondition(int id)
         {
             var service = await _healthService.GetHealthServiceByCondition(s => s.ServiceId == id);
@@ -41,7 +41,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // PUT: api/Services/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("services/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateService([FromRoute] int id, [FromBody] HealthServiceDTO toUpdateService)
         {
@@ -56,7 +56,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // POST: api/Services
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
+        [HttpPost("services")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Service>> CreateService([FromBody] HealthServiceDTO toCreateService)
         {
@@ -67,7 +67,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE: api/Services/5
-        [HttpDelete("{id}")]
+        [HttpDelete("services/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteService([FromRoute] int id)
         {
