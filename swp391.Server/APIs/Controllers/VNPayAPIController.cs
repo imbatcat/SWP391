@@ -37,10 +37,17 @@ namespace PetHealthcare.Server.APIs.Controllers
         {
             CreateAppointmentDTO appointmentDTO = model;
             //string vetId, DateOnly appDate, int timeslotId, bool isCreate
+
+            if(model.AppointmentDate < DateOnly.FromDateTime(DateTime.Today).AddDays(1))
+            {
+                return BadRequest("The customer can only book an appointment at least one day in advance from the current date.");
+            }
+
             if (await MaxTimeslotCheck.isMaxTimeslotReached(_appointmentService,model.VeterinarianAccountId, model.AppointmentDate, model.TimeSlotId, true))
             {
                 return BadRequest("Timeslot full please choose another timeslot");
             }
+
             TempData["AppointmentDTO"] = JsonSerializer.Serialize(appointmentDTO);
             var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
 

@@ -328,6 +328,24 @@ namespace PetHealthcare.Server.Services
             return vetAppointmentList;
         }
 
+        public async Task<int> getNearestFreeTimeSlot(string vetId, DateOnly date, int timeslotId)
+        {
+            int currentTimeSlot = CurrentTimeSlotCheck.getCurrentTimeSlot();
+            if(currentTimeSlot == 6)
+            {
+                throw new Exception("Customer checkin after slot 6, the hospital is closed");
+            }
+            int freeTimeSlot = 0;
+            for(int i=currentTimeSlot; i<=6; i++) // 1 to 6 is the timeslot id
+            {
+                if (!await MaxTimeslotCheck.isMaxTimeslotReached(this, vetId, date, i, true))
+                {
+                    freeTimeSlot = i;
+                    break;
+                }
+            }
+            return freeTimeSlot;
+        }
         public async Task<bool> UpdateCheckinStatus(string appointmentId)
         {
             Appointment? toCheckInAppointment = await _appointmentRepository.GetByCondition(a => a.AppointmentId == appointmentId);
@@ -335,7 +353,20 @@ namespace PetHealthcare.Server.Services
             {
                 return false;
             }
-            else if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
+            if (toCheckInAppointment.TimeSlot.EndTime < TimeOnly.FromDateTime(DateTime.Now))
+            {
+                int newTimeSlot = await getNearestFreeTimeSlot(toCheckInAppointment.VeterinarianAccountId, DateOnly.FromDateTime(DateTime.Today), toCheckInAppointment.TimeSlotId);
+                if (newTimeSlot == 0)
+                {
+                    throw new Exception("There is an error with getting nearest free timeslot");
+                }
+                else
+                {
+                    toCheckInAppointment.TimeSlotId = newTimeSlot;
+                    await _appointmentRepository.SaveChanges();
+                }
+            }
+            if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
             {
                 toCheckInAppointment.IsCheckIn = true;
                 toCheckInAppointment.CheckinTime = TimeOnly.FromDateTime(DateTime.Now);
@@ -345,6 +376,7 @@ namespace PetHealthcare.Server.Services
             {
                 throw new Exception("Wrong checkin day");
             }
+            
             return true;
         }
 
@@ -436,7 +468,15 @@ namespace PetHealthcare.Server.Services
         {
             var appointmentList = await _appointmentRepository.GetAll();
             List<AppointmentForStaffDTO> appList = new List<AppointmentForStaffDTO>();
-            foreach(Appointment app in appointmentList)
+            foreach (Appointment app in appointmentList)
+            {
+                if (app.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) < 0 && app.IsCheckUp == false)
+                {
+                    app.IsCancel = true;
+                }
+            }
+            await _appointmentRepository.SaveChanges();
+            foreach (Appointment app in appointmentList)
             {
                 appList.Add(new AppointmentForStaffDTO
                 {
