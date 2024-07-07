@@ -2,6 +2,9 @@ import {
     MDBBtn,
     MDBCard,
     MDBCardBody,
+    MDBCardImage,
+    MDBCardText,
+    MDBCardTitle,
     MDBCol,
     MDBContainer,
     MDBModal,
@@ -18,6 +21,7 @@ import { useUser } from "../../Context/UserContext";
 import MainLayout from "../../Layouts/MainLayout";
 import { toast } from 'react-toastify';
 import UserSidebar from '../../Component/UserSidebar/UserSidebar';
+import img3 from '../../assets/images/hero3.png';
 
 function UserPets() {
     const [user, setUser] = useUser();
@@ -57,66 +61,60 @@ function UserPets() {
     if (isLoading) {
         return <div>Loading...</div>; // Loading state
     }
+
     const toggleOpen = (Pet = null) => {
         setSelectedPet(Pet);
         setCentredModal(!centredModal);
     };
+
     return (
         <>
             <MainLayout>
                 <section style={{ backgroundColor: '#eee' }}>
                     <MDBContainer className="py-5">
-
                         <MDBRow>
                             <MDBCol lg="4">
-                                <UserSidebar></UserSidebar>
+                                <UserSidebar />
                             </MDBCol>
                             <MDBCol>
-                                <MDBCard className="mb-4 mb-lg-0">
-                                    <MDBCardBody className="p-0">
-                                        <div className='Pet-display-list'>
-                                            {petList.map((pet, index) => (
-                                                <div className="Pet-item" key={index}>
-                                                    <div className="Pet-item-img-container">
-                                                        <img className='Pet-item-image' src={pet.imgUrl} alt='pet image' />
-                                                    </div>
-                                                    <div className='Pet-info'>
-                                                        <div className='Pet-name-rating'>
-                                                            <p>{pet.petName}</p>
-                                                            <p>{pet.petBreed}</p>
-                                                        </div>
-                                                        <>
-                                                            <MDBBtn color='muted' onClick={() => toggleOpen(pet)}>Detail</MDBBtn>
-                                                        </>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {
-                                            selectedPet && (
-                                                <MDBModal tabIndex='-1' open={centredModal} onClose={() => setCentredModal(false)}>
-                                                    <MDBModalDialog centered>
-                                                        <MDBModalContent>
-                                                            <MDBModalHeader>
-                                                                <MDBModalTitle>Detail of {selectedPet.petName}</MDBModalTitle>
-                                                                <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
-                                                            </MDBModalHeader>
-                                                            <MDBModalBody>
-                                                                <p className='Pet-detail'>Age: {selectedPet.petAge}</p>
-                                                                <p className='Pet-detail'>Vaccination: {selectedPet.vaccinationHistory}</p>
-                                                                <p className='Pet-detail'>Gender: {selectedPet.isMale ? 'Male' : 'Female'}</p>
-                                                                <p className='Pet-detail'>Description: {selectedPet.description}</p>
-                                                            </MDBModalBody>
-                                                            <MDBModalFooter>
-                                                            </MDBModalFooter>
-                                                        </MDBModalContent>
-                                                    </MDBModalDialog>
-                                                </MDBModal>
-                                            )
-                                        }
-                                    </MDBCardBody>
-                                </MDBCard>
+                                <div style={{ padding: '15px' }}>
+                                    <MDBRow className="row-cols-1 row-cols-md-3 g-4">
+                                        {petList.map((pet, index) => (
+                                            <MDBCol key={index}>
+                                                <MDBCard>
+                                                    <MDBCardImage src={img3} alt='pet image' position='top' />
+                                                    <MDBCardBody>
+                                                        <MDBCardTitle>{pet.petName}</MDBCardTitle>
+                                                        <MDBCardText>{pet.petBreed}</MDBCardText>
+                                                        <MDBBtn color='muted' onClick={() => toggleOpen(pet)}>Detail</MDBBtn>
+                                                    </MDBCardBody>
+                                                </MDBCard>
+                                            </MDBCol>
+                                        ))}
+                                    </MDBRow>
+                                    {
+                                        selectedPet && (
+                                            <MDBModal tabIndex='-1' open={centredModal} setShow={setCentredModal}>
+                                                <MDBModalDialog centered>
+                                                    <MDBModalContent>
+                                                        <MDBModalHeader>
+                                                            <MDBModalTitle>Detail of {selectedPet.petName}</MDBModalTitle>
+                                                            <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
+                                                        </MDBModalHeader>
+                                                        <MDBModalBody>
+                                                            <p className='Pet-detail'>Age: {selectedPet.petAge}</p>
+                                                            <p className='Pet-detail'>Vaccination: {selectedPet.vaccinationHistory}</p>
+                                                            <p className='Pet-detail'>Gender: {selectedPet.isMale ? 'Male' : 'Female'}</p>
+                                                            <p className='Pet-detail'>Description: {selectedPet.description}</p>
+                                                        </MDBModalBody>
+                                                        <MDBModalFooter>
+                                                        </MDBModalFooter>
+                                                    </MDBModalContent>
+                                                </MDBModalDialog>
+                                            </MDBModal>
+                                        )
+                                    }
+                                </div>
                             </MDBCol>
                         </MDBRow>
                     </MDBContainer>

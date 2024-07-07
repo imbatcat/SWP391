@@ -35,6 +35,7 @@ import MedicalRecord from './Pages/Veternary/MedicalRecord';
 import AppointmentCheckin from './Pages/Staff/AppointmentCheckin';
 import MedicalRecordList from './Pages/Veternary/MedicalRecordList';
 import ServiceBills from './Pages/Staff/ServiceBills';
+import StaffAccount from './Pages/AdminPages/StaffAccount';
 
 
 const router = createBrowserRouter([
@@ -126,7 +127,7 @@ const router = createBrowserRouter([
     },
     {
         path: '/admin/staff',
-        element: <VetAccount />,
+        element: <StaffAccount />,
         errorElement: <div>404 Not Found</div>,
     },
     {

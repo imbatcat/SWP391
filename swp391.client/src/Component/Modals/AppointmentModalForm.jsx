@@ -9,13 +9,16 @@
     MDBRow
 } from 'mdb-react-ui-kit';
 import { useUser } from '../../Context/UserContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as svg from '@fortawesome/free-solid-svg-icons';
 import openLink from '../../Helpers/OpenLink';
 import VetSelectionTable from '../VetSelectionTable/VetSelectionTable';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 function AppointmentForm({ toggleOpen }) {
     const [user, setUser] = useUser();
@@ -128,34 +131,58 @@ function AppointmentForm({ toggleOpen }) {
     return (
         <>
             <MDBModalHeader >
-                <MDBModalTitle style={{ fontSize: '24px' }}>Appointment Information <FontAwesomeIcon icon={svg.faCircleQuestion} /></MDBModalTitle>
+                <MDBModalTitle style={{ fontSize: '24px' }}>Appointment Information</MDBModalTitle>
                 <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
             </MDBModalHeader>
             <MDBModalBody>
                 <form onSubmit={handleSubmit}>
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <select name="petId" value={formData.petId} onChange={handleChange} data-mdb-select-init >
-                                <option value="" disabled>Choose your pet</option>
-                                {petList.map((pet, index) => (
-                                    <option key={index} value={pet.petId}>
-                                        {pet.petName}
-                                    </option>
-                                ))}
-                            </select>
+                            <FormControl fullWidth>
+                                <InputLabel id="pet-select-label">Choose your pet</InputLabel>
+                                <Select
+                                    labelId="pet-select-label"
+                                    id="pet-select"
+                                    name="petId"
+                                    value={formData.petId}
+                                    label="Choose your pet"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="" disabled>
+                                        <em>Choose your pet</em>
+                                    </MenuItem>
+                                    {petList.map((pet, index) => (
+                                        <MenuItem key={index} value={pet.petId}>
+                                            {pet.petName}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </MDBCol>
                     </MDBRow>
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <select name="timeSlotId" value={formData.timeSlotId} onChange={handleChange} data-mdb-select-init >
-                                <option value="" disabled>Choose your time</option>
-                                {timeSlotList.map((timeslot, index) => (
-                                    <option key={index} value={timeslot.timeSlotId}>
-                                        {timeslot.startTime} - {timeslot.endTime}
-                                    </option>
-                                ))}
-                            </select>
+                            <FormControl fullWidth>
+                                <InputLabel id="timeslot-select-label">Choose your time</InputLabel>
+                                <Select
+                                    labelId="timeslot-select-label"
+                                    id="timeslot-select"
+                                    name="timeSlotId"
+                                    value={formData.timeSlotId}
+                                    label="Choose your time"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="" disabled>
+                                        <em>Choose your time</em>
+                                    </MenuItem>
+                                    {timeSlotList.map((timeslot, index) => (
+                                        <MenuItem key={index} value={timeslot.timeSlotId}>
+                                            {timeslot.startTime} - {timeslot.endTime}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </MDBCol>
                     </MDBRow>
 
@@ -179,11 +206,23 @@ function AppointmentForm({ toggleOpen }) {
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <select name="appointmentType" value={formData.appointmentType} onChange={handleChange} data-mdb-select-init >
-                                <option value="" disabled>Choose your payment method</option>
-                                <option value="Deposit">Deposit</option>
-                                <option value="Fully paid">Fully paid</option>
-                            </select>
+                            <FormControl fullWidth>
+                                <InputLabel id="appointment-type-select-label">Choose your payment method</InputLabel>
+                                <Select
+                                    labelId="appointment-type-select-label"
+                                    id="appointment-type-select"
+                                    name="appointmentType"
+                                    value={formData.appointmentType}
+                                    label="Choose your payment method"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="" disabled>
+                                        <em>Choose your payment method</em>
+                                    </MenuItem>
+                                    <MenuItem value="Deposit">Deposit</MenuItem>
+                                    <MenuItem value="Fully paid">Fully paid</MenuItem>
+                                </Select>
+                            </FormControl>
                         </MDBCol>
                     </MDBRow>
                     <MDBBtn type='submit' outline color='dark' className='mb-4' block>

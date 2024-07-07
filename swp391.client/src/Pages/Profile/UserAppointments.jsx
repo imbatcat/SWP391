@@ -157,7 +157,7 @@ function UserAppointments() {
                         </MDBRow>
                     </MDBContainer>
                 </section>
-            </MainLayout >
+            </MainLayout>
         </>
     );
 }
