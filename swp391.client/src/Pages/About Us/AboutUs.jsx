@@ -1,27 +1,130 @@
+import React from 'react';
+import {
+  MDBContainer,
+  MDBRow,
+  MDBCol,
+  MDBBtn,
+  MDBIcon,
+  MDBCard,
+  MDBCardBody,
+  MDBCardTitle,
+  MDBCardText,
+  MDBCardImage,
+  MDBTypography
+} from 'mdb-react-ui-kit';
+import 'mdb-react-ui-kit/dist/css/mdb.min.css';
+// import './App.css';
+import MainLayout from '../../Layouts/MainLayout';
 
-import MainLayout from '../../Layouts/MainLayout'
-import './AboutUs.css'
-function AboutUs () {
+function AboutUs() {
   return (
     <div>
-          <MainLayout>
-          <div className="row">
-            <div className="col-md-8">
-                    <div className="pb-3">
-                        <div className='imgslider'>
-                            Hiluu
-                        </div>
-                    </div>
-                <div className="row">
-                    <div className="col-md-6">.col-md-5</div>
-                    <div className="col-md-6">.col-md-6</div>
-                </div>
-            </div>
-            <div className="col-md-4">.col-md-4</div>
-        </div>
-          </MainLayout>
+ <MainLayout>
+ <br/>
+    <MDBContainer>
+      <header className="my-5 text-center">
+        <MDBTypography  tag="h1" className="display-4 font-weight-bold">
+          About Us
+        </MDBTypography>
+        <MDBTypography tag="p" className="lead text-muted">
+          Your trusted partner in pet care
+        </MDBTypography>
+      </header>
+
+      <section className="mb-5">
+        <MDBRow>
+          <MDBCol md="6">
+            <MDBCard>
+              <MDBCardImage
+                src="https://via.placeholder.com/600x400"
+                alt="Our team"
+                position="top"
+              />
+              <MDBCardBody>
+                <MDBCardTitle>Our Team</MDBCardTitle>
+                <MDBCardText>
+                  Our experienced and compassionate team is dedicated to providing the best care for your pets.
+                </MDBCardText>
+                <MDBBtn color="primary">Learn More</MDBBtn>
+              </MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+
+          <MDBCol md="6">
+            <MDBCard>
+              <MDBCardImage
+                src="https://via.placeholder.com/600x400"
+                alt="Our mission"
+                position="top"
+              />
+              <MDBCardBody>
+                <MDBCardTitle>Our Mission</MDBCardTitle>
+                <MDBCardText>
+                  We strive to enhance the health and well-being of your pets through high-quality veterinary care and exceptional customer service.
+                </MDBCardText>
+                <MDBBtn color="primary">Learn More</MDBBtn>
+              </MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+        </MDBRow>
+      </section>
+
+      <section className="mb-5">
+        <MDBTypography tag="h2" className="text-center mb-4">
+          Why Choose Us
+        </MDBTypography>
+        <MDBRow>
+          <MDBCol md="4">
+            <MDBCard className="text-center">
+              <MDBCardBody>
+                <MDBIcon fas icon="stethoscope" size="3x" className="mb-3" />
+                <MDBCardTitle>Experienced Veterinarians</MDBCardTitle>
+                <MDBCardText>
+                  Our vets have years of experience in providing top-notch care for pets.
+                </MDBCardText>
+              </MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+
+          <MDBCol md="4">
+            <MDBCard className="text-center">
+              <MDBCardBody>
+                <MDBIcon fas icon="paw" size="3x" className="mb-3" />
+                <MDBCardTitle>Comprehensive Services</MDBCardTitle>
+                <MDBCardText>
+                  From routine check-ups to specialized treatments, we offer a wide range of services.
+                </MDBCardText>
+              </MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+
+          <MDBCol md="4">
+            <MDBCard className="text-center">
+              <MDBCardBody>
+                <MDBIcon fas icon="heart" size="3x" className="mb-3" />
+                <MDBCardTitle>Compassionate Care</MDBCardTitle>
+                <MDBCardText>
+                  We treat every pet as if they were our own, with love and compassion.
+                </MDBCardText>
+              </MDBCardBody>
+            </MDBCard>
+          </MDBCol>
+        </MDBRow>
+      </section>
+
+      <section className="mb-5 text-center">
+        <MDBTypography tag="h2" className="mb-4">
+          Get in Touch
+        </MDBTypography>
+        <MDBBtn color="primary" size="lg">
+          Contact Us
+        </MDBBtn>
+      </section>
+    </MDBContainer>
+    </MainLayout>
     </div>
-  )
+
+  );
 }
 
-export default AboutUs
+export default AboutUs;
