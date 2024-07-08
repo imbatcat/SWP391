@@ -14,16 +14,20 @@ import {
     MDBDropdownMenu,
     MDBDropdownItem,
     MDBCollapse,
+    MDBModal,
 } from 'mdb-react-ui-kit';
 import { useAuth } from '../../Context/AuthProvider';
 import { useUser } from '../../Context/UserContext';
 import { redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import SelectModal from '../Modals/SelectModal';
 
 export default function NavBar2() {
     const [isAuthenticated, setIsAuthenticated] = useAuth();
     const [user, setUser] = useUser();
     const [openBasic, setOpenBasic] = useState(false);
+    const [basicModal, setBasicModal] = useState(false);
+    const toggleOpen = () => setBasicModal(!basicModal);
     const navigate = useNavigate();
     const logout = async (e) => {
         e.preventDefault();
@@ -48,7 +52,8 @@ export default function NavBar2() {
     };
 
     return (
-        <MDBNavbar expand='lg' light bgColor='light' sticky>
+        <div>
+            <MDBNavbar expand='lg' light bgColor='light' fixed='top'>
             <MDBContainer fluid>
                 <Link to="/"><h1 style={{ minWidth: '15vw' }}>Pet-ternary</h1></Link>
                 <h2 style={{ minWidth: '10vw', fontSize: '100%', margin: 'auto', marginLeft: '1vw' }} >Purr-fectly Healthy, Woof-tastically Happy</h2>
@@ -71,21 +76,14 @@ export default function NavBar2() {
                         </MDBNavbarItem>
 
                         <MDBNavbarItem>
-                            <MDBDropdown>
-                                <MDBDropdownToggle tag='a' className='nav-link' role='button'>
-                                    Appointment
-                                </MDBDropdownToggle>
-                                <MDBDropdownMenu>
-                                    <MDBDropdownItem link>My Appointment</MDBDropdownItem>
-                                        <Link to="/user/appointments">
-                                            <MDBDropdownItem link> Make an Appointment</MDBDropdownItem>
-                                        </Link>
-                                    
-
-                                </MDBDropdownMenu>
-                            </MDBDropdown>
+                                <MDBNavbarLink link onClick={toggleOpen}> Make an Appointment</MDBNavbarLink>
                         </MDBNavbarItem>
-
+                        <MDBNavbarItem>
+                            <Link to="/aboutus"><MDBNavbarLink >
+                                About Us
+                            </MDBNavbarLink>
+                            </Link>
+                        </MDBNavbarItem>
                         <MDBNavbarItem>
                             <MDBDropdown>
                                 <MDBDropdownToggle tag='a' className='nav-link' role='button'>
@@ -97,9 +95,6 @@ export default function NavBar2() {
                                     <MDBDropdownItem link>09321231232</MDBDropdownItem>
                                 </MDBDropdownMenu>
                             </MDBDropdown>
-                        </MDBNavbarItem>
-                        <MDBNavbarItem>
-                            <Link to="/petList"> <MDBNavbarLink>My Pet List</MDBNavbarLink></Link>
                         </MDBNavbarItem>
 
 
@@ -128,7 +123,17 @@ export default function NavBar2() {
                     </MDBNavbarNav>
 
                 </MDBCollapse>
-            </MDBContainer >
-        </MDBNavbar >
+            </MDBContainer>
+        </MDBNavbar>
+
+        <div>
+            
+        <MDBModal open={basicModal} onClose={() => setBasicModal(false)} tabIndex='-1'>
+                    <SelectModal toggleOpen={toggleOpen}>
+                    </SelectModal>
+                </MDBModal>
+        </div>
+        </div>
+       
     );
 }

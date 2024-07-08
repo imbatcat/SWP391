@@ -1,6 +1,5 @@
 import {
     MDBBtn,
-    MDBModal,
     MDBModalDialog,
     MDBModalContent,
     MDBContainer,
@@ -9,7 +8,6 @@ import {
     MDBModalHeader,
     MDBModalTitle,
     MDBModalBody,
-    MDBModalFooter,
     MDBCardBody,
     MDBCard,
     MDBCardHeader,
@@ -77,15 +75,9 @@ function SelectModal({ toggleOpen }) {
                             </MDBRow>
                         </MDBContainer>
                     </MDBModalBody>
-
-                    <MDBModalFooter>
-                        <MDBBtn color='secondary' onClick={toggleOpen}>
-                            Close
-                        </MDBBtn>
-                    </MDBModalFooter>
                 </MDBModalContent>
             </MDBModalDialog>
-        </CheckAuth >
+        </CheckAuth>
 
     );
 }

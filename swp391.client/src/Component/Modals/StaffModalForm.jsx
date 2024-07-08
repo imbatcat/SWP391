@@ -26,7 +26,7 @@ function StaffModalForm() {
         e.preventDefault();
         console.log(formData);
         if (!formData.fullName || !formData.userName || !formData.dateOfBirth || !formData.email || !formData.phoneNumber) {
-            toast.error('Please fill in all the fields');
+            toast.error('Please fill in all required fields.');
             return;
         }
         try {
