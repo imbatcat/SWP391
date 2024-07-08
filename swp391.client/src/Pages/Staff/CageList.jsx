@@ -1,230 +1,261 @@
-import { useState, useEffect } from 'react';
-
-import { MDBBadge, MDBBtn, MDBTable, MDBTableBody, MDBTableHead, MDBModal, MDBModalBody, MDBModalHeader, MDBModalFooter, MDBInput, MDBModalDialog, MDBModalContent, MDBModalTitle, MDBCol, MDBRow, MDBCheckbox } from 'mdb-react-ui-kit';
-
+import React, { useState, useEffect } from 'react';
+import {
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Grid,
+  Avatar,
+  CircularProgress,
+  Typography,
+} from '@mui/material';
 import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
 import refreshPage from '../../Helpers/RefreshPage';
 import { toast } from 'react-toastify';
 
+const columns = [
+  { id: 'no', label: 'No', minWidth: 50 },
+  { id: 'petId', label: 'Pet ID', minWidth: 170 },
+  { id: 'petName', label: 'Pet Name', minWidth: 170 },
+  { id: 'petBreed', label: 'Breed', minWidth: 170 },
+  { id: 'petAge', label: 'Date of Birth', minWidth: 170 },
+  { id: 'isOccupied', label: 'Status', minWidth: 170, align: 'center' },
+  { id: 'actions', label: 'Actions', minWidth: 170, align: 'center' },
+];
 
 function CageList() {
-    const [cageList, setCageList] = useState([]);
-    const [filteredCageList, setFilteredCageList] = useState([]);
-    const [searchInput, setSearchInput] = useState('');
-    const [isLoading, setIsLoading] = useState('');
-    const [selectedCage, setSelectedCage] = useState();
-    const [petCurrentCondition, setPetCurrentCondition] = useState('');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cageList, setCageList] = useState([]);
+  const [filteredCageList, setFilteredCageList] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedCage, setSelectedCage] = useState();
+  const [petCurrentCondition, setPetCurrentCondition] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const handleSetPetCurrentCondition = (e) => {
-        setPetCurrentCondition(e.target.value);
-    };
-    const toggleOpen = (cage = null) => {
-        setSelectedCage(cage);
-        setIsModalOpen(!isModalOpen);
-    };
-    const handleSearchInputChange = (e) => {
-        const value = e.target.value.toLowerCase();
-        setSearchInput(value);
-        if (value === '') {
-            setFilteredCageList(cageList);
-        } else {
-            setFilteredCageList(cageList.filter(cage =>
-                cage.petId.toLowerCase().includes(value) ||
-                cage.petName.toLowerCase().includes(value)
-            ));
+  const handleSetPetCurrentCondition = (e) => {
+    setPetCurrentCondition(e.target.value);
+  };
+
+  const toggleOpen = (cage = null) => {
+    setSelectedCage(cage);
+    setIsModalOpen(!isModalOpen);
+  };
+
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchInput(value);
+    if (value === '') {
+      setFilteredCageList(cageList);
+    } else {
+      setFilteredCageList(cageList.filter(cage =>
+        cage.petId.toLowerCase().includes(value) ||
+        cage.petName.toLowerCase().includes(value)
+      ));
+    }
+  };
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const appResponse = await fetch('https://localhost:7206/api/Cages/PetDetail', {
+          method: 'GET',
+          credentials: 'include',
+        });
+        if (!appResponse.ok) {
+          throw new Error("Error fetching pet data");
         }
-    };
-    useEffect(() => {
-        async function fetchData() {
-            try {
-                const appResponse = await fetch('https://localhost:7206/api/Cages/PetDetail', {
-                    method: 'GET',
-                    credentials: 'include',
-                });
-                if (!appResponse.ok) {
-                    throw new Error("Error fetching pet data");
-                }
-                const data = await appResponse.json();
-                setCageList(data);
-                setFilteredCageList(data);
-
-            } catch (error) {
-                console.error(error.message);
-            } finally {
-                setIsLoading(false);
-            }
-        }
-
-        fetchData();
-    }, []);
-
-    async function dischargePet(e, cage) {
-        e.preventDefault();
-        try {
-            const appResponse = await fetch(`https://localhost:7206/api/DischargePet/${cage.petId}`, {
-                method: 'DELETE',
-                credentials: 'include',
-            });
-            if (!appResponse.ok) {
-                throw new Error("There's something wrong");
-            }
-            //const data = await appResponse.json();
-            //console.log(data.imgUrl);
-            //setCageList(data);
-            refreshPage();
-            toast.success('Pet successfully discharged!');
-
-        } catch (error) {
-            console.error(error.message);
-        } finally {
-            setIsLoading(false);
-        }
+        const data = await appResponse.json();
+        setCageList(data);
+        setFilteredCageList(data);
+      } catch (error) {
+        console.error(error.message);
+      } finally {
+        setIsLoading(false);
+      }
     }
 
-    async function updatePet(e, cage) {
-        const obj = {
-            'petCurrentCondition': petCurrentCondition
-        };
-        e.preventDefault();
-        try {
-            const appResponse = await fetch(`https://localhost:7206/api/Cage/UpdatePetCondition/${cage.petId}`, {
-                method: 'PUT',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(obj)
-            });
-            if (!appResponse.ok) {
-                throw new Error("There's something wrong");
-            }
-            toast.success('Changes saved');
-            refreshPage();
+    fetchData();
+  }, []);
 
-        } catch (error) {
-            console.error(error.message);
-        } finally {
-            setIsLoading(false);
-        }
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  async function dischargePet(e, cage) {
+    e.preventDefault();
+    try {
+      const appResponse = await fetch(`https://localhost:7206/api/DischargePet/${cage.petId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!appResponse.ok) {
+        throw new Error("There's something wrong");
+      }
+      refreshPage();
+      toast.success('Pet successfully discharged!');
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    if (isLoading) {
-        return (<>Loading...</>);
+  async function updatePet(e, cage) {
+    const obj = {
+      'petCurrentCondition': petCurrentCondition
+    };
+    e.preventDefault();
+    try {
+      const appResponse = await fetch(`https://localhost:7206/api/Cage/UpdatePetCondition/${cage.petId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(obj)
+      });
+      if (!appResponse.ok) {
+        throw new Error("There's something wrong");
+      }
+      toast.success('Changes saved');
+      refreshPage();
+    } catch (error) {
+      console.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    return (
+  if (isLoading) {
+    return (<CircularProgress />);
+  }
+
+  return (
+    <div>
         <div>
-            <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-            <MDBTable align='middle'>
-                <MDBTableHead>
-                    <tr style={{ textAlign: 'center' }}>
-                        <th scope='col'>Id</th>
-                        <th scope='col'>Pet Name</th>
-                        <th scope='col'></th>
-                        <th scope='col'>Status</th>
-                        <th scope='col'>Actions</th>
-                    </tr>
-                </MDBTableHead>
-                <MDBTableBody style={{ textAlign: 'center' }}>
-                    {filteredCageList.map((cage) => (
-                        <tr key={cage.id}>
-                            <td>
-                                <div>
-                                    <img
-                                        src={(cage.imgUrl != null && cage.imgUrl != 'string' && URL.createObjectURL(cage.imgUrl)) || 'https://mdbootstrap.com/img/new/avatars/8.jpg'}
-                                        alt=''
-                                        style={{ width: '45px', height: '45px' }}
-                                        className='rounded-circle'
-                                    />
-                                    <div className='ms-3'>
-                                        {cage.petId}
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div>
-                                    {cage.petName || 'N / A'}
-                                </div>
-                            </td>
-                            <td>
-                                {cage.petName ? (
-                                    <div>
-                                        <div>
-                                            {cage.petBreed}
-                                        </div>
-                                        <div>
-                                            {cage.petAge}
-                                        </div>
-                                    </div>
-
-                                ) : (
-                                    'N / A'
-                                )}
-                            </td>
-                            <td>
-                                <div>
-                                    {cage.isOccupied ? (
-                                        <div>
-                                            Occupied
-                                        </div>
-                                    ) : (
-                                        <div>
-                                            Unoccupied
-                                        </div>
-                                    )}
-                                </div>
-                            </td>
-                            <td>
-                                <MDBRow className="justify-content-center">
-                                    <MDBCol size='3'>
-                                        <MDBBtn onClick={(e) => dischargePet(e, cage)}>Discharge</MDBBtn>
-                                    </MDBCol>
-                                    <MDBCol size='3'>
-                                        <MDBBtn onClick={() => toggleOpen(cage)}>Update pet</MDBBtn>
-                                    </MDBCol>
-                                </MDBRow>
-                            </td>
-                        </tr>
-                    ))
-                    }
-                </MDBTableBody>
-            </MDBTable>
-
-            {selectedCage && (
-                <MDBModal open={isModalOpen} onClose={() => setIsModalOpen(false)} tabIndex='-1'>
-                    <MDBModalDialog centered>
-                        <MDBModalContent>
-                            <MDBModalHeader>
-                                <MDBModalTitle>Edit pet`s current condition</MDBModalTitle>
-                                <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
-                            </MDBModalHeader>
-                            <MDBModalBody>
-                                <form>
-                                    <MDBRow className='mb-4'>
-                                        <MDBCol>
-                                            <MDBInput
-                                                label="Current pet condition"
-                                                name="fullName"
-                                                value={petCurrentCondition}
-                                                onChange={(e) => handleSetPetCurrentCondition(e)}
-                                            />
-                                        </MDBCol>
-
-                                    </MDBRow>
-
-                                </form>
-                            </MDBModalBody>
-                            <MDBModalFooter>
-                                <MDBBtn color='secondary' onClick={() => toggleOpen()}>Close</MDBBtn>
-                                <MDBBtn color='success' style={{ color: 'black' }} onClick={(e) => updatePet(e, selectedCage)}>Save changes</MDBBtn>
-                            </MDBModalFooter>
-                        </MDBModalContent>
-                    </MDBModalDialog>
-                </MDBModal>
-            )}
+        <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
         </div>
-    );
+      <div>
+      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+        <TableContainer sx={{ maxHeight: 640 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                {columns.map((column) => (
+                  <TableCell
+                    key={column.id}
+                    align={column.align}
+                    style={{ minWidth: column.minWidth }}
+                  >
+                    {column.label}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredCageList
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((cage, index) => {
+                  return (
+                    <TableRow hover role="checkbox" tabIndex={-1} key={cage.petId}>
+                      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                      <TableCell>
+                        <Grid container alignItems="center">
+                          <Grid item>
+                            <Avatar
+                              src={(cage.imgUrl && cage.imgUrl !== 'string' && URL.createObjectURL(cage.imgUrl)) || 'https://mdbootstrap.com/img/new/avatars/8.jpg'}
+                              alt=''
+                              style={{ width: '45px', height: '45px' }}
+                            />
+                          </Grid>
+                          <Grid item>
+                            <Typography>{cage.petId}</Typography>
+                          </Grid>
+                        </Grid>
+                      </TableCell>
+                      <TableCell>
+                        <Typography>{cage.petName || 'N / A'}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography>{cage.petBreed || 'N / A'}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography>{cage.petAge || 'N / A'}</Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Typography>{cage.isOccupied ? 'Occupied' : 'Unoccupied'}</Typography>
+                      </TableCell>
+                      <TableCell align="center">
+                        <Grid container justifyContent="center" spacing={2}>
+                          <Grid item>
+                            <Button variant="contained" color="primary" onClick={(e) => dischargePet(e, cage)}>Discharge</Button>
+                          </Grid>
+                          <Grid item>
+                            <Button variant="contained" color="secondary" onClick={() => toggleOpen(cage)}>Update pet</Button>
+                          </Grid>
+                        </Grid>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={filteredCageList.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+
+      {selectedCage && (
+        <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
+          <DialogTitle>Edit pet's current condition</DialogTitle>
+          <DialogContent>
+            <form>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Current pet condition"
+                    value={petCurrentCondition}
+                    onChange={handleSetPetCurrentCondition}
+                  />
+                </Grid>
+              </Grid>
+            </form>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => toggleOpen()} color="primary">Close</Button>
+            <Button onClick={(e) => updatePet(e, selectedCage)} color="primary">Save changes</Button>
+          </DialogActions>
+        </Dialog>
+      )}
+      </div>
+      
+    </div>
+  );
 }
 
 export default CageList;
