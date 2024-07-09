@@ -1,92 +1,105 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Grid,
-  Avatar,
-  CircularProgress,
-  Typography,
-} from '@mui/material';
-import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
-import refreshPage from '../../Helpers/RefreshPage';
-import { toast } from 'react-toastify';
+import { useState, useEffect } from 'react';
+import { MDBBadge, MDBBtn } from 'mdb-react-ui-kit';
+import SideNavForVet from '../../Component/SideNavForVet/SideNavForVet';
+import { useUser } from '../../Context/UserContext';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import TableSortLabel from '@mui/material/TableSortLabel';
 
-const columns = [
-  { id: 'petId', label: 'Pet ID', minWidth: 170 },
-  { id: 'petName', label: 'Pet Name', minWidth: 170 },
-  { id: 'petBreed', label: 'Breed', minWidth: 170 },
-  { id: 'petAge', label: 'Age', minWidth: 170 },
-  { id: 'isOccupied', label: 'Status', minWidth: 170, align: 'center' },
-  { id: 'actions', label: 'Actions', minWidth: 170, align: 'center' },
-];
-
-function CageList() {
-  const [cageList, setCageList] = useState([]);
-  const [filteredCageList, setFilteredCageList] = useState([]);
+function AppointmentList() {
+  const [user, setUser] = useUser();
+  const [appointments, setAppointments] = useState([]);
   const [searchInput, setSearchInput] = useState('');
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedCage, setSelectedCage] = useState();
-  const [petCurrentCondition, setPetCurrentCondition] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('appointmentDate');
 
-  const handleSetPetCurrentCondition = (e) => {
-    setPetCurrentCondition(e.target.value);
-  };
+  async function fetchData(vetId) {
+    try {
+      const response = await fetch(`https://localhost:7206/api/Appointment/GetAll/${vetId}`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error("Error fetching data");
+      }
+      const data = await response.json();
+      setAppointments(data);
+      setFilteredAppointments(data);
+      setIsLoading(false);
+      console.log(data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
 
-  const toggleOpen = (cage = null) => {
-    setSelectedCage(cage);
-    setIsModalOpen(!isModalOpen);
-  };
+  useEffect(() => {
+    if (user) {
+      fetchData(user.id);
+    }
+    console.log(user.id);
+  }, [user]);
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Loading state
+  }
+
+  const getBadgeColor = (app) => {
+    if (app.isCancel) {
+      return 'danger'; // red
+    }
+    if (app.isCheckUp) {
+      return 'success'; // green
+    }
+    if (app.isCheckIn) {
+      return 'warning'; // yellow
+    }
+    return 'secondary'; // default color
+  }
 
   const handleSearchInputChange = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchInput(value);
     if (value === '') {
-      setFilteredCageList(cageList);
+      setFilteredAppointments(appointments);
     } else {
-      setFilteredCageList(cageList.filter(cage =>
-        cage.petId.toLowerCase().includes(value) ||
-        cage.petName.toLowerCase().includes(value)
+      setFilteredAppointments(appointments.filter(app =>
+        (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
+        (app.ownerNumber && app.ownerNumber.toLowerCase().includes(value)) ||
+        (app.appointmentDate && app.appointmentDate.toLowerCase().includes(value)) ||
+        (app.timeSlot && app.timeSlot.toLowerCase().includes(value))
       ));
     }
+  }
+
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
   };
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const appResponse = await fetch('https://localhost:7206/api/Cages/PetDetail', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        if (!appResponse.ok) {
-          throw new Error("Error fetching pet data");
-        }
-        const data = await appResponse.json();
-        setCageList(data);
-        setFilteredCageList(data);
-      } catch (error) {
-        console.error(error.message);
-      } finally {
-        setIsLoading(false);
-      }
+  const sortComparator = (a, b, orderBy) => {
+    if (orderBy === 'appointmentDate') {
+      const dateA = new Date(`${a.appointmentDate} ${a.timeSlot}`);
+      const dateB = new Date(`${b.appointmentDate} ${b.timeSlot}`);
+      return dateA - dateB;
     }
+    return a[orderBy].localeCompare(b[orderBy]);
+  };
 
-    fetchData();
-  }, []);
+  const sortedAppointments = filteredAppointments.slice().sort((a, b) => {
+    const orderModifier = order === 'asc' ? 1 : -1;
+    return orderModifier * sortComparator(a, b, orderBy);
+  });
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -97,158 +110,89 @@ function CageList() {
     setPage(0);
   };
 
-  async function dischargePet(e, cage) {
-    e.preventDefault();
-    try {
-      const appResponse = await fetch(`https://localhost:7206/api/DischargePet/${cage.petId}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (!appResponse.ok) {
-        throw new Error("There's something wrong");
-      }
-      refreshPage();
-      toast.success('Pet successfully discharged!');
-    } catch (error) {
-      console.error(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function updatePet(e, cage) {
-    const obj = {
-      'petCurrentCondition': petCurrentCondition
-    };
-    e.preventDefault();
-    try {
-      const appResponse = await fetch(`https://localhost:7206/api/Cage/UpdatePetCondition/${cage.petId}`, {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(obj)
-      });
-      if (!appResponse.ok) {
-        throw new Error("There's something wrong");
-      }
-      toast.success('Changes saved');
-      refreshPage();
-    } catch (error) {
-      console.error(error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  if (isLoading) {
-    return (<CircularProgress />);
-  }
-
   return (
     <div>
-      <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-      <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: 440 }}>
+      <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
+      <Paper sx={{ width: '100%' }}>
+        <TableContainer sx={{ maxHeight: 640 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
-                {columns.map((column) => (
-                  <TableCell
-                    key={column.id}
-                    align={column.align}
-                    style={{ minWidth: column.minWidth }}
+                <TableCell>No</TableCell>
+                <TableCell>Name & Phone</TableCell>
+                <TableCell>Pet Name</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'appointmentDate'}
+                    direction={orderBy === 'appointmentDate' ? order : 'asc'}
+                    onClick={(event) => handleRequestSort(event, 'appointmentDate')}
                   >
-                    {column.label}
-                  </TableCell>
-                ))}
+                    Date & Timeslot
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>Veterinarian</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Booking Price</TableCell>
+                <TableCell>Note</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredCageList
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((cage) => {
-                  return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={cage.petId}>
-                      <TableCell>
-                        <Grid container alignItems="center">
-                          <Grid item>
-                            <Avatar
-                              src={(cage.imgUrl && cage.imgUrl !== 'string' && URL.createObjectURL(cage.imgUrl)) || 'https://mdbootstrap.com/img/new/avatars/8.jpg'}
-                              alt=''
-                              style={{ width: '45px', height: '45px' }}
-                            />
-                          </Grid>
-                          <Grid item>
-                            <Typography>{cage.petId}</Typography>
-                          </Grid>
-                        </Grid>
-                      </TableCell>
-                      <TableCell>
-                        <Typography>{cage.petName || 'N / A'}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography>{cage.petBreed || 'N / A'}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography>{cage.petAge || 'N / A'}</Typography>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Typography>{cage.isOccupied ? 'Occupied' : 'Unoccupied'}</Typography>
-                      </TableCell>
-                      <TableCell align="center">
-                        <Grid container justifyContent="center" spacing={2}>
-                          <Grid item>
-                            <Button variant="contained" color="primary" onClick={(e) => dischargePet(e, cage)}>Discharge</Button>
-                          </Grid>
-                          <Grid item>
-                            <Button variant="contained" color="secondary" onClick={() => toggleOpen(cage)}>Update pet</Button>
-                          </Grid>
-                        </Grid>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+              {sortedAppointments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((app, index) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={app.id}>
+                  <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                  <TableCell>
+                    <div className='d-flex align-items-center'>
+                      <img
+                        src='https://mdbootstrap.com/img/new/avatars/8.jpg'
+                        alt=''
+                        style={{ width: '45px', height: '45px' }}
+                        className='rounded-circle'
+                      />
+                      <div className='ms-3'>
+                        <p className='fw-bold mb-1'>{app.ownerName}</p>
+                        <p className='text-muted mb-0'>{app.ownerNumber}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-normal mb-1'>{app.petName}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-bold mb-1'>{app.appointmentDate}</p>
+                    <p className='text-muted mb-0'>{app.timeSlot}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-normal mb-1'>{app.veterinarianName}</p>
+                  </TableCell>
+                  <TableCell>
+                    <MDBBadge color={getBadgeColor(app)} pill>
+                      {app.isCancel ? "Cancelled" : app.isCheckUp ? "Checked Up" : app.isCheckIn ? "Checked In" : "Active"}
+                    </MDBBadge>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-bold mb-1'>{app.bookingPrice}</p>
+                    <p className='text-muted mb-0'>{app.appointmentType}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[10, 25, 100]}
           component="div"
-          count={filteredCageList.length}
+          count={filteredAppointments.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-
-      {selectedCage && (
-        <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
-          <DialogTitle>Edit pet's current condition</DialogTitle>
-          <DialogContent>
-            <form>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Current pet condition"
-                    value={petCurrentCondition}
-                    onChange={handleSetPetCurrentCondition}
-                  />
-                </Grid>
-              </Grid>
-            </form>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => toggleOpen()} color="primary">Close</Button>
-            <Button onClick={(e) => updatePet(e, selectedCage)} color="primary">Save changes</Button>
-          </DialogActions>
-        </Dialog>
-      )}
     </div>
   );
 }
 
-export default CageList;
+export default AppointmentList;
