@@ -89,8 +89,8 @@ function AppointmentList() {
 
   const sortComparator = (a, b, orderBy) => {
     if (orderBy === 'appointmentDate') {
-      const dateA = new Date(`${a.appointmentDate} ${a.timeSlot}`);
-      const dateB = new Date(`${b.appointmentDate} ${b.timeSlot}`);
+      const dateA = new Date(`${a.appointmentDate} `);
+      const dateB = new Date(`${b.appointmentDate}`);
       return dateA - dateB;
     }
     return a[orderBy].localeCompare(b[orderBy]);
