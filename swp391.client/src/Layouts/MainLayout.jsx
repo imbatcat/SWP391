@@ -14,7 +14,8 @@ function MainLayout({ children }) {
     const toggleOpen = () => setBasicModal(!basicModal);
     return (
         <div>
-            <NavBar2 sticky />
+            <NavBar2 />
+            <div style={{height:'45px'}}></div>
             <main>
                 {children}
             </main>
