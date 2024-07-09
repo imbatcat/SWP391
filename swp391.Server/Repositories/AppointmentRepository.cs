@@ -42,7 +42,7 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<Appointment?> GetByCondition(Expression<Func<Appointment, bool>> expression)
         {
-            return await context.Appointments.FirstOrDefaultAsync(expression);
+            return await context.Appointments.Include(a => a.TimeSlot).FirstOrDefaultAsync(expression);
         }
 
         public async Task SaveChanges()
@@ -110,6 +110,11 @@ namespace PetHealthcare.Server.Repositories
             }
             Debug.WriteLine(appList.Count());
             return appList;
+        }
+
+        public string GetQRCodeByAppointmentId(string appointmentId)
+        {
+            return context.Appointments.Find(appointmentId).QRCodeImageUrl;
         }
     }
 }

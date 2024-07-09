@@ -36,7 +36,7 @@ function UserHistoricalAppointments() {
 
     const getAppointmentList = async (user) => {
         try {
-            const response = await fetch(`https://localhost:7206/api/Appointment/AppointmentList/${user.id}&history`, {
+            const response = await fetch(`https://localhost:7206/api/appointment-management/appointments/accounts/${user.id}/lists/history`, {
                 method: 'GET', // *GET, POST, PUT, DELETE, etc.
                 headers: {
                     'Content-Type': 'application/json'

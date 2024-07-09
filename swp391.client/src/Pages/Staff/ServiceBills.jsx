@@ -75,7 +75,7 @@ export default function ServiceBills() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch(`https://localhost:7206/api/ServiceOrderDetail/Staff/ServiceOrderDetail`, {
+                const response = await fetch(`https://localhost:7206/api/service-order-management/service-orders/staff`, {
                     method: 'GET',
                     credentials: 'include',
                 });

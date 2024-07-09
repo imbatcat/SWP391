@@ -34,6 +34,8 @@ import MedicalRecord from './Pages/Veternary/MedicalRecord';
 import AppointmentCheckin from './Pages/Staff/AppointmentCheckin';
 import MedicalRecordList from './Pages/Veternary/MedicalRecordList';
 import ServiceBills from './Pages/Staff/ServiceBills';
+import AppointmentQRCode from './Pages/Appointment/AppointmentQRCode';
+
 import StaffAccount from './Pages/AdminPages/StaffAccount';
 
 const router = createBrowserRouter([
@@ -233,6 +235,11 @@ const router = createBrowserRouter([
                 <ServiceBills />
             </CheckAuth>
         ),
+        errorElement: <div>404 Not Found</div>,
+    },
+    {
+        path: '/appointment/qrcode',
+        element: <AppointmentQRCode />,
         errorElement: <div>404 Not Found</div>,
     },
 ]);

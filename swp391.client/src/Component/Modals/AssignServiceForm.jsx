@@ -34,7 +34,7 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/Services', {
+                const response = await fetch('https://localhost:7206/api/service-order-management/services', {
                     method: 'GET',
                     credentials: 'include',
                 });

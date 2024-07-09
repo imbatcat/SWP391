@@ -9,7 +9,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/cage-management")]
     [Authorize(Roles = "Staff,Vet,Admin")]
     [ApiController]
     public class CagesController : ControllerBase
@@ -22,7 +22,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/<CagesController>
-        [HttpGet]
+        [HttpGet("cages")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Cage>))]
         public async Task<IEnumerable<Cage>> GetCages()
         {
@@ -30,7 +30,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET api/<CagesController>/5
-        [HttpGet("{id}")]
+        [HttpGet("cages/{id}")]
         public async Task<ActionResult<Cage>> GetCage([FromRoute] int id)
         {
             var cage = await _context.GetCageByCondition(a => a.CageId == id);
@@ -43,13 +43,13 @@ namespace PetHealthcare.Server.APIs.Controllers
             return cage;
         }
 
-        [HttpGet("/api/Cages/PetDetail")]
+        [HttpGet("cages-pets")]
         public async Task<IEnumerable<CageWithPetDTO>> GetAllCagesWithPet()
         {
             return await _context.GetAllCagesWithPet();
         }
         // POST api/<CagesController>
-        [HttpPost]
+        [HttpPost("cages")]
         [Authorize(Roles = "Staff,Admin")]
         public async Task<ActionResult<Cage>> Post([FromBody] CageDTO newCage)
         {
@@ -59,14 +59,14 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //PUT: Update Pet Condition
-        [HttpPut("/api/Cage/UpdatePetCondition/{petId}")]
+        [HttpPut("cages/pets/{petId}")]
         public async Task UpdateCondition([FromRoute] string petId, [FromBody] UpdatePetConditionDTO updatePetConditionDTO)
         {
             await _context.UpdateCondition(petId, updatePetConditionDTO);
         }
 
         // PUT api/<CagesController>/5
-        [HttpPut("{id}")]
+        [HttpPut("cages/{id}")]
         [Authorize(Roles = "Staff,Vet,Admin")]
         public async Task<ActionResult<Cage>> Put(int id, [FromBody] CageDTO CaGe)
         {
@@ -80,14 +80,14 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE api/<CagesController>/5
-        [HttpDelete("{id}")]
+        [HttpDelete("cages{id}")]
         public void Delete(int id)
         {
 
         }
 
         //DELETE: change isDischarge = true.
-        [HttpDelete("/api/DischargePet/{petId}")]
+        [HttpDelete("cages/pets/{petId}/discharge-pet")]
         public async Task DischargePet(string petId)
         {
             await _context.DischargePet(petId);

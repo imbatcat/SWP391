@@ -69,7 +69,7 @@ function CageList() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const appResponse = await fetch('https://localhost:7206/api/Cages/PetDetail', {
+        const appResponse = await fetch('https://localhost:7206/api/cage-management/cages-pets', {
           method: 'GET',
           credentials: 'include',
         });
@@ -101,7 +101,7 @@ function CageList() {
   async function dischargePet(e, cage) {
     e.preventDefault();
     try {
-      const appResponse = await fetch(`https://localhost:7206/api/DischargePet/${cage.petId}`, {
+      const appResponse = await fetch(`https://localhost:7206/api/cage-management/cages/pets/${cage.petId}/discharge-pet`, {
         method: 'DELETE',
         credentials: 'include',
       });
@@ -123,7 +123,7 @@ function CageList() {
     };
     e.preventDefault();
     try {
-      const appResponse = await fetch(`https://localhost:7206/api/Cage/UpdatePetCondition/${cage.petId}`, {
+      const appResponse = await fetch(`https://localhost:7206/api/cage-management/cages/pets/${cage.petId}`, {
         method: 'PUT',
         credentials: 'include',
         headers: {

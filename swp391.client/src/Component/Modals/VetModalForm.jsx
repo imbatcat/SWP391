@@ -29,7 +29,7 @@ function VetModalForm() {
 
     const createStaffApi = async () => {
         console.log(formData);
-        const fetchPromise = fetch('https://localhost:7206/api/Accounts', {
+        const fetchPromise = fetch('https://localhost:7206/api/account-management/accounts', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

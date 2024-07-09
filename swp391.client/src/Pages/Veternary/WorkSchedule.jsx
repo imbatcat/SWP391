@@ -63,7 +63,7 @@ function WorkSchedule() {
     }, []);
     async function fetchData(vetId) {
         try {
-            const response = await fetch(`https://localhost:7206/api/Appointment/GetAll/${vetId}`, {
+            const response = await fetch(`https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {

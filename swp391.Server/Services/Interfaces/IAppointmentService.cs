@@ -1,4 +1,5 @@
-﻿using PetHealthcare.Server.Core.DTOS;
+﻿using Microsoft.AspNetCore.Mvc;
+using PetHealthcare.Server.Core.DTOS;
 using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Models;
 using System.Linq.Expressions;
@@ -31,5 +32,9 @@ namespace PetHealthcare.Server.Services.Interfaces
         Task<IEnumerable<AppointmentForStaffDTO>> GetStaffHistoryAppointment();
 
         Task<IEnumerable<Appointment>> GetAll();
+
+        string GetQRCodeByAppointmentId(string appointmentId);
+
+        Task<IEnumerable<AppointmentForStaffDTO>> GetAllAppointmentsForStaff();
     }
 }

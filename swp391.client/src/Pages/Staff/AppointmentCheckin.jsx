@@ -47,7 +47,7 @@ export default function AppointmentCheckin() {
   useEffect(() => {
     const date = `${convertedDate.year}-${convertedDate.month}-${convertedDate.day}`;
     async function fetchData() {
-      const response = await fetch(`https://localhost:7206/api/Appointment/Staff/AppointmentList?date=${date}&timeslot=0&isGetAllTimeSlot=true`, {
+      const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${date}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
         method: 'GET',
         credentials: 'include',
       });

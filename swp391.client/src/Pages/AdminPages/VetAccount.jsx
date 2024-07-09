@@ -14,12 +14,9 @@ function VetAccount() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/Accounts', {
+                const response = await fetch('https://localhost:7206/api/account-management/roles/3/accounts', {
                     method: 'GET',
                     credentials: 'include',
-                    headers: {
-                        // 'Content-Type': 'application/x-www-form-urlencoded',
-                    }
                 });
                 if (!response.ok) {
                     throw new Error("Error fetching data");

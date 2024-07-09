@@ -6,7 +6,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/time-slot-management")]
     [Authorize(Roles = "Vet, Staff, Customer, Admin")]
     [ApiController]
     public class TimeSlotsController : ControllerBase
@@ -19,7 +19,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/Accounts
-        [HttpGet()]
+        [HttpGet("time-slots")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<TimeSlot>))]
         public async Task<IEnumerable<TimeSlot>> GetTimeSlots()
         {
@@ -27,7 +27,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/Services/5
-        [HttpGet("{id}")]
+        [HttpGet("time-slots/{id}")]
         public async Task<ActionResult<TimeSlot>> GetTimeSlotByCondition(int id)
         {
             var service = await _context.GetTimeSlotByCondition(p => p.TimeSlotId == id);
@@ -42,7 +42,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // PUT: api/Services/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("time-slots/{id}")]
         [Authorize(Roles = "Staff,Admin")]
         public async Task<IActionResult> UpdateTimeSlot([FromRoute] int id, [FromBody] TimeslotDTO toUpdateTimeSlot)
         {
@@ -56,7 +56,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // POST api/<CagesController>
-        [HttpPost]
+        [HttpPost("time-slots")]
         [Authorize(Roles = "Staff,Admin")]
         public async Task<ActionResult<TimeSlot>> Post([FromBody] TimeslotDTO newCage)
         {

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using NanoidDotNet;
 using PetHealthcare.Server.Core.Constant;
 using PetHealthcare.Server.Core.DTOS;
@@ -33,6 +34,7 @@ namespace PetHealthcare.Server.Services
         
         public async Task CreateAppointment(CreateAppointmentDTO appointment, string id)
         {
+            string CheckinQRCode = QRCodeGeneratorHelper.GenerateQRCode(id);
             Appointment toCreateAppointment = new Appointment
             {
                 AppointmentType = appointment.AppointmentType,
@@ -47,7 +49,7 @@ namespace PetHealthcare.Server.Services
                 IsCancel = false,
                 IsCheckIn = false,
                 IsCheckUp = false,
-
+                QRCodeImageUrl = CheckinQRCode
             };
             await _appointmentRepository.Create(toCreateAppointment);
         }
@@ -326,6 +328,24 @@ namespace PetHealthcare.Server.Services
             return vetAppointmentList;
         }
 
+        public async Task<int> getNearestFreeTimeSlot(string vetId, DateOnly date, int timeslotId)
+        {
+            int currentTimeSlot = CurrentTimeSlotCheck.getCurrentTimeSlot();
+            if(currentTimeSlot == 6)
+            {
+                throw new Exception("Customer checkin after slot 6, the hospital is closed");
+            }
+            int freeTimeSlot = 0;
+            for(int i=currentTimeSlot; i<=6; i++) // 1 to 6 is the timeslot id
+            {
+                if (!await MaxTimeslotCheck.isMaxTimeslotReached(this, vetId, date, i, true))
+                {
+                    freeTimeSlot = i;
+                    break;
+                }
+            }
+            return freeTimeSlot;
+        }
         public async Task<bool> UpdateCheckinStatus(string appointmentId)
         {
             Appointment? toCheckInAppointment = await _appointmentRepository.GetByCondition(a => a.AppointmentId == appointmentId);
@@ -333,12 +353,30 @@ namespace PetHealthcare.Server.Services
             {
                 return false;
             }
-            else
+            if (toCheckInAppointment.TimeSlot.EndTime < TimeOnly.FromDateTime(DateTime.Now))
+            {
+                int newTimeSlot = await getNearestFreeTimeSlot(toCheckInAppointment.VeterinarianAccountId, DateOnly.FromDateTime(DateTime.Today), toCheckInAppointment.TimeSlotId);
+                if (newTimeSlot == 0)
+                {
+                    throw new Exception("There is an error with getting nearest free timeslot");
+                }
+                else
+                {
+                    toCheckInAppointment.TimeSlotId = newTimeSlot;
+                    await _appointmentRepository.SaveChanges();
+                }
+            }
+            if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
             {
                 toCheckInAppointment.IsCheckIn = true;
                 toCheckInAppointment.CheckinTime = TimeOnly.FromDateTime(DateTime.Now);
                 await _appointmentRepository.SaveChanges();
             }
+            else
+            {
+                throw new Exception("Wrong checkin day");
+            }
+            
             return true;
         }
 
@@ -364,7 +402,9 @@ namespace PetHealthcare.Server.Services
                         customerName = app.Account.FullName,
                         phoneNumber = app.Account.PhoneNumber,
                         petName = app.Pet.PetName,
-                        status = "Uncheck in",
+                        isCheckin = app.IsCheckIn,
+                        isCheckup = app.IsCheckUp,
+                        isCancel = app.IsCancel,
                         VetName = app.Veterinarian.FullName,
                     });
                 }
@@ -402,7 +442,9 @@ namespace PetHealthcare.Server.Services
                         customerName = app.Account.FullName,
                         phoneNumber = app.Account.PhoneNumber,
                         petName = app.Pet.PetName,
-                        status = _status,
+                        isCancel = app.IsCancel,
+                        isCheckup = app.IsCheckUp,
+                        isCheckin = app.IsCheckIn,
                         VetName = app.Veterinarian.FullName,
                     });
                 }
@@ -415,6 +457,40 @@ namespace PetHealthcare.Server.Services
         public async Task<IEnumerable<Appointment>> GetAll()
         {
             return await _appointmentRepository.GetAll();
+        }
+
+        public string GetQRCodeByAppointmentId(string appointmentId)
+        {
+            return _appointmentRepository.GetQRCodeByAppointmentId(appointmentId);
+        }
+
+        public async Task<IEnumerable<AppointmentForStaffDTO>> GetAllAppointmentsForStaff()
+        {
+            var appointmentList = await _appointmentRepository.GetAll();
+            List<AppointmentForStaffDTO> appList = new List<AppointmentForStaffDTO>();
+            foreach (Appointment app in appointmentList)
+            {
+                if (app.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) < 0 && app.IsCheckUp == false)
+                {
+                    app.IsCancel = true;
+                }
+            }
+            await _appointmentRepository.SaveChanges();
+            foreach (Appointment app in appointmentList)
+            {
+                appList.Add(new AppointmentForStaffDTO
+                {
+                    appointmentId = app.AppointmentId,
+                    customerName = app.Account.FullName,
+                    petName = app.Pet.PetName,
+                    phoneNumber = app.Account.PhoneNumber,
+                    appointmentDate = app.AppointmentDate,
+                    isCancel = app.IsCancel,
+                    isCheckin = app.IsCheckIn,
+                    isCheckup = app.IsCheckUp,
+                });
+            }
+            return appList;
         }
     }
 }

@@ -8,7 +8,7 @@ function Home() {
     const [params, setParams] = useState(new URLSearchParams(window.location.search));
     useEffect(() => {
         const callback = async () => {
-            const response = await fetch("https://localhost:7206/api/VNPayAPI/PaymentCallback", {
+            const response = await fetch("https://localhost:7206/api/vn-pay-api-management/payment-callback", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded"

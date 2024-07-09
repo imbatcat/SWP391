@@ -18,7 +18,7 @@ namespace PetHealthcare.Server.Core.Helpers
                  $"Application Intent=ReadWrite;Multi Subnet Failover=False");
 
             using var context = new ApplicationDbContext(optionsBuilder.Options);
-            context.Database.EnsureCreated();
+            context.Database.Migrate();
             var roles = new List<(string name, string normalizedName)>
                 {
                     ("Admin", "ADMIN"),

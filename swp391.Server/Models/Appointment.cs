@@ -50,7 +50,7 @@ namespace PetHealthcare.Server.Models
         [ForeignKey("TimeSlotId")]
         public TimeSlot TimeSlot { get; set; }
         public int TimeSlotId { get; set; }
-
+        public string QRCodeImageUrl {  get; set; }
         public virtual ICollection<BookingPayment> BookingPayments { get; set; }
         [Required]
         public DateTime CreatedDate { get; set; } = DateTime.Now;

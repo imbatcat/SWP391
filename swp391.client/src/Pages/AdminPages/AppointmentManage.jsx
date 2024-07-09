@@ -19,7 +19,7 @@ function AppointmentManage() {
               credentials: 'include',
             });
             if (!appResponse.ok) {
-              throw new Error("Error fetching pet data");
+              throw new Error("Error fetching appointment data");
             }
             const appointmentData = await appResponse.json();
     

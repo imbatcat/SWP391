@@ -20,15 +20,15 @@ import AssignCageModal from '../../Component/Modals/AssignCageModal';
 async function fetchOwnerAndPetData(accountId, petId, vetId) {
     try {
         const [accountResponse, petResponse, vetResponse] = await Promise.all([
-            fetch(`https://localhost:7206/api/Accounts/${accountId}`, {
+            fetch(`https://localhost:7206/api/account-management/accounts/${accountId}`, {
                 method: 'GET',
                 credentials: 'include',
             }),
-            fetch(`https://localhost:7206/api/Pets/${petId}`, {
+            fetch(`https://localhost:7206/api/pet-management/pets/${petId}`, {
                 method: 'GET',
                 credentials: 'include',
             }),
-            fetch(`https://localhost:7206/api/Accounts/${vetId}`, {
+            fetch(`https://localhost:7206/api/account-management/accounts/${vetId}`, {
                 method: 'GET',
                 credentials: 'include',
             })
@@ -62,7 +62,7 @@ function MedicalRecord() {
         async function getMedicalRecord() {
             console.log(appointment);
             try {
-                const response = await fetch(`https://localhost:7206/api/medicalRecordByAppointmentId/${appointment.appointmentId}`, {
+                const response = await fetch(`https://localhost:7206/api/medical-record-management/appointments/${appointment.appointmentId}/medical-records`, {
                     method: 'GET',
                     credentials: 'include',
                     headers: {
@@ -179,8 +179,8 @@ function MedicalRecord() {
         }
 
         const url = existingRecord && existingRecord.diagnosis !== ''
-            ? `https://localhost:7206/api/MedicalRecords/${existingRecord.medicalRecordId}`
-            : 'https://localhost:7206/api/MedicalRecords';
+            ? `https://localhost:7206/api/medical-record-management/medical-records/${existingRecord.medicalRecordId}`
+            : 'https://localhost:7206/api/medical-record-management/medical-records';
         const method = existingRecord && existingRecord.diagnosis !== '' ? 'PUT' : 'POST';
 
 

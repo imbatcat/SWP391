@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  pethealthcare.server:
+    image: ${DOCKER_REGISTRY-}pethealthcareserver
+    build:
+      context: .
+      dockerfile: swp391.Server/Dockerfile

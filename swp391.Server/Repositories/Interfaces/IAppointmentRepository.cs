@@ -13,5 +13,6 @@ namespace PetHealthcare.Server.Repositories.Interfaces
         Task<IEnumerable<Appointment>> GetVetAppointmentList(string vetId);
 
         Task<IEnumerable<Appointment>> GetAllAppointmentForStaff(DateOnly date, int timeslot);
+        string GetQRCodeByAppointmentId(string appointmentId);
     }
 }

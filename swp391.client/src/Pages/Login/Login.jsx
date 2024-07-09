@@ -41,7 +41,7 @@ function Login() {
     const [PasswordInputType, ToggleIcon] = usePasswordToggle();
     const getProfile = async (credential) => {
         try {
-            const response = await fetch('https://localhost:7206/api/ApplicationAuth/signinGoogle', {
+            const response = await fetch('https://localhost:7206/api/auth/sign-in-google', {
                 method: 'POST',
                 headers: {
                     'Content-type': 'application/json'
@@ -70,7 +70,7 @@ function Login() {
     };
     async function loginapi() {
         try {
-            const response = await fetch('https://localhost:7206/api/ApplicationAuth/login', {
+            const response = await fetch('https://localhost:7206/api/auth/login', {
                 method: 'POST', // *GET, POST, PUT, DELETE, etc.
                 headers: {
                     'Content-Type': 'application/json'

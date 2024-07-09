@@ -12,7 +12,7 @@ using System.Text.Json;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/vn-pay-api-management")]
     [ApiController]
     public class VNPayAPIController : ControllerBase
     {
@@ -32,15 +32,22 @@ namespace PetHealthcare.Server.APIs.Controllers
         private ITempDataDictionary TempData => _tempDataDictionaryFactory.GetTempData(HttpContext);
         private readonly IVnPayService _vnPayService;
         // GET: VNPayController
-        [HttpPost]
+        [HttpPost("make-payment")]
         public async  Task<ActionResult<VNPayResponseUrl>> CreatePaymentUrl([FromBody] CreateAppointmentDTO model)
         {
             CreateAppointmentDTO appointmentDTO = model;
             //string vetId, DateOnly appDate, int timeslotId, bool isCreate
+
+            if(model.AppointmentDate < DateOnly.FromDateTime(DateTime.Today).AddDays(1))
+            {
+                return BadRequest("The customer can only book an appointment at least one day in advance from the current date.");
+            }
+
             if (await MaxTimeslotCheck.isMaxTimeslotReached(_appointmentService,model.VeterinarianAccountId, model.AppointmentDate, model.TimeSlotId, true))
             {
                 return BadRequest("Timeslot full please choose another timeslot");
             }
+
             TempData["AppointmentDTO"] = JsonSerializer.Serialize(appointmentDTO);
             var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
 
@@ -68,6 +75,7 @@ namespace PetHealthcare.Server.APIs.Controllers
                 if (response.VnPayResponseCode.Equals("00"))
                 {
                     string appointmentId = _appointmentService.GenerateId();
+
                     await _appointmentService.CreateAppointment(appointmentDTO, appointmentId);
                     Debug.WriteLine(appointmentId);
                     if (context.Appointments.Find(appointmentId) != null)

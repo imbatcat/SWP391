@@ -18,7 +18,7 @@ const useQuery = () => {
 
 const resetPassword = async (navigate, userId, token, password1) => {
   try {
-    const response = await fetch(`https://localhost:7206/api/ApplicationAuth/reset-password`, {
+    const response = await fetch(`https://localhost:7206/api/auth/reset-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

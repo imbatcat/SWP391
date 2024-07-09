@@ -5,7 +5,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/service-order-management")]
     [ApiController]
     [Authorize(Roles = "Admin,Vet, Staff")]
     public class ServiceOrderController : ControllerBase
@@ -19,7 +19,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //----------------------------------------------
-        [HttpGet("Staff")]
+        [HttpGet("service-orders/date{date}/unpaid-list/{isUnPaidList}/staff")]
         [Authorize(Roles = "Staff, Admin")]
         public async Task<IEnumerable<GetAllServiceOrderForStaff>> getServiceOrderListForStaff(DateOnly date, bool isUnPaidList = true) //staff using isUnpaidList = true
         {
@@ -27,7 +27,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //----------------------------------------------
-        [HttpGet("Staff/getAll")]
+        [HttpGet("service-orders/staff")]
         [Authorize(Roles = "Staff, Admin")]
         public async Task<IEnumerable<GetAllServiceOrderForStaff>> getAllServiceOrderForStaff()
         {
@@ -35,7 +35,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //----------------------------------------------
-        [HttpGet("Staff/ServiceOrderInfor/{serviceOrderId}")]
+        [HttpGet("services/{serviceOrderId}/service-orders")]
         [Authorize(Roles = "Staff, Admin")]
         public async Task<ServiceOrderInfor> getServiceOrderInforByServiceId(string serviceOrderId)
         {
@@ -43,7 +43,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //----------------------------------------------
-        [HttpPost]
+        [HttpPost("service-orders")]
         public async Task<IActionResult> createServiceOrder([FromBody] ServiceOrderDTO serviceOrderDTO)
         {
             if (serviceOrderDTO.ServiceId == null)
@@ -62,7 +62,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //----------------------------------------------
-        [HttpPut("staff/PayServiceOrder/{serviceOrderId}")]
+        [HttpPut("service-orders/{serviceOrderId}/paid")]
         [Authorize(Roles = "Admin, Staff")]
         public async Task<IActionResult> PaidServiceOrder([FromRoute] string serviceOrderId)
         {
@@ -75,7 +75,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //----------------------------------------------
-        [HttpPut("{id}")]
+        [HttpPut("service-orders/{id}")]
         public async Task<IActionResult> UpdateServiceOrder(string id, [FromBody] List<int> serviceIdList)
         {
             try

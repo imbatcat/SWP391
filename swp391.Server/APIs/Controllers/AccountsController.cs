@@ -11,7 +11,7 @@ using PetHealthcare.Server.Services.Interfaces;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/account-management")]
     [Authorize(Roles = "Admin, Customer, Vet")]
     [ApiController]
     public class AccountsController : ControllerBase
@@ -33,7 +33,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         //<summary>
         //get all of the account
         //</summary>
-        [HttpGet]
+        [HttpGet("accounts")]
         [Authorize(Roles = "Admin, Vet")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<Account>))]
         public async Task<IEnumerable<Account>> GetAccounts()
@@ -42,14 +42,14 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         //get all account with the same role
-        [HttpGet("/api/byRole/{roleId}")]
+        [HttpGet("roles/{roleId}/accounts")]
         [Authorize(Roles = "Admin, Customer, Vet")]
         public async Task<IEnumerable<Account>> GetAllAccountsByRole([FromRoute] int roleId)
         {
             return await _context.GetAllAccountsByRole(roleId);
         }
         //get a single account with specific role and id
-        [HttpGet("/api/byRole/{roleId}&{id}")]
+        [HttpGet("roles/{roleId}/accounts/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Account>> GetAccountByRole([FromRoute] string roleId, [FromRoute] string id)
         {
@@ -62,7 +62,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
         // GET: get the account with the input id
         [Authorize(Roles = "Vet, Customer")]
-        [HttpGet("{id}")]
+        [HttpGet("accounts/{id}")]
         public async Task<ActionResult<Account>> GetAccount([FromRoute] string id)
         {
             var account = await _context.GetAccountByCondition(a => a.AccountId == id);
@@ -75,7 +75,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return account;
         }
 
-        [HttpGet("ChooseVet/{date}&{timeslotId}")]
+        [HttpGet("date/{date}/time-slot/{timeslotId}/choose-vet")]
         [Authorize(Roles = "Admin, Customer")]
         public async Task<IEnumerable<VetListDTO>> chooseVet([FromRoute] DateOnly date, [FromRoute] int timeslotId)
         {
@@ -84,7 +84,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // change the information of the account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
+        [HttpPut("accounts/{id}")]
         public async Task<IActionResult> PutAccount(string id, AccountUpdateDTO account)
         {
             await _context.UpdateAccount(id, account);
@@ -110,7 +110,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // POST: create a new user and insert it into database
         [Authorize(Roles = "Admin")]
-        [HttpPost]
+        [HttpPost("accounts")]
         public async Task<ActionResult<Account>> PostAccount([FromBody] InternalAccountDTO internalAccountDTO)
         {
             if (!ModelState.IsValid)
@@ -157,7 +157,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE: change the status of the account to true, not show it to the customer
-        [HttpDelete("{id}")]
+        [HttpDelete("accounts/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
