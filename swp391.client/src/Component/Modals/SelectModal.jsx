@@ -1,6 +1,5 @@
 import {
     MDBBtn,
-    MDBModal,
     MDBModalDialog,
     MDBModalContent,
     MDBContainer,
@@ -9,7 +8,6 @@ import {
     MDBModalHeader,
     MDBModalTitle,
     MDBModalBody,
-    MDBModalFooter,
     MDBCardBody,
     MDBCard,
     MDBCardHeader,
@@ -32,10 +30,10 @@ function SelectModal({ toggleOpen }) {
         setIsAppModal(!isAppModal);
     };
     if (isPetModal) {
-        return (<PetModal></PetModal>);
+        return (<PetModal toggleOpen={toggleOpen}></PetModal>);
     }
     if (isAppModal) {
-        return (<AppointmentModal></AppointmentModal>);
+        return (<AppointmentModal toggleOpen={toggleOpen}></AppointmentModal>);
     }
     return (
         <CheckAuth>
@@ -53,7 +51,7 @@ function SelectModal({ toggleOpen }) {
                                         <MDBCardHeader>Create New Pet</MDBCardHeader>
                                         <MDBCardBody>
                                             <img src={img3} className='w-100' alt='...' />
-                                            <MDBBtn onClick={choosePet} color='danger'>
+                                            <MDBBtn onClick={choosePet} style={{marginTop:'15px'}} color='danger'>
                                                 PET
                                             </MDBBtn>
                                         </MDBCardBody>
@@ -66,7 +64,7 @@ function SelectModal({ toggleOpen }) {
                                         <MDBCardHeader>Book an appointment</MDBCardHeader>
                                         <MDBCardBody>
                                             <img src={img2} className='w-100' alt='...' />
-                                            <MDBBtn onClick={chooseApp} color='danger'>
+                                            <MDBBtn onClick={chooseApp} style={{marginTop:'15px'}} color='danger'>
                                                 APPOINTMENT
                                             </MDBBtn>
                                         </MDBCardBody>
@@ -77,15 +75,9 @@ function SelectModal({ toggleOpen }) {
                             </MDBRow>
                         </MDBContainer>
                     </MDBModalBody>
-
-                    <MDBModalFooter>
-                        <MDBBtn color='secondary' onClick={toggleOpen}>
-                            Close
-                        </MDBBtn>
-                    </MDBModalFooter>
                 </MDBModalContent>
             </MDBModalDialog>
-        </CheckAuth >
+        </CheckAuth>
 
     );
 }

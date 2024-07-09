@@ -1,6 +1,5 @@
 ﻿import {
     MDBBtn,
-    MDBCheckbox,
     MDBModalHeader,
     MDBModalBody,
     MDBModalTitle,
@@ -9,13 +8,14 @@
     MDBRow
 } from 'mdb-react-ui-kit';
 import { useUser } from '../../Context/UserContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import * as svg from '@fortawesome/free-solid-svg-icons';
 import openLink from '../../Helpers/OpenLink';
 import VetSelectionTable from '../VetSelectionTable/VetSelectionTable';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
 
 function AppointmentForm({ toggleOpen }) {
     const [user, setUser] = useUser();
@@ -38,10 +38,11 @@ function AppointmentForm({ toggleOpen }) {
         `https://localhost:7206/api/time-slot-management/time-slots`,
         `https://localhost:7206/api/account-management/roles/3/accounts`
     ];
+
     const getData = async () => {
         try {
             const promise = apis.map(api => fetch(api, {
-                method: 'GET', // *GET, POST, PUT, DELETE, etc.
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -58,7 +59,6 @@ function AppointmentForm({ toggleOpen }) {
             setTimeSlotList(timeslotData);
             setVetList(vetData);
 
-            //console.log(petData);
             console.log(timeslotData);
         } catch (error) {
             toast.error('Error getting user details!');
@@ -102,60 +102,104 @@ function AppointmentForm({ toggleOpen }) {
             console.error('There has been a problem with your fetch operation:', error);
         }
     };
-    if (isLoading) {
-        return (<div>Loading...</div>);
-    }
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        //console.log(name, value);
         setFormData({
             ...formData,
             [name]: value
         });
     };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        // Check if all required fields are filled
+        if (!formData.petId || !formData.timeSlotId || !formData.veterinarianAccountId || !formData.appointmentDate || !formData.appointmentType) {
+            toast.error('Please fill in all required fields.');
+            return;
+        }
         addAppointment(formData);
     };
+
     const tomorrow = () => {
-        const today = new Date(); // Get today's date in YYYY-MM-DD format
+        const today = new Date(); 
         today.setDate(today.getDate() + 1);
         return today.toISOString().split('T')[0];
     };
 
-    const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0]; // One month from today
+    const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
+
+    // Check if the selected date is a Sunday
+    const isSunday = (dateString) => {
+        const date = new Date(dateString);
+        return date.getDay() === 0;
+    };
+
+    const handleDateChange = (e) => {
+        const { name, value } = e.target;
+        if (isSunday(value)) {
+            toast.error('Appointments cannot be scheduled on Sundays. Please select another date.');
+            setFormData({
+                ...formData,
+                [name]: ''
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
+    };
+
+    if (isLoading) {
+        return (<div>Loading...</div>);
+    }
 
     return (
         <>
-            <MDBModalHeader >
-                <MDBModalTitle style={{ fontSize: '24px' }}>Appointment Information <FontAwesomeIcon icon={svg.faCircleQuestion} /></MDBModalTitle>
+            <MDBModalHeader>
+                <MDBModalTitle style={{ fontSize: '24px' }}>Appointment Information</MDBModalTitle>
                 <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
             </MDBModalHeader>
             <MDBModalBody>
                 <form onSubmit={handleSubmit}>
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <select name="petId" value={formData.petId} onChange={handleChange} data-mdb-select-init >
-                                <option value="" disabled>Choose your pet</option>
-                                {petList.map((pet, index) => (
-                                    <option key={index} value={pet.petId}>
-                                        {pet.petName}
-                                    </option>
-                                ))}
-                            </select>
+                            <FormControl fullWidth>
+                                <InputLabel id="pet-select-label">Choose your pet</InputLabel>
+                                <Select
+                                    labelId="pet-select-label"
+                                    id="pet-select"
+                                    name="petId"
+                                    value={formData.petId}
+                                    label="Choose your pet"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="" disabled>
+                                        <em>Choose your pet</em>
+                                    </MenuItem>
+                                    {petList.map((pet, index) => (
+                                        <MenuItem key={index} value={pet.petId}>
+                                            {pet.petName}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </MDBCol>
                     </MDBRow>
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <select name="timeSlotId" value={formData.timeSlotId} onChange={handleChange} data-mdb-select-init >
-                                <option value="" disabled>Choose your time</option>
-                                {timeSlotList.map((timeslot, index) => (
-                                    <option key={index} value={timeslot.timeSlotId}>
-                                        {timeslot.startTime} - {timeslot.endTime}
-                                    </option>
-                                ))}
-                            </select>
+                            <MDBInput 
+                                id='appDate' 
+                                name='appointmentDate' 
+                                label='Appointment Date' 
+                                type='date' 
+                                min={tomorrow()} 
+                                max={maxDate} 
+                                value={formData.appointmentDate} 
+                                onChange={handleDateChange} 
+                            />
                         </MDBCol>
                     </MDBRow>
 
@@ -167,7 +211,26 @@ function AppointmentForm({ toggleOpen }) {
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <MDBInput id='appDate' name='appointmentDate' label='Appointment Date' type='date' min={tomorrow()} max={maxDate} value={formData.appointmentDate} onChange={handleChange} />
+                            <FormControl fullWidth>
+                                <InputLabel id="timeslot-select-label">Choose your time</InputLabel>
+                                <Select
+                                    labelId="timeslot-select-label"
+                                    id="timeslot-select"
+                                    name="timeSlotId"
+                                    value={formData.timeSlotId}
+                                    label="Choose your time"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="" disabled>
+                                        <em>Choose your time</em>
+                                    </MenuItem>
+                                    {timeSlotList.map((timeslot, index) => (
+                                        <MenuItem key={index} value={timeslot.timeSlotId}>
+                                            {timeslot.startTime} - {timeslot.endTime}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </MDBCol>
                     </MDBRow>
 
@@ -179,11 +242,22 @@ function AppointmentForm({ toggleOpen }) {
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <select name="appointmentType" value={formData.appointmentType} onChange={handleChange} data-mdb-select-init >
-                                <option value="" disabled>Choose your payment method</option>
-                                <option value="Deposit">Deposit</option>
-                                <option value="Fully paid">Fully paid</option>
-                            </select>
+                            <FormControl fullWidth>
+                                <InputLabel id="appointment-type-select-label">Choose your payment method</InputLabel>
+                                <Select
+                                    labelId="appointment-type-select-label"
+                                    id="appointment-type-select"
+                                    name="appointmentType"
+                                    value={formData.appointmentType}
+                                    label="Choose your payment method"
+                                    onChange={handleChange}
+                                >
+                                    <MenuItem value="" disabled>
+                                        <em>Choose your payment method</em>
+                                    </MenuItem>
+                                    <MenuItem value="Deposit">Deposit</MenuItem>
+                                </Select>
+                            </FormControl>
                         </MDBCol>
                     </MDBRow>
                     <MDBBtn type='submit' outline color='dark' className='mb-4' block>
@@ -191,7 +265,6 @@ function AppointmentForm({ toggleOpen }) {
                     </MDBBtn>
                 </form>
             </MDBModalBody>
-
         </>
     );
 }

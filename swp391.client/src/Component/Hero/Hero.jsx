@@ -8,7 +8,7 @@ import img3 from '../../assets/images/hero3.png'
 import './Hero.css';
 export default function Hero() {
   return (
-    <MDBCarousel showIndicators showControls fade>
+    <MDBCarousel showIndicators showControls >
       <MDBCarouselItem itemId={1}>
         <img src={img4} className='d-block w-100 img-fit ' alt='...' />
         <MDBCarouselCaption>Pet-ternary</MDBCarouselCaption>

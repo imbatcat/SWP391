@@ -7,23 +7,24 @@ import {
     MDBModalTitle
 } from 'mdb-react-ui-kit';
 import AssignServiceForm from './AssignServiceForm';
+import AssignCageForm from './AssignCageForm';
 
-function AssignServiceModal({ mRecId, petData, ownerData, vetData, toggleOpen }) {
+function AssignCageModal({ mRecId, petData, ownerData, vetData, toggleOpen }) {
 
     return (
         <>
             <MDBModalDialog style={{ minWidth: 'fit-content' }}>
                 <MDBModalContent>
                     <MDBModalHeader >
-                        <MDBModalTitle>Assign Medical Service Form</MDBModalTitle>
+                        <MDBModalTitle>Assign Cage Form</MDBModalTitle>
                         <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
                     </MDBModalHeader>
                     <MDBModalBody>
-                        <AssignServiceForm mRecId={mRecId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleOpen} />
+                        <AssignCageForm mRecId={mRecId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleOpen} />
                     </MDBModalBody>
                 </MDBModalContent>
             </MDBModalDialog>
         </>
     );
 }
-export default AssignServiceModal;
+export default AssignCageModal;

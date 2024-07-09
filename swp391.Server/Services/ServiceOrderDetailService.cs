@@ -9,23 +9,31 @@ namespace PetHealthcare.Server.Services
     public class ServiceOrderDetailService : IServiceOrderDetailService
     {
         private readonly IServiceOrderDetailRepository _repository;
-        public ServiceOrderDetailService(IServiceOrderDetailRepository repository)
+        private readonly IServiceOrderService _serviceOrderService;
+        public ServiceOrderDetailService(IServiceOrderDetailRepository repository, IServiceOrderService serviceOrderService)
         {
             _repository = repository;
+            _serviceOrderService = serviceOrderService;
         }
 
         public async Task<IEnumerable<ServiceOrderDetailDTO>> getAllServieOrderDetail()
         {
             IEnumerable<ServiceOrderDetails> orDetailList = await _repository.getAllServieOrderDetail();
             List<ServiceOrderDetailDTO> serviceOrderDetailList = new List<ServiceOrderDetailDTO>();
+            var currentDate = DateOnly.FromDateTime(DateTime.Today);
             foreach (ServiceOrderDetails detail in orDetailList)
             {
-                serviceOrderDetailList.Add(new ServiceOrderDetailDTO
+                var id = detail.ServiceOrderId;
+                var serviceOrder = await _serviceOrderService.GetServiceOrderById(id);
+                if (serviceOrder.OrderStatus == "Pending" && serviceOrder.OrderDate.CompareTo(currentDate) == 0)
                 {
-                    OrderId = detail.ServiceOrderId,
-                    ServiceName = detail.Service.ServiceName,
-                    Price = detail.Service.ServicePrice,
-                });
+                    serviceOrderDetailList.Add(new ServiceOrderDetailDTO
+                    {
+                        OrderId = detail.ServiceOrderId,
+                        ServiceName = detail.Service.ServiceName,
+                        Price = detail.Service.ServicePrice,
+                    });
+                }
             }
             return serviceOrderDetailList;
         }

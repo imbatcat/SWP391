@@ -67,7 +67,7 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // PUT api/<CagesController>/5
         [HttpPut("cages/{id}")]
-        [Authorize(Roles = "Staff,Admin")]
+        [Authorize(Roles = "Staff,Vet,Admin")]
         public async Task<ActionResult<Cage>> Put(int id, [FromBody] CageDTO CaGe)
         {
             var cage = await _context.GetCageByCondition(c => c.CageId == id);

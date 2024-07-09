@@ -13,6 +13,7 @@ namespace PetHealthcare.Server.Services.Interfaces
         void DeleteMedicalRecord(MedicalRecord medicalRecord);
         Task<MedicalRecordVetDTO> GetMedicalRecordsByAppointmentId(string appointmentId);
         Task<IEnumerable<MedicalRecordVetDTO>> GetMedicalRecordsByVetId(string VetId);
+
         string GenerateID();
     }
 }

@@ -9,13 +9,16 @@ import {
     MDBModalHeader,
     MDBModalTitle,
     MDBModalBody,
-    MDBModalFooter
+    MDBModalFooter,
+    MDBCard,
+    MDBCardHeader,
+    MDBCardBody
 } from 'mdb-react-ui-kit';
 import { useState } from 'react';
 import VetModal from './VetModal';
 import StaffModal from './StaffModal';
 import CheckAuth from '../../Helpers/CheckAuth';
-
+import img3 from '../../assets/images/hero3.png';
 function SelectAccountModal({ toggleOpen }) {
     const [isVetModal, setIsVetModal] = useState(false);
     const [isStaffModal, setIsStaffModal] = useState(false);
@@ -27,10 +30,10 @@ function SelectAccountModal({ toggleOpen }) {
         setIsStaffModal(!isStaffModal);
     };
     if (isVetModal) {
-        return (<VetModal></VetModal>);
+        return (<VetModal toggleOpen={toggleOpen}></VetModal>);
     }
     if (isStaffModal) {
-        return (<StaffModal></StaffModal>);
+        return (<StaffModal toggleOpen={toggleOpen} ></StaffModal>);
     }
     return (
         <CheckAuth>
@@ -42,18 +45,29 @@ function SelectAccountModal({ toggleOpen }) {
                     </MDBModalHeader>
                     <MDBModalBody>
                         <MDBContainer>
+                            <MDBRow>
                                 <MDBCol className='mb-5'>
-                                    <MDBBtn onClick={chooseVet} color='none'>Veterinarian</MDBBtn>
+                                    <MDBCard alignment='center'>
+                                        <MDBCardHeader>Veterinarian Account</MDBCardHeader>
+                                        <MDBCardBody>
+                                            <img src={img3} className='w-100' alt='...' />
+                                            <MDBBtn onClick={chooseVet} style={{marginTop:'10px'}} color='danger'>Veterinarian</MDBBtn>
+                                        </MDBCardBody>
+                                    </MDBCard> 
                                 </MDBCol>
                                 <MDBCol className='mb-5'>
-                                    <MDBBtn onClick={chooseStaff} color='none'>Staff</MDBBtn>
+                                    <MDBCard alignment='center'>
+                                        <MDBCardHeader>Staff Account</MDBCardHeader>
+                                        <MDBCardBody>
+                                            <img src={img3} className='w-100' alt='...' />
+                                            <MDBBtn onClick={chooseStaff} style={{marginTop:'10px'}} color='danger'>Staff</MDBBtn>
+                                        </MDBCardBody>
+                                    </MDBCard> 
                                 </MDBCol>
+                            </MDBRow>
+                                
                         </MDBContainer>
                     </MDBModalBody>
-
-                    <MDBModalFooter>
-                        <MDBBtn color='secondary' onClick={toggleOpen}>Close</MDBBtn>
-                    </MDBModalFooter>
                 </MDBModalContent>
             </MDBModalDialog>
         </CheckAuth>

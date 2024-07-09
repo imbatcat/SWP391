@@ -7,17 +7,16 @@ namespace PetHealthcare.Server.APIs.Controllers
 {
     [Route("api/service-order-detail-management")]
     [ApiController]
-    [Authorize(Roles = "Admin,Vet")]
+    [Authorize(Roles = "Admin,Vet,Staff")]
     public class ServiceOrderDetailController : ControllerBase
     {
-        
+
         private readonly IServiceOrderDetailService serviceOrderDetail;
         public ServiceOrderDetailController(IServiceOrderDetailService serviceOrderDetail)
         {
             this.serviceOrderDetail = serviceOrderDetail;
         }
 
-        
         [HttpGet("service-order-details")]
         public async Task<IEnumerable<ServiceOrderDetailDTO>> getAllServieOrderDetail()
         {

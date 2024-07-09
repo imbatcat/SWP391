@@ -1,27 +1,34 @@
-
-import './Footer.css'
+import './Footer.css';
+import 'aos/dist/aos.css'; // Import AOS styles
+import { useEffect, useState } from 'react';
+import AOS from 'aos';
 import { Link } from 'react-router-dom';
-import { MDBFooter, MDBContainer, MDBRow, MDBCol, MDBIcon } from 'mdb-react-ui-kit';
+import { MDBFooter, MDBContainer, MDBRow, MDBCol, MDBIcon, MDBModal } from 'mdb-react-ui-kit';
+import SelectModal from '../Modals/SelectModal';
 
 export default function Footer() {
+  useEffect(() => {
+    AOS.init({ duration: 2000 }); // Initialize AOS with a 2000ms duration for animations
+  }, []);
+
   return (
     <MDBFooter bgColor='light' className='text-center text-lg-start text-muted'>
       <section className='d-flex justify-content-center justify-content-lg-between p-4 border-bottom'>
-        <div className='me-5 d-none d-lg-block'>
+        <div className='me-5 d-none d-lg-block' data-aos="fade-up">
           <span>Get connected with us on social networks:</span>
         </div>
 
         <div>
-          <a href='' className='me-4 text-reset'>
+          <a href='' className='me-4 text-reset' data-aos="fade-up">
             <MDBIcon color='secondary' fab icon='facebook-f' />
           </a>
-          <a href='' className='me-4 text-reset'>
+          <a href='' className='me-4 text-reset' data-aos="fade-up">
             <MDBIcon color='secondary' fab icon='twitter' />
           </a>
-          <a href='' className='me-4 text-reset'>
+          <a href='' className='me-4 text-reset' data-aos="fade-up">
             <MDBIcon color='secondary' fab icon='instagram' />
           </a>
-          <a href='' className='me-4 text-reset'>
+          <a href='' className='me-4 text-reset' data-aos="fade-up">
             <MDBIcon color='secondary' fab icon='linkedin' />
           </a>
         </div>
@@ -30,7 +37,7 @@ export default function Footer() {
       <section className=''>
         <MDBContainer className='text-center text-md-start mt-5'>
           <MDBRow className='mt-3'>
-            <MDBCol md='3' lg='4' xl='3' className='mx-auto mb-4'>
+            <MDBCol md='3' lg='4' xl='3' className='mx-auto mb-4' data-aos="zoom-in-right">
               <h6 className='text-uppercase fw-bold mb-4'>
                 <MDBIcon color='secondary' icon='gem' className='me-3' />
                 Pet-ternary
@@ -41,53 +48,40 @@ export default function Footer() {
               </p>
             </MDBCol>
 
-            <MDBCol md='2' lg='2' xl='2' className='mx-auto mb-4'>
-            <p>
-                <Link to='/'><a className='text-reset'> Home </a></Link>
+            <MDBCol md='2' lg='2' xl='2' className='mx-auto mb-4' data-aos="zoom-in-right">
+              <p>
+                <Link to='/' className='text-reset'> Home </Link>
               </p>
               <p>
-                <Link to='/aboutUs'><a className='text-reset'> About Us </a></Link>
-              </p>
-              <p>
-              <Link to='/MakeAnAppointment'><a className='text-reset'> Make an Appointment </a></Link>
-              </p>
-              <p>
-                <a href='#!' className='text-reset'>
-                  Vue
-                </a>
-              </p>
-              <p>
-                <a href='#!' className='text-reset'>
-                  Laravel
-                </a>
+                <Link to='/aboutUs' className='text-reset'> About Us </Link>
               </p>
             </MDBCol>
 
-            <MDBCol md='3' lg='2' xl='2' className='mx-auto mb-4'>
+            <MDBCol md='3' lg='2' xl='2' className='mx-auto mb-4' data-aos="zoom-in-left">
               <h6 className='text-uppercase fw-bold mb-4'>HOURS OF OPERATION</h6>
               <p>
-                <a href='#!' className='text-reset'>
+                <a className='text-reset'>
                 Regular hours:
                 </a>
               </p>
               <p>
-                <a href='#!' className='text-reset'>
+                <a className='text-reset'>
                 Mon-Fri: 8:00-17h30
                 </a>
               </p>
               <p>
-                <a href='#!' className='text-reset'>
+                <a className='text-reset'>
                 Sat: 8:00-14:30
                 </a>
               </p>
               <p>
-                <a href='#!' className='text-reset'>
+                <a className='text-reset'>
                 Emergencies 24/7
                 </a>
               </p>
             </MDBCol>
 
-            <MDBCol md='4' lg='3' xl='3' className='mx-auto mb-md-0 mb-4'>
+            <MDBCol md='4' lg='3' xl='3' className='mx-auto mb-md-0 mb-4' data-aos="zoom-in-left">
               <h6 className='text-uppercase fw-bold mb-4'>Contact</h6>
               <p>
                 <MDBIcon color='secondary' icon='home' className='me-2' />
@@ -109,11 +103,12 @@ export default function Footer() {
       </section>
 
       <div className='text-center p-4' style={{ backgroundColor: 'rgba(0, 0, 0, 0.05)' }}>
-        © 2021 Copyright- 
+        © 2021 Copyright-
         <a className='text-reset fw-bold'>
           Pet-ternary- All Dogs & Cats Veterinary Hospital
         </a>
       </div>
+
     </MDBFooter>
   );
 }

@@ -22,6 +22,7 @@
     top: 0;
     left: -100%;
     transition: 850ms;
+    z-index: 1000;
   }
   
   .nav-menu.active {
@@ -81,9 +82,10 @@
     padding: 25px;
     transition: all 1s;
   }
-  .search-hover:hover {
-    width: 200px;
-    padding-left: 50px;
+  .search-hover:hover,
+  .search-hover:focus {
+      width: 200px;
+      padding-left: 50px;
   }
   .search-container {
     display: flex;

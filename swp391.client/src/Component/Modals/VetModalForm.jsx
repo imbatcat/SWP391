@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUser } from '../../Context/UserContext';
 
-
 function VetModalForm() {
     const [user, setUser] = useUser();
     const [vetImg, setVetImg] = useState();
@@ -28,8 +27,7 @@ function VetModalForm() {
         experience: ''
     });
 
-    const createStaffApi = async (e) => {
-        e.preventDefault();
+    const createStaffApi = async () => {
         console.log(formData);
         const fetchPromise = fetch('https://localhost:7206/api/account-management/accounts', {
             method: 'POST',
@@ -47,7 +45,6 @@ function VetModalForm() {
                 success: `${formData.fullName} has been added successfully!`,
                 error: {
                     render({ data }) {
-                        // The data contains the error object thrown in the catch block
                         return data.message || 'There was an error. Please try again!';
                     }
                 }
@@ -73,6 +70,7 @@ function VetModalForm() {
             [id]: value
         });
     };
+
     const handleCheckboxChange = (e) => {
         const { checked } = e.target;
         setFormData({
@@ -80,6 +78,7 @@ function VetModalForm() {
             isMale: checked
         });
     };
+
     const handleImgChange = (e) => {
         var reader = new FileReader();
         setVetImg(e.target.files[0]);
@@ -90,15 +89,51 @@ function VetModalForm() {
                 ...formData,
                 imgUrl: reader.result
             });
-
         };
         reader.onerror = (error) => {
             console.error('Error', error);
         };
     };
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (
+            !formData.fullName ||
+            !formData.userName ||
+            !formData.dateOfBirth ||
+            !formData.email ||
+            !formData.phoneNumber ||
+            !formData.description ||
+            !formData.department ||
+            !formData.position ||
+            !formData.experience
+        ) {
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+        createStaffApi();
+    };
+
+    const handleReset = () => {
+        setFormData({
+            fullName: '',
+            userName: '',
+            dateOfBirth: '',
+            email: '',
+            phoneNumber: '',
+            roleId: 3,
+            isMale: false,
+            imgUrl: '',
+            description: '',
+            department: '',
+            position: '',
+            experience: ''
+        });
+        setVetImg(null);
+    };
+
     return (
-        <form>
+        <form onSubmit={handleSubmit}>
             <MDBRow className='mb-4'>
                 <MDBCol>
                     <MDBInput id='fullName' label='Full Name' value={formData.fullName} onChange={handleInputChange} />
@@ -130,13 +165,11 @@ function VetModalForm() {
                 {formData.imgUrl && (
                     <div>
                         <img
-                            src={URL.createObjectURL(vetImg)}
+                            src={formData.imgUrl}
                             alt='vet photo'
-                            height={'200px'}>
-
-                        </img>
+                            height={'200px'}
+                        />
                     </div>
-
                 )}
             </MDBRow>
             <MDBRow className='mb-4'>
@@ -155,11 +188,17 @@ function VetModalForm() {
                     <MDBInput id='experience' type='number' label='Years of experience' value={formData.experience} onChange={handleInputChange} />
                 </MDBCol>
             </MDBRow>
-            <MDBBtn onClick={(e) => createStaffApi(e)} type='submit' outline color='dark' className='mb-4' block>
+            <MDBBtn type='submit' outline color='dark' className='mb-4' block>
                 Submit
             </MDBBtn>
-            <input type="reset" value="Reset" />
-        </form >
+            <MDBRow>
+                <MDBCol size='4'>
+                    <MDBBtn onClick={handleReset} outline color='dark' className='mb-4' block>
+                        Reset
+                    </MDBBtn>
+                </MDBCol>
+            </MDBRow>
+        </form>
     );
 }
 

@@ -7,7 +7,6 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { AuthProvider } from "./Context/AuthProvider";
 import Login from './Pages/Login/Login';
-/*import App from './App';*/
 import Home from './Pages/Home/Home';
 import SignUp from './Pages/SignUp/SignUp';
 import AboutUs from './Pages/About Us/AboutUs';
@@ -37,6 +36,7 @@ import MedicalRecordList from './Pages/Veternary/MedicalRecordList';
 import ServiceBills from './Pages/Staff/ServiceBills';
 import AppointmentQRCode from './Pages/Appointment/AppointmentQRCode';
 
+import StaffAccount from './Pages/AdminPages/StaffAccount';
 
 const router = createBrowserRouter([
     {
@@ -87,7 +87,7 @@ const router = createBrowserRouter([
     {
         path: '/user/profile',
         element: (
-            <CheckAuth>
+            <CheckAuth allowedRoles={['Customer', 'Vet', 'Staff', 'Admin']}>
                 <UserProfile />
             </CheckAuth>
         ),
@@ -96,7 +96,7 @@ const router = createBrowserRouter([
     {
         path: '/user/pets',
         element: (
-            <CheckAuth>
+            <CheckAuth allowedRoles={['Customer', 'Vet', 'Staff', 'Admin']}>
                 <UserPets />
             </CheckAuth>
         ),
@@ -105,7 +105,7 @@ const router = createBrowserRouter([
     {
         path: '/user/appointments',
         element: (
-            <CheckAuth>
+            <CheckAuth allowedRoles={['Customer', 'Vet', 'Staff', 'Admin']}>
                 <UserAppointments />
             </CheckAuth>
         ),
@@ -114,7 +114,7 @@ const router = createBrowserRouter([
     {
         path: '/user/old-appointments',
         element: (
-            <CheckAuth>
+            <CheckAuth allowedRoles={['Customer', 'Vet', 'Staff', 'Admin']}>
                 <UserHistoricalAppointments />
             </CheckAuth>
         ),
@@ -122,39 +122,63 @@ const router = createBrowserRouter([
     },
     {
         path: '/admin/vets',
-        element: <VetAccount />,
+        element: (
+            <CheckAuth allowedRoles={['Admin']}>
+                <VetAccount />
+            </CheckAuth>
+        ),
         errorElement: <div>404 Not Found</div>,
     },
     {
         path: '/admin/staff',
-        element: <VetAccount />,
+        element: (
+            <CheckAuth allowedRoles={['Admin']}>
+                <StaffAccount />
+            </CheckAuth>
+        ),
         errorElement: <div>404 Not Found</div>,
     },
     {
         path: '/admin/appointments',
-        element: <AppointmentManage />,
+        element: (
+            <CheckAuth allowedRoles={['Admin']}>
+                <AppointmentManage />
+            </CheckAuth>
+        ),
         errorElement: <div>404 Not Found</div>,
     },
     {
         path: '/admin/customers',
-        element: <UsersAccount />,
+        element: (
+            <CheckAuth allowedRoles={['Admin']}>
+                <UsersAccount />
+            </CheckAuth>
+        ),
         errorElement: <div>404 Not Found</div>,
     },
     {
         path: '/admin/pets',
-        element: <AdminPet />,
+        element: (
+            <CheckAuth allowedRoles={['Admin']}>
+                <AdminPet />
+            </CheckAuth>
+        ),
         errorElement: <div>404 Not Found</div>,
     },
     {
         path: '/admin/admins',
-        element: <AdminAccount />,
+        element: (
+            <CheckAuth allowedRoles={['Admin']}>
+                <AdminAccount />
+            </CheckAuth>
+        ),
         errorElement: <div>404 Not Found</div>,
     },
     {
         path: '/vet/WorkSchedule',
         element: (
-            <CheckAuth>
-                <WorkSchedule></WorkSchedule>
+            <CheckAuth allowedRoles={['Vet']}>
+                <WorkSchedule />
             </CheckAuth>
         ),
         errorElement: <div>404 Not Found</div>,
@@ -162,8 +186,8 @@ const router = createBrowserRouter([
     {
         path: '/vet/AppointmentList',
         element: (
-            <CheckAuth>
-                <AppointmentList></AppointmentList>
+            <CheckAuth allowedRoles={['Vet']}>
+                <AppointmentList />
             </CheckAuth>
         ),
         errorElement: <div>404 Not Found</div>,
@@ -171,7 +195,7 @@ const router = createBrowserRouter([
     {
         path: '/vet/MedicalRecordList',
         element: (
-            <CheckAuth>
+            <CheckAuth allowedRoles={['Vet']}>
                 <MedicalRecordList />
             </CheckAuth>
         ),
@@ -180,7 +204,7 @@ const router = createBrowserRouter([
     {
         path: '/vet/MedicalRecord',
         element: (
-            <CheckAuth>
+            <CheckAuth allowedRoles={['Vet']}>
                 <MedicalRecord />
             </CheckAuth>
         ),
@@ -189,8 +213,8 @@ const router = createBrowserRouter([
     {
         path: '/staff/cage-list',
         element: (
-            <CheckAuth>
-                <CageList></CageList>
+            <CheckAuth allowedRoles={['Staff']}>
+                <CageList />
             </CheckAuth>
         ),
         errorElement: <div>404 Not Found</div>,
@@ -198,8 +222,8 @@ const router = createBrowserRouter([
     {
         path: '/staff/appointment-checkin',
         element: (
-            <CheckAuth>
-                <AppointmentCheckin></AppointmentCheckin>
+            <CheckAuth allowedRoles={['Staff']}>
+                <AppointmentCheckin />
             </CheckAuth>
         ),
         errorElement: <div>404 Not Found</div>,
@@ -207,8 +231,8 @@ const router = createBrowserRouter([
     {
         path: '/staff/service-bill-list',
         element: (
-            <CheckAuth>
-                <ServiceBills></ServiceBills>
+            <CheckAuth allowedRoles={['Staff']}>
+                <ServiceBills />
             </CheckAuth>
         ),
         errorElement: <div>404 Not Found</div>,
@@ -219,14 +243,13 @@ const router = createBrowserRouter([
         errorElement: <div>404 Not Found</div>,
     },
 ]);
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <GoogleOAuthProvider clientId="279261034420-76gqakprrgtiq9pc879d8e4ukhk9cour.apps.googleusercontent.com">
         <AuthProvider>
             <UserProvider>
-                {/*<React.StrictMode>*/}
-                <RouterProvider router={router}>
-                </RouterProvider>
+                <RouterProvider router={router} />
                 <ToastContainer
                     position="top-center"
                     autoClose={1000}
@@ -236,15 +259,8 @@ root.render(
                     rtl={false}
                     draggable
                     theme="light"
-                    transition: Flip
                 />
-                {/*</React.StrictMode>*/}
             </UserProvider>
         </AuthProvider>
     </GoogleOAuthProvider>
-
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals

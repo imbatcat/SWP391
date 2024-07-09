@@ -9,10 +9,9 @@ import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { useUser } from '../../Context/UserContext';
 
-
 function StaffModalForm() {
     const [user, setUser] = useUser();
-    const [formData, setFormData] = useState({
+    const initialFormData = {
         fullName: '',
         userName: '',
         dateOfBirth: '',
@@ -20,11 +19,16 @@ function StaffModalForm() {
         phoneNumber: '',
         roleId: 4,
         isMale: false
-    });
+    };
+    const [formData, setFormData] = useState(initialFormData);
 
     const createStaffApi = async (e) => {
         e.preventDefault();
         console.log(formData);
+        if (!formData.fullName || !formData.userName || !formData.dateOfBirth || !formData.email || !formData.phoneNumber) {
+            toast.error('Please fill in all required fields.');
+            return;
+        }
         try {
             const response = await fetch('https://localhost:7206/api/account-management/accounts', {
                 method: 'POST', // *GET, POST, PUT, DELETE, etc.
@@ -40,7 +44,7 @@ function StaffModalForm() {
             console.log('ok');
             toast.success(`${formData.fullName} has been added`);
         } catch (error) {
-            toast.success('Theres something wrong');
+            toast.error('There\'s something wrong');
             console.error(error.message);
         }
     };
@@ -53,6 +57,7 @@ function StaffModalForm() {
             [id]: value
         });
     };
+
     const handleCheckboxChange = (e) => {
         const { checked } = e.target;
         setFormData({
@@ -60,6 +65,20 @@ function StaffModalForm() {
             isMale: checked
         });
     };
+
+    const handleReset = (e) => {
+        e.preventDefault();
+        setFormData({
+            fullName: '',
+            userName: '',
+            dateOfBirth: '',
+            email: '',
+            phoneNumber: '',
+            roleId: 4,
+            isMale: false
+        });
+    };
+    
 
     return (
         <form>
@@ -84,15 +103,22 @@ function StaffModalForm() {
                     <MDBInput id='phoneNumber' label='Phone Number' type='tel' value={formData.phoneNumber} onChange={handleInputChange} />
                 </MDBCol>
                 <MDBCol>
-                    <MDBCheckbox id='isMale' label="Is Male" checked={formData.isMale} onChange={handleCheckboxChange}></MDBCheckbox>
+                    <MDBCheckbox id='isMale' label="Male" checked={formData.isMale} onChange={handleCheckboxChange}></MDBCheckbox>
                 </MDBCol>
             </MDBRow>
 
             <MDBBtn onClick={(e) => createStaffApi(e)} type='submit' outline color='dark' className='mb-4' block>
                 Submit
             </MDBBtn>
-            <input type="reset" value="Reset" />
-        </form >
+            <MDBRow>
+                <MDBCol size='4'>
+                    <MDBBtn onClick={handleReset} outline color='dark' className='mb-4' block>
+                        Reset
+                    </MDBBtn>
+                </MDBCol>
+            </MDBRow>
+           
+        </form>
     );
 }
 

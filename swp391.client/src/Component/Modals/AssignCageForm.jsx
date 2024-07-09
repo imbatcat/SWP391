@@ -24,17 +24,16 @@ import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import ReactToPrint from 'react-to-print';
 
-function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
-    const [services, setServices] = useState([]);
-    const [selectedServices, setSelectedServices] = useState([]);
+function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
+    const [cages, setCages] = useState([]);
+    const [selectedCages, setSelectedCages] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const toggleModal = () => setModalOpen(!modalOpen);
     const componentRef = useRef();
-
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/service-order-management/services', {
+                const response = await fetch('https://localhost:7206/api/Cages', {
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -42,7 +41,7 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
                     throw new Error("Error fetching data");
                 }
                 const data = await response.json();
-                setServices(data);
+                setCages(data);
                 console.log(data);
             } catch (error) {
                 console.error(error.message);
@@ -73,23 +72,22 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
         return `${years} Year${years !== 1 ? 's' : ''} ${months} Month${months !== 1 ? 's' : ''} and ${days} Day${days !== 1 ? 's' : ''}`;
     };
 
-    const handleAddService = (service) => {
-        if (!isServiceSelected(service.id)) {
-            setSelectedServices((prevServices) => [...prevServices, service]);
+    const handleAddCage = (cage) => {
+        if (!isCageSelected(cage.id)) {
+            setSelectedCages((prevCages) => [...prevCages, cage]);
         }
     };
-    const handleRemoveService = (serviceId) => {
-        setSelectedServices((prevServices) => prevServices.filter(service => service.serviceId !== serviceId));
+    const handleRemoveCage = (cageId) => {
+        setSelectedCages((prevCage) => prevCage.filter(cage => cage.cageId !== cageId));
     };
+    console.log(selectedCages[0].cageNumber);
     const handleSubmitService = async () => {
-        let serviceIdList = selectedServices.map(item => item.serviceId);
         const reqBody = {
-            'serviceId': serviceIdList,
-            'medicalRecordId': mRecId
+            'cageNumber': selectedCages[0].cageNumber
         };
         console.log(JSON.stringify(reqBody));
-        const fetchPromise = fetch('https://localhost:7206/api/ServiceOrder', {
-            method: 'POST',
+        const fetchPromise = fetch(`https://localhost:7206/api/Cages/${selectedCages[0].cageId}`, {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -118,12 +116,12 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
     };
 
 
-    const isServiceSelected = (serviceId) => {
-        return selectedServices.some(service => service.serviceId === serviceId);
+    const isCageSelected = (cageId) => {
+        return selectedCages.some(cage => cage.cageId === cageId);
     };
 
     const calculateTotalPrice = () => {
-        return selectedServices.reduce((total, service) => total + service.servicePrice, 0);
+        return selectedCages.reduce((total, service) => total + service.servicePrice, 0);
     };
     
     return (
@@ -213,34 +211,26 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
                                         Medical Service Information
                                     </MDBCol>
                                     <MDBCol sm='3' className='no-print' >
-                                        <MDBBtn style={{ fontSize: '0.65rem' }} onClick={toggleModal}>Add Services</MDBBtn>
+                                        <MDBBtn style={{ fontSize: '0.65rem' }} onClick={toggleModal}>Cage List</MDBBtn>
                                     </MDBCol>
                                 </MDBRow>
                             </MDBCardHeader>
                             <MDBCardBody>
                                 <MDBCardText>
                                     <MDBTable style={{ minWidth: '100%' }} align='middle'>
-                                        <MDBTableHead>
-                                            <tr>
-                                                <th scope='col'>No</th>
-                                                <th scope='col'>Service Name</th>
-                                                <th scope='col'>Service Price</th>
-                                            </tr>
-                                        </MDBTableHead>
                                         <MDBTableBody>
-                                            {selectedServices.map((ser, index) => (
-                                                <tr key={ser.serviceId}>
-                                                    <td>{index + 1}</td>
+                                            {selectedCages.map((cage) => (
+                                                <tr key={cage.cageId}>
                                                     <td>
                                                         <div className='ms-3'>
-                                                            <p className='fw-bold mb-1'>{ser.serviceName}</p>
+                                                            <p className='fw-bold mb-1'>The pet will be assigned to cage number {cage.cageNumber}</p>
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <p className='fw-normal mb-1'>{ser.servicePrice}</p>
+                                                        <p className='fw-normal mb-1'>{cage.servicePrice}</p>
                                                     </td>
                                                     <td>
-                                                        <MDBBtn className='no-print' color='danger' onClick={() => handleRemoveService(ser.serviceId)}>x</MDBBtn>
+                                                        <MDBBtn className='no-print' color='danger' onClick={() => handleRemoveCage(cage.cageId)}>x</MDBBtn>
                                                     </td>
                                                 </tr>
             
@@ -274,7 +264,7 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
                 <MDBModalDialog scrollable style={{ minWidth: 'fit-content' }}>
                     <MDBModalContent>
                         <MDBModalHeader>
-                            <MDBModalTitle>Select Services</MDBModalTitle>
+                            <MDBModalTitle>Select Cages</MDBModalTitle>
                             <MDBBtn
                                 className='btn-close'
                                 color='none'
@@ -285,34 +275,34 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
                             <MDBTable style={{ minWidth: '100%' }} align='middle'>
                                 <MDBTableHead>
                                     <tr>
-                                        <th scope='col'>No</th>
-                                        <th scope='col'>Service Name</th>
-                                        <th scope='col'>Service Price</th>
+                                        <th scope='col'>Cage Number</th>
+                                        <th scope='col'>Status</th>
                                         <th scope='col'>Action</th>
                                     </tr>
                                 </MDBTableHead>
                                 <MDBTableBody>
-                                    {services.map((ser, index) => (
-                                        <tr key={ser.id}>
-                                            <td>{index + 1}</td>
+                                    {cages.map((cage) => (
+                                        <tr key={cage.id}>
                                             <td>
                                                 <div className='ms-3'>
-                                                    <p className='fw-bold mb-1'>{ser.serviceName}</p>
+                                                    <p className='fw-bold mb-1'>{cage.cageNumber}</p>
                                                 </div>
                                             </td>
                                             <td>
-                                                <p className='fw-normal mb-1'>{ser.servicePrice}</p>
+                                            <MDBBadge color={cage.isOccupied ? 'warning' : 'secondary'} pill>
+                                                        {cage.isOccupied ? 'Occupied' : "Unoccupied"}
+                                                    </MDBBadge>
                                             </td>
                                             <td>
                                                 <MDBBtn
-                                                    color='primary'
+                                                    color={cage.isOccupied ? 'warning' : isCageSelected(cage.cageId)? 'danger' :'secondary'}
                                                     style={{ color: 'black' }}
                                                     rounded
                                                     size='sm'
-                                                    onClick={() => handleAddService(ser)}
-                                                    disabled={isServiceSelected(ser.serviceId)}
+                                                    onClick={() => handleAddCage(cage)}
+                                                    disabled={isCageSelected(cage.cageId) || cage.isOccupied}
                                                 >
-                                                    {isServiceSelected(ser.serviceId) ? 'Added' : 'Add'}
+                                                    {isCageSelected(cage.cageId)? 'Selected' : cage.isOccupied ? 'Already Occupied' : 'Select' }
                                                 </MDBBtn>
                                             </td>
                                         </tr>
@@ -332,4 +322,4 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
     );
 }
 
-export default AssignServiceForm;
+export default AssignCageForm;

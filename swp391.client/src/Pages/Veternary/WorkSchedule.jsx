@@ -248,7 +248,7 @@ function WorkSchedule() {
                     </MDBModalDialog>
                 </MDBModal>
             </>
-        </div >
+        </div>
     );
 }
 

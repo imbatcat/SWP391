@@ -27,9 +27,9 @@ namespace PetHealthcare.Server.Services
             throw new NotImplementedException();
         }
 
-        public Task<ServiceOrder> GetServiceOrderById(string id)
+        public async Task<ServiceOrder> GetServiceOrderById(string id)
         {
-            throw new NotImplementedException();
+            return await _serviceOrderRepo.GetByCondition(a => a.ServiceOrderId == id);
         }
 
         public async Task UpdateServiceOrder(string id, List<int> serviceIdList)
@@ -52,7 +52,7 @@ namespace PetHealthcare.Server.Services
             }
         }
 
-        public async Task<IEnumerable<GetAllServiceOrderForStaff>> getServiceOrderListForStaff(DateOnly date,bool isUnPaidList = true)
+        public async Task<IEnumerable<GetAllServiceOrderForStaff>> getServiceOrderListForStaff(DateOnly date, bool isUnPaidList = true)
         {
             return await _serviceOrderRepo.GetServiceOrderListForStaff(date, isUnPaidList);
         }

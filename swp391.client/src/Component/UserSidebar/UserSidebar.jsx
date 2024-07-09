@@ -52,9 +52,6 @@ function UserSidebar() {
                                 Historical appointments
                             </Link>
                         </MDBListGroupItem>
-                        <MDBListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                            TO ADD
-                        </MDBListGroupItem>
                     </MDBListGroup>
                 </MDBCardBody>
             </MDBCard>

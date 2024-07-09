@@ -64,6 +64,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         {
             return await _context.GetMedicalRecordsByVetId(VetId);
         }
+
         //PUT: api/MedicalRecords/5
         //To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("medical-records/{id}")]

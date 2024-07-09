@@ -14,7 +14,7 @@ function MainLayout({ children }) {
     const toggleOpen = () => setBasicModal(!basicModal);
     return (
         <div>
-            <NavBar2 />
+            <NavBar2 sticky />
             <main>
                 {children}
             </main>

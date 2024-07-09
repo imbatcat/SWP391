@@ -1,147 +1,198 @@
 import { useState, useEffect } from 'react';
-import { 
-  MDBBadge, MDBBtn, MDBTable, MDBTableBody, MDBTableHead
-} 
-  from 'mdb-react-ui-kit';
+import { MDBBadge, MDBBtn } from 'mdb-react-ui-kit';
 import SideNavForVet from '../../Component/SideNavForVet/SideNavForVet';
-
+import { useUser } from '../../Context/UserContext';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import TableSortLabel from '@mui/material/TableSortLabel';
 
 function AppointmentList() {
-    const [appointments, setAppointment] = useState([]);
-    const [searchInput, setSearchInput] = useState('');
-    const [filteredAppointments, setFilteredApppointments] = useState([]);
+  const [user, setUser] = useUser();
+  const [appointments, setAppointments] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('appointmentDate');
 
-    useEffect(() => {
-        async function fetchData() {
-          try {
-              const appResponse = await fetch('https://localhost:7206/api/appointment-management/vets/${vetId}/appointments', {
-              method: 'GET',
-              credentials: 'include',
-            });
-            if (!appResponse.ok) {
-              throw new Error("Error fetching pet data");
-            }
-            const appointmentData = await appResponse.json();
-    
-              const accountResponse = await fetch('https://localhost:7206/api/account-management/accounts', {
-              method: 'GET',
-              credentials: 'include',
-            });
-            if (!accountResponse.ok) {
-              throw new Error("Error fetching account data");
-            }
-            const accountData = await accountResponse.json();
-    
-            // Merge appointment data with account data
-            const mergedData = appointmentData.map(app => {
-              const owner = accountData.find(account => account.accountId === app.accountId) || {};
-              console.log(appointmentData.accountId);
-            //   console.log("Matching owner for appointment:", app, "is:", owner);
-              return { 
-                ...app, 
-                ownerName: owner.fullName || 'Unknown', ownerNumber: owner.phoneNumber };
-            });
-    
-            setAppointment(mergedData);
-            setFilteredApppointments(mergedData);
-          } catch (error) {
-            console.error(error.message);
-          }
-        }
-    
-        fetchData();
-      }, []);
+  async function fetchData(vetId) {
+    try {
+      const response = await fetch(`https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`, {
+        method: 'GET',
+        credentials: 'include',
+      });
+      if (!response.ok) {
+        throw new Error("Error fetching data");
+      }
+      const data = await response.json();
+      setAppointments(data);
+      setFilteredAppointments(data);
+      setIsLoading(false);
+      console.log(data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
 
-      const getBadgeColor = (app) => {
-        if (app.isCancel) {
-            return 'danger'; // red
-        }
-        if (app.isCheckUp) {
-            return 'success'; // green
-        }
-        if (app.isCheckIn) {
-            return 'warning'; // yellow
-        }
-        return 'secondary'; // default color
-    };
+  useEffect(() => {
+    if (user) {
+      fetchData(user.id);
+    }
+    console.log(user.id);
+  }, [user]);
 
-    const handleSearchInputChange = (e) => {
-        const value = e.target.value.toLowerCase();
-        setSearchInput(value);
-        if (value === '') {
-            setFilteredApppointments(appointments);
-        } else {
-            setFilteredApppointments(filteredAppointments.filter(app =>
-                app.ownerName.toLowerCase().includes(value) ||
-                app.ownerNumber.toLowerCase().includes(value)||
-                app.appointmentDate.toLowerCase().includes(value)||
-                app.timeSlot.toLowerCase().includes(value)
-            ));
-        }
-    };
+  if (isLoading) {
+    return <div>Loading...</div>; // Loading state
+  }
 
+  const getBadgeColor = (app) => {
+    if (app.isCancel) {
+      return 'danger'; // red
+    }
+    if (app.isCheckUp) {
+      return 'success'; // green
+    }
+    if (app.isCheckIn) {
+      return 'warning'; // yellow
+    }
+    return 'secondary'; // default color
+  }
 
-    return (
-        <div>
-            <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-            <MDBTable align='middle'>
-                <MDBTableHead>
-                    <tr style={{textAlign:'center'}}>
-                        <th scope='col' width='20%'>Customer Name & Phone Number</th>
-                        <th scope='col'>Pet Name</th>
-                        <th scope='col'>Date & Timeslot</th>
-                        <th scope='col'>Veterinarian</th>
-                        <th scope='col'>Status</th>
-                        <th scope='col'>Booking Price</th>
-                        <th scope='col'>Note</th>
-                    </tr>
-                </MDBTableHead>
-                <MDBTableBody style={{textAlign:'center'}}>
-                    {filteredAppointments.map((app) => (
-                        <tr key={app.id}>
-                            <td>
-                                <div className='d-flex align-items-center'>
-                                    <img
-                                        src='https://mdbootstrap.com/img/new/avatars/8.jpg'
-                                        alt=''
-                                        style={{ width: '45px', height: '45px' }}
-                                        className='rounded-circle'
-                                    />
-                                    <div className='ms-3'>
-                                        <p className='fw-bold mb-1'>{app.ownerName}</p>
-                                        <p className='text-muted mb-0'>{app.ownerNumber}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <p className='fw-normal mb-1'>{app.petName}</p>
-                            </td>
-                            <td>
-                                <p className='fw-bold mb-1'>{app.appointmentDate}</p>
-                                <p className='text-muted mb-0'>{app.timeSlot}</p>
-                            </td>                    
-                            <td>
-                                <p className='fw-normal mb-1'>{app.veterinarianName}</p>
-                            </td>
-                            <td>
-                                <MDBBadge color={getBadgeColor(app)} pill>
-                                    {app.isCancel ? "Cancelled" : app.isCheckUp ? "Checked Up" : app.isCheckIn ? "Checked In" :  "Active"}
-                                </MDBBadge> 
-                            </td>
-                            <td>
-                                <p className='fw-bold mb-1'>{app.bookingPrice}</p>
-                                <p className='text-muted mb-0'>{app.appointmentType}</p>
-                            </td>
-                            <td>
-                                <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
-                            </td>
-                        </tr>
-                    ))}
-                </MDBTableBody>
-            </MDBTable>
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchInput(value);
+    if (value === '') {
+      setFilteredAppointments(appointments);
+    } else {
+      setFilteredAppointments(appointments.filter(app =>
+        (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
+        (app.ownerNumber && app.ownerNumber.toLowerCase().includes(value)) ||
+        (app.appointmentDate && app.appointmentDate.toLowerCase().includes(value)) ||
+        (app.timeSlot && app.timeSlot.toLowerCase().includes(value))
+      ));
+    }
+  }
 
-        </div>
-    );
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const sortComparator = (a, b, orderBy) => {
+    if (orderBy === 'appointmentDate') {
+      const dateA = new Date(`${a.appointmentDate} `);
+      const dateB = new Date(`${b.appointmentDate}`);
+      return dateA - dateB;
+    }
+    return a[orderBy].localeCompare(b[orderBy]);
+  };
+
+  const sortedAppointments = filteredAppointments.slice().sort((a, b) => {
+    const orderModifier = order === 'asc' ? 1 : -1;
+    return orderModifier * sortComparator(a, b, orderBy);
+  });
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+
+  return (
+    <div>
+      <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
+      <Paper sx={{ width: '100%' }}>
+        <TableContainer sx={{ maxHeight: 640 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <TableCell>No</TableCell>
+                <TableCell>Name & Phone</TableCell>
+                <TableCell>Pet Name</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'appointmentDate'}
+                    direction={orderBy === 'appointmentDate' ? order : 'asc'}
+                    onClick={(event) => handleRequestSort(event, 'appointmentDate')}
+                  >
+                    Date & Timeslot
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>Veterinarian</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Booking Price</TableCell>
+                <TableCell>Note</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {sortedAppointments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((app, index) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={app.id}>
+                  <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                  <TableCell>
+                    <div className='d-flex align-items-center'>
+                      <img
+                        src='https://mdbootstrap.com/img/new/avatars/8.jpg'
+                        alt=''
+                        style={{ width: '45px', height: '45px' }}
+                        className='rounded-circle'
+                      />
+                      <div className='ms-3'>
+                        <p className='fw-bold mb-1'>{app.ownerName}</p>
+                        <p className='text-muted mb-0'>{app.ownerNumber}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-normal mb-1'>{app.petName}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-bold mb-1'>{app.appointmentDate}</p>
+                    <p className='text-muted mb-0'>{app.timeSlot}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-normal mb-1'>{app.veterinarianName}</p>
+                  </TableCell>
+                  <TableCell>
+                    <MDBBadge color={getBadgeColor(app)} pill>
+                      {app.isCancel ? "Cancelled" : app.isCheckUp ? "Checked Up" : app.isCheckIn ? "Checked In" : "Active"}
+                    </MDBBadge>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-bold mb-1'>{app.bookingPrice}</p>
+                    <p className='text-muted mb-0'>{app.appointmentType}</p>
+                  </TableCell>
+                  <TableCell>
+                    <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={filteredAppointments.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </div>
+  );
 }
 
 export default AppointmentList;
