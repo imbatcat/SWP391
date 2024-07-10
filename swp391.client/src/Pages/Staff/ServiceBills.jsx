@@ -83,6 +83,7 @@ export default function ServiceBills() {
                 if (data) {
                     setBillList(data);
                     setFilteredBillList(data);
+                    console.log(data);
                 }
                 else setBillList([]);
             } catch (error) {

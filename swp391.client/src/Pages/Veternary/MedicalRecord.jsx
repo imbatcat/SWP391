@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
     MDBCard,
     MDBCardBody,
@@ -389,11 +389,19 @@ function MedicalRecord() {
                         </MDBCard>
                     </MDBRow>
                 </MDBCardBody>
+                <MDBRow className='justify-content-end'>
+                                <MDBCol style={{justifyContent:'end', display:'flex', marginRight:'25px'}} size='3'>
+                                    <Link to='/vet/WorkSchedule'>
+                                        <MDBBtn color='mute'>Back</MDBBtn>
+                                    </Link>
+                                </MDBCol>
+                            </MDBRow>
+                            <br></br>
             </MDBCard>
 
             <div>
                 <MDBModal open={assignServiceModal} onClose={() => setAssignModal(false)} tabIndex='-1'>
-                    <AssignServiceModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleAssignServiceOpen} />
+                    <AssignServiceModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} appointment={appointment} toggleOpen={toggleAssignServiceOpen} />
                 </MDBModal>
             </div>
             <div>
@@ -401,6 +409,7 @@ function MedicalRecord() {
                     <AssignCageModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleAssignServiceOpen} />
                 </MDBModal>
             </div>
+
         </div>
     );
 }

@@ -7,13 +7,17 @@ import './SideNavForVet.css';
 import { IconContext } from 'react-icons';
 import { useAuth } from '../../Context/AuthProvider';
 import { toast } from 'react-toastify';
-import { MDBCol, MDBContainer, MDBIcon} from 'mdb-react-ui-kit';
+import { MDBBtn, MDBCol, MDBContainer, MDBIcon, MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalFooter, MDBModalHeader, MDBModalTitle} from 'mdb-react-ui-kit';
+import QrScanner from 'react-qr-scanner';
+import QRCodeScannerModal from '../QRCodeScanner/QRCodeScanner';
 
 function SideNavForVet({ searchInput, handleSearchInputChange }) {
     const [sidebar, setSidebar] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useAuth();
+    const [scannerModal, setScannerModal] = useState(false);
     const showSidebar = () => setSidebar(!sidebar);
     const navigate = useNavigate();
+    const toggleOpen = () => setScannerModal(!scannerModal);
     const logout = async () => {
         try {
             const response = await fetch(`https://localhost:7206/api/ApplicationAuth/logout`, {
@@ -35,6 +39,19 @@ function SideNavForVet({ searchInput, handleSearchInputChange }) {
             console.error(error.message);
         }
     };
+
+    const handleScan = (data) => {
+        if (data) {
+            handleSearchInputChange({ target: { value: data.text } });
+            setScannerModal(false);
+        }
+    };
+
+    const handleError = (err) => {
+        console.error(err);
+        toast.error('Error scanning QR code!');
+    };
+
     return (
         <>
             <IconContext.Provider value={{ color: '#fff' }}>
@@ -55,7 +72,10 @@ function SideNavForVet({ searchInput, handleSearchInputChange }) {
                             />
                              <MDBIcon icon='search' style={{marginLeft:'-35px'}} />
                         </MDBContainer>
-                    </MDBCol>   
+                    </MDBCol> 
+                    <MDBCol style={{ justifyContent: 'center', display: 'flex' }} md='1'>
+                        <AiIcons.AiOutlineExpand size='45px' onClick={toggleOpen} />
+                    </MDBCol>  
                     
                 </div>
                 <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
@@ -82,6 +102,12 @@ function SideNavForVet({ searchInput, handleSearchInputChange }) {
                         </li>
                     </ul>
                 </nav>
+                 <QRCodeScannerModal
+                    scannerModal={scannerModal}
+                    toggleOpen={toggleOpen}
+                    handleScan={handleScan}
+                    handleError={handleError}
+                />
             </IconContext.Provider>
         </>
     );

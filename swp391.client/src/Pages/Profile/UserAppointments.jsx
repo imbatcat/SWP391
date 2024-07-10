@@ -26,6 +26,7 @@ import MainLayout from "../../Layouts/MainLayout";
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 import UserSidebar from "../../Component/UserSidebar/UserSidebar";
+import QRCode from 'react-qr-code';
 
 function UserAppointments() {
     const [user, setUser] = useUser();
@@ -122,6 +123,9 @@ function UserAppointments() {
                                                             <td>
                                                                 <p className='fw-normal mb-1'>{appointment.appointmentStatus}</p>
                                                             </td>
+                                                            <td>
+                                                                <MDBBtn size="sm" onClick={() => toggleOpen(appointment)}>Details</MDBBtn>
+                                                            </td>
                                                         </tr>
                                                     ))}
                                                 </MDBTableBody>
@@ -140,9 +144,17 @@ function UserAppointments() {
                                                                 <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
                                                             </MDBModalHeader>
                                                             <MDBModalBody>
-                                                                <p className='Appointment-detail'>Veterinarian: {selectedAppointment.veterinarianName}</p>
-                                                                <p className='Appointment-detail'>Time slot: {selectedAppointment.timeSlot}</p>
-                                                                <p className='Appointment-detail'>Booking price: {selectedAppointment.bookingPrice}</p>
+                                                                <MDBRow>
+                                                                    <MDBCol style={{textAlign:'center', justifyContent:'center', alignContent:'center'}} size='6'>
+                                                                        <p className='Appointment-detail'>Veterinarian: {selectedAppointment.veterinarianName}</p>
+                                                                        <p className='Appointment-detail'>Time slot: {selectedAppointment.timeSlot}</p>
+                                                                        <p className='Appointment-detail'>Booking price: {selectedAppointment.bookingPrice}</p>
+                                                                    </MDBCol>
+                                                                    <MDBCol style={{alignItems:'center', justifyContent:'center', display:'flex'}} size='6'>
+                                                                        <QRCode size={125} value={selectedAppointment.appointmentId}/>
+                                                                    </MDBCol>
+                                                                </MDBRow>
+                                                                
                                                             </MDBModalBody>
                                                             <MDBModalFooter>
                                                             </MDBModalFooter>
