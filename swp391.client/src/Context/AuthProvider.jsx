@@ -11,6 +11,15 @@ const AuthProvider = ({ children }) => {
         return userToken ? true : false;
     });
 
+    useEffect(() => {
+        // Check authentication state on component mount
+        const checkAuth = async () => {
+            const userToken = Cookies.get('AspNetLogin');
+            setIsAuthenticated(!!userToken); // Efficiently set state to true/false
+        };
+        checkAuth();
+    }, []); 
+
     return (
         <AuthContext.Provider value={[isAuthenticated, setIsAuthenticated]}>
             {children}

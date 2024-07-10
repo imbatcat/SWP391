@@ -88,7 +88,7 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, appointment, t
             'medicalRecordId': mRecId
         };
         console.log(JSON.stringify(reqBody));
-        const fetchPromise = fetch('https://localhost:7206/api/ServiceOrder', {
+        const fetchPromise = fetch('https://localhost:7206/api/service-order-management/service-orders', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
     MDBCard,
     MDBCardBody,
@@ -55,7 +55,9 @@ async function fetchOwnerAndPetData(accountId, petId, vetId) {
 function MedicalRecord() {
     const location = useLocation();
     const appointment = location.state;
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [medRecloading, setMedRecLoading] = useState(true);
     const [error, setError] = useState(null);
     const [existingRecord, setExistingRecord] = useState(null);
     useEffect(() => {
@@ -65,20 +67,33 @@ function MedicalRecord() {
                 const response = await fetch(`https://localhost:7206/api/medical-record-management/appointments/${appointment.appointmentId}/medical-records`, {
                     method: 'GET',
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                 });
-                const data = await response.json();
-
-                if (data) {
-                    console.log(data);
-                    setFormData(data);
-                    setExistingRecord(data);
+                let data = null;
+                if (response.status === 204) {
+                    const reqBody = {
+                        'appointmentId': appointment.appointmentId,
+                        'petId': appointment.petId,
+                    };
+                    const response1 = await fetch(`https://localhost:7206/api/medical-record-management/medical-records/create-empty`, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(reqBody)
+                    });
+                    data = await response1.json();
+                } else {
+                    data = await response.json();
                 }
+                console.log(data);
+                setFormData(data);
+                setExistingRecord(data);
             } catch (error) {
                 console.log(error);
 
+            } finally {
+                setMedRecLoading(false);
             }
         }
         getMedicalRecord();
@@ -125,7 +140,7 @@ function MedicalRecord() {
     }, [appointment]);
 
 
-    if (loading) {
+    if (loading || medRecloading) {
         return <div>Loading...</div>;
     }
 
@@ -178,38 +193,49 @@ function MedicalRecord() {
             return;
         }
 
-        const url = existingRecord && existingRecord.diagnosis !== ''
-            ? `https://localhost:7206/api/medical-record-management/medical-records/${existingRecord.medicalRecordId}`
-            : 'https://localhost:7206/api/medical-record-management/medical-records';
-        const method = existingRecord && existingRecord.diagnosis !== '' ? 'PUT' : 'POST';
-
 
         try {
-            const response = await fetch(url, {
-                method: method,
+
+            let reqBody = formData;
+            reqBody = {
+                ...reqBody,
+                petId: appointment.petId,
+                appointmentId: appointment.appointmentId
+            };
+
+            console.log(reqBody);
+            const response = await fetch(`https://localhost:7206/api/medical-record-management/medical-records/${formData.medicalRecordId}`, {
+                method: 'PUT',
                 credentials: 'include',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(reqBody)
             });
 
             if (!response.ok) {
                 throw new Error('Network response was not ok ' + response.statusText);
             }
 
-            const responseData = await response.json();
-            console.log('Success:', responseData);
-            toast.success(`Medical Record ${existingRecord && existingRecord.diagnosis !== '' ? 'Updated' : 'Submitted'} Successfully`);
-            window.location.reload();
+            console.log('Saved');
+            toast.success(`Medical Record Updated Successfully`);
+            navigate('/vet/WorkSchedule');
         } catch (error) {
             console.error('Error:', error);
             toast.error(`Error: ${error.message}`);
         }
     };
 
-    console.log(formData);
+    //console.log(formData);
 
+    let today = new Date();
+
+    let tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    let dd = String(tomorrow.getDate()).padStart(2, '0');
+    let mm = String(tomorrow.getMonth() + 1).padStart(2, '0'); 
+    let yyyy = tomorrow.getFullYear();
 
     return (
 
@@ -355,7 +381,7 @@ function MedicalRecord() {
                                         <MDBRow>
                                             <MDBCol>
                                                 <MDBInputGroup className='mb-3' textBefore='Follow-Up Appointment Date' >
-                                                    <input className='form-control' type="date" name="followUpAppointmentDate" value={formData.followUpAppointmentDate} onChange={handleChange} required />
+                                                    <input className='form-control' type="date" name="followUpAppointmentDate" min={tomorrow} value={formData.followUpAppointmentDate} onChange={handleChange} required />
                                                 </MDBInputGroup>
                                             </MDBCol>
                                         </MDBRow>
@@ -406,7 +432,7 @@ function MedicalRecord() {
             </div>
             <div>
                 <MDBModal open={assignCageModal} onClose={() => setAssignCageModal(false)} tabIndex='-1'>
-                    <AssignCageModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleAssignServiceOpen} />
+                    <AssignCageModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleAssignCageOpen} />
                 </MDBModal>
             </div>
 
