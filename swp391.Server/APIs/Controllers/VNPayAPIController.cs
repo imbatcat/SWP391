@@ -57,7 +57,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(new VNPayResponseUrl { Url = url });
         }
 
-        [HttpPost("PaymentCallback")]
+        [HttpPost("payment-callback")]
         public async Task<IActionResult> PaymentCallback([FromForm] IFormCollection form)
         {
             var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(string.Join("&", form.Select(x => $"{x.Key}={x.Value}")));

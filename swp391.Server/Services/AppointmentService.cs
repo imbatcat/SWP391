@@ -364,7 +364,7 @@ namespace PetHealthcare.Server.Services
                 {
                     toCheckInAppointment.TimeSlotId = newTimeSlot;
                     await _appointmentRepository.SaveChanges();
-                }
+                }   
             }
             if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
             {

@@ -16,6 +16,35 @@ namespace PetHealthcare.Server.Services
             medRecService = medicalRecordService;
             appointmentService = appointmentRepository;
         }
+
+        public async Task<MedicalRecordBlankResDTO> CreateBlankMedicalRecord(MedicalRecordBlankDTO medicalRecordBlankDTO)
+        {
+            try
+            {
+                var medRecId = GenerateID();
+                var medicalRec = new MedicalRecord
+                {
+                    MedicalRecordId = medRecId,
+                    DateCreated = DateOnly.FromDateTime(DateTime.Now),
+                    PetWeight = 0,
+                    AppointmentId = medicalRecordBlankDTO.AppointmentId,
+                    PetId = medicalRecordBlankDTO.PetId
+                };
+
+                await medRecService.Create(medicalRec);
+                var res = new MedicalRecordBlankResDTO 
+                {
+                    MedicalRecordId = medRecId,
+                    AppointmentId = medicalRecordBlankDTO.AppointmentId,
+                    PetId = medicalRecordBlankDTO.PetId,
+                };
+                return res;
+            } catch (Exception e)
+            {
+                throw new BadHttpRequestException(e.Message, e.InnerException);
+            }
+        }
+
         public async Task CreateMedicalRecord(MedicalRecordResDTO medicalRecord)
         {
             var medicalRec = new MedicalRecord
@@ -100,8 +129,11 @@ namespace PetHealthcare.Server.Services
                 Symptoms = medicalRecord.Symptoms,
                 Allergies = medicalRecord.Allergies,
                 Diagnosis = medicalRecord.Diagnosis,
-                AdditionalNotes = medicalRecord.AdditionallNotes,
-                DrugPrescriptions = medicalRecord.DrugPrescription,
+                AdditionalNotes = medicalRecord.AdditionalNotes,
+                DrugPrescriptions = medicalRecord.DrugPrescriptions,
+                FollowUpAppointmentDate = medicalRecord.FollowUpAppointmentDate,
+                FollowUpAppointmentNotes = medicalRecord.FollowUpAppointmentNotes,
+                PetWeight = medicalRecord.PetWeight,
             };
             await medRecService.Update(medicalRec);
         }

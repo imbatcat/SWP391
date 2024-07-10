@@ -29,7 +29,7 @@ export default function ServiceBills() {
     };
     const handleOnPaidClick = async (orderId) => {
         const fetchData = async (orderId) => {
-            const response = await fetch(`https://localhost:7206/api/ServiceOrder/staff/PayServiceOrder/${orderId}`, {
+            const response = await fetch(`https://localhost:7206/api/service-order-management/service-orders/${orderId}/paid`, {
                 method: 'PUT',
                 credentials: 'include'
             });
@@ -75,12 +75,13 @@ export default function ServiceBills() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch(`https://localhost:7206/api/service-order-management/service-orders/staff`, {
+                const response = await fetch(`https://localhost:7206/api/service-order-detail-management/service-order-details`, {
                     method: 'GET',
                     credentials: 'include',
                 });
                 const data = await response.json();
                 if (data) {
+                    console.log(data);
                     setBillList(data);
                     setFilteredBillList(data);
                 }
@@ -108,7 +109,7 @@ export default function ServiceBills() {
                 services: groupedServices[orderId]
             }));
             setGroupedBillList(arr);
-
+            console.log(arr);
         }
     }, [filteredBillList, billList]);
 

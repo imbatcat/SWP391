@@ -65,6 +65,17 @@ namespace PetHealthcare.Server.Repositories
                 await SaveChanges();
             }
         }
+        public async Task UpdateVetAccount(Veterinarian veterinarian)
+        {
+            var account = await GetVet(veterinarian.RoleId, veterinarian.AccountId);            
+            if (account != null)
+            {
+                context.Entry(account).State = EntityState.Modified;
+                account.Position = veterinarian.Position;
+                account.Department = veterinarian.Department;
+                await SaveChanges();
+            }
+        }
         public bool CheckRoleId(int roleId)
         {
             return context.Roles.Any(r => r.RoleId == roleId);
@@ -96,7 +107,10 @@ namespace PetHealthcare.Server.Repositories
             }
             return accounts;
         }
-
+        public async Task<Veterinarian?> GetVet(int roleId,string id)
+        {
+            return await context.Veterinarians.FirstOrDefaultAsync(a => a.RoleId == roleId && a.AccountId.Equals(id));
+        }
         public async Task<bool> SetAccountIsDisabled(RequestAccountDisable entity)
         {
             var account = await GetByCondition(e => e.Username == entity.username);
@@ -118,6 +132,7 @@ namespace PetHealthcare.Server.Repositories
                 context.Entry(acc).State = EntityState.Modified;
                 acc.IsDisabled = entity.IsDisabled;
                 await SaveChanges();
+                
             }
         }
 
@@ -157,6 +172,28 @@ namespace PetHealthcare.Server.Repositories
                 });
             }
             return vetListToChoose;
+        }
+
+        public async Task UpdateAccPassword(Account entity)
+        {
+            var account = await GetByCondition(e => e.Email == entity.Email);
+            if (account != null)
+            {
+                context.Entry(account).State = EntityState.Modified;
+                account.Password = entity.Password;
+                await SaveChanges();
+            }
+        }
+
+        public async Task UnlockAccount(string accountId)
+        {
+            var entity = await GetByCondition(e => e.AccountId == accountId);
+            if (entity != null)
+            {
+                context.Entry(entity).State = EntityState.Modified;
+                entity.IsDisabled = false;
+                await SaveChanges();
+            }
         }
     }
 }
