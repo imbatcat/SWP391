@@ -9,6 +9,10 @@ using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
 using System.Net.Mail;
 using System.Text;
+using QRCoder;
+using System.Net.Mime;
+using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PetHealthcare.Server.Services
 {
@@ -89,23 +93,23 @@ namespace PetHealthcare.Server.Services
 
         public async Task SendAppointmentEmail(AppointmentEmailDTO appointmentInfor)
         {
+            string qrCodeCid = "qrcode_cid"; // A unique identifier for the QR code image
             MailMessage message = new MailMessage();
             string emailBody = $@"
-                    <h2>Appointment Confirmation</h2>
-                    <p>Dear {appointmentInfor.CustomerName},</p>
-                    <p>Thank you for scheduling an appointment with our veterinary hospital. Here are the details of your appointment:</p>
-                    <ul>
-                        <li><strong>Appointment Id:</strong> {appointmentInfor.AppointmentId}</li>
-                        <li><strong>Appointment Date:</strong> {appointmentInfor.appointmentDate}</li>
-                        <li><strong>Appointment Type:</strong> {appointmentInfor.AppointmentType}</li>
-                        <li><strong>Veterinarian name:</strong> {appointmentInfor.VeterinarianName}</li>
-                        <li><strong>Pet name:</strong> {appointmentInfor.PetName}</li>
-                        <li><strong>Time Slot:</strong> {appointmentInfor.AppointmentTime}</li>
-                        <li><strong>Checkin QR Code:</strong> <img src='{appointmentInfor.CheckinQr}' alt='Checkin QR Code' /></li>
-                    </ul>
-                    <p>If you have any questions or need to reschedule, please contact us at (insert contact information).</p>
-                    <p>Best regards,</p>
-                    <p>Your Veterinary Hospital Team</p>";
+            <h2 style='color: #000000;'>Appointment Confirmation</h2>
+            <p style='color: #000000;'>Dear {appointmentInfor.CustomerName},</p>
+            <p style='color: #000000;'>Thank you for scheduling an appointment with our veterinary hospital. Here are the details of your appointment:</p>
+            <ul>
+                <li style='color: #000000;'><strong>Appointment Id:</strong> {appointmentInfor.AppointmentId}</li>
+                <li style='color: #000000;'><strong>Appointment Date:</strong> {appointmentInfor.appointmentDate}</li>
+                <li style='color: #000000;'><strong>Appointment Type:</strong> {appointmentInfor.AppointmentType}</li>
+                <li style='color: #000000;'><strong>Veterinarian name:</strong> {appointmentInfor.VeterinarianName}</li>
+                <li style='color: #000000;'><strong>Pet name:</strong> {appointmentInfor.PetName}</li>
+                <li style='color: #000000;'><strong>Time Slot:</strong> {appointmentInfor.AppointmentTime}</li>
+            </ul>
+            <p style='color: #000000;'>Pleas go to profile --> Appoinment --> Click on an appointment to get your check in QrCode or show this email to staff to check in</p>
+            <p style='color: #000000;'>Best regards,</p>
+            <p style='color: #000000;'>Your Veterinary Hospital Team</p>";
             try
             {
                 await _emailService.SendEmailAsync(
@@ -118,6 +122,7 @@ namespace PetHealthcare.Server.Services
                 throw new BadHttpRequestException(ex.Message);
             }
         }
+
 
         public async Task SendForgotPasswordEmail(ApplicationUser user, string userEmail)
         {

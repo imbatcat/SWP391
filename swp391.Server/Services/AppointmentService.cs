@@ -503,7 +503,7 @@ namespace PetHealthcare.Server.Services
                 {
                     CustomerName = app.Account.FullName,
                     Email = app.Account.Email,
-                    AppointmentTime = Convert.ToString(app.TimeSlot.StartTime) + Convert.ToString(app.TimeSlot.EndTime),
+                    AppointmentTime = Convert.ToString(app.TimeSlot.StartTime) +"  -  " + Convert.ToString(app.TimeSlot.EndTime),
                     PetName = app.Pet.PetName,
                     VeterinarianName = app.Veterinarian.FullName,
                     CheckinQr = app.QRCodeImageUrl,
