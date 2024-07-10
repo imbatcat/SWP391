@@ -76,7 +76,8 @@ function AppointmentList() {
         (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
         (app.ownerNumber && app.ownerNumber.toLowerCase().includes(value)) ||
         (app.appointmentDate && app.appointmentDate.toLowerCase().includes(value)) ||
-        (app.timeSlot && app.timeSlot.toLowerCase().includes(value))
+        (app.timeSlot && app.timeSlot.toLowerCase().includes(value))||
+        (app.appointmentId && app.appointmentId.toLowerCase().includes(value))
       ));
     }
   }

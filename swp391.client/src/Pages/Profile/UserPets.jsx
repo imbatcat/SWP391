@@ -82,7 +82,7 @@ function UserPets() {
                                         {petList.map((pet, index) => (
                                             <MDBCol key={index}>
                                                 <MDBCard>
-                                                    <MDBCardImage src={img3} alt='pet image' position='top' />
+                                                    <MDBCardImage src={pet.imgUrl} alt='pet image' position='top' />
                                                     <MDBCardBody>
                                                         <MDBCardTitle>{pet.petName}</MDBCardTitle>
                                                         <MDBCardText>{pet.petBreed}</MDBCardText>

@@ -217,7 +217,7 @@ function MedicalRecord() {
 
             <MDBCard style={{ minHeight: '60vw', maxWidth: '50vw', margin: 'auto', marginTop: '50px' }}>
                 <MDBCardHeader style={{ textAlign: 'center', fontSize: '3vw' }}>Medical Record</MDBCardHeader>
-                <MDBCardBody style={{ height: '5' }} scrollable>
+                <MDBCardBody style={{ height: '5' }} >
                     <MDBRow style={{ marginLeft: '15px', marginRight: '15px' }}>
                         <MDBCol sm='6'>
                             <MDBCard>
