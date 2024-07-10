@@ -186,6 +186,11 @@ public class ApplicationAuthController : ControllerBase
             byte[] base64EncodedBytes = Convert.FromBase64String(entity.Token);
             string code = Encoding.UTF8.GetString(base64EncodedBytes);
             result = await _userManager.ResetPasswordAsync(user, code, entity.NewPassword);
+
+            await _accountService.UpdateAccPassword(new AccountUpdatePassDTO 
+            { 
+                Email = user.Email, Password = entity.NewPassword 
+            });
         }
         catch (FormatException)
         {

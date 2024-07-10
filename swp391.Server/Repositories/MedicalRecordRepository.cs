@@ -76,10 +76,13 @@ namespace PetHealthcare.Server.Repositories
             if (medicalRecord != null)
             {
                 _medRec.Entry(medicalRecord).State = EntityState.Modified;
+                medicalRecord.PetWeight = entity.PetWeight;
                 medicalRecord.Symptoms = entity.Symptoms;
                 medicalRecord.Allergies = entity.Allergies;
                 medicalRecord.Diagnosis = entity.Diagnosis;
                 medicalRecord.AdditionalNotes = entity.AdditionalNotes;
+                medicalRecord.FollowUpAppointmentDate = entity.FollowUpAppointmentDate;
+                medicalRecord.FollowUpAppointmentNotes = entity.FollowUpAppointmentNotes;
                 medicalRecord.DrugPrescriptions = entity.DrugPrescriptions;
             }
             await SaveChanges();

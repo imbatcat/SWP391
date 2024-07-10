@@ -118,6 +118,7 @@ namespace PetHealthcare.Server.Repositories
                 context.Entry(acc).State = EntityState.Modified;
                 acc.IsDisabled = entity.IsDisabled;
                 await SaveChanges();
+                
             }
         }
 
@@ -157,6 +158,28 @@ namespace PetHealthcare.Server.Repositories
                 });
             }
             return vetListToChoose;
+        }
+
+        public async Task UpdateAccPassword(Account entity)
+        {
+            var account = await GetByCondition(e => e.Email == entity.Email);
+            if (account != null)
+            {
+                context.Entry(account).State = EntityState.Modified;
+                account.Password = entity.Password;
+                await SaveChanges();
+            }
+        }
+
+        public async Task UnlockAccount(string accountId)
+        {
+            var entity = await GetByCondition(e => e.AccountId == accountId);
+            if (entity != null)
+            {
+                context.Entry(entity).State = EntityState.Modified;
+                entity.IsDisabled = false;
+                await SaveChanges();
+            }
         }
     }
 }
