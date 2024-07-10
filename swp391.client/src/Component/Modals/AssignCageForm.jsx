@@ -26,10 +26,13 @@ import ReactToPrint from 'react-to-print';
 
 function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
     const [cages, setCages] = useState([]);
-    const [selectedCages, setSelectedCages] = useState([]);
+    const [selectedCage, setSelectedCage] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
+    const [sortOrder, setSortOrder] = useState('asc'); // State to track sorting order
+
     const toggleModal = () => setModalOpen(!modalOpen);
     const componentRef = useRef();
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -73,20 +76,21 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
     };
 
     const handleAddCage = (cage) => {
-        if (!isCageSelected(cage.id)) {
-            setSelectedCages((prevCages) => [...prevCages, cage]);
-        }
+        setSelectedCage(cage);
     };
-    const handleRemoveCage = (cageId) => {
-        setSelectedCages((prevCage) => prevCage.filter(cage => cage.cageId !== cageId));
+
+    const handleRemoveCage = () => {
+        setSelectedCage(null);
     };
+
     const handleSubmitService = async () => {
+        if (!selectedCage) return;
         const reqBody = {
-            cageNumber: selectedCages[0].cageNumber,
+            cageNumber: selectedCage.cageNumber,
             isOccupied: true
         };
         console.log(JSON.stringify(reqBody));
-        const fetchPromise = fetch(`https://localhost:7206/api/cage-management/cages/${selectedCages[0].cageId}`, {
+        const fetchPromise = fetch(`https://localhost:7206/api/cage-management/cages/${selectedCage.cageId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -115,15 +119,26 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
         }
     };
 
-
     const isCageSelected = (cageId) => {
-        return selectedCages.some(cage => cage.cageId === cageId);
+        return selectedCage && selectedCage.cageId === cageId;
     };
 
     const calculateTotalPrice = () => {
-        return selectedCages.reduce((total, service) => total + service.servicePrice, 0);
+        return selectedCage ? selectedCage.servicePrice : 0;
     };
-    
+
+    const handleSort = () => {
+        const sortedCages = [...cages].sort((a, b) => {
+            if (sortOrder === 'asc') {
+                return a.isOccupied - b.isOccupied;
+            } else {
+                return b.isOccupied - a.isOccupied;
+            }
+        });
+        setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        setCages(sortedCages);
+    };
+
     return (
         <div ref={componentRef}>
             <style>
@@ -131,6 +146,7 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
                     @media print {
                         body {
                             margin: 0;
+                        }
                         .no-print {
                             display: none !important;
                         }
@@ -219,23 +235,21 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
                                 <MDBCardText>
                                     <MDBTable style={{ minWidth: '100%' }} align='middle'>
                                         <MDBTableBody>
-                                            {selectedCages.map((cage) => (
-                                                <tr key={cage.cageId}>
+                                            {selectedCage && (
+                                                <tr key={selectedCage.cageId}>
                                                     <td>
                                                         <div className='ms-3'>
-                                                            <p className='fw-bold mb-1'>The pet will be assigned to cage number {cage.cageNumber}</p>
+                                                            <p className='fw-bold mb-1'>The pet will be assigned to cage number {selectedCage.cageNumber}</p>
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <p className='fw-normal mb-1'>{cage.servicePrice}</p>
+                                                        <p className='fw-normal mb-1'>{selectedCage.servicePrice}</p>
                                                     </td>
                                                     <td>
-                                                        <MDBBtn className='no-print' color='danger' onClick={() => handleRemoveCage(cage.cageId)}>x</MDBBtn>
+                                                        <MDBBtn className='no-print' color='danger' onClick={handleRemoveCage}>x</MDBBtn>
                                                     </td>
                                                 </tr>
-            
-
-                                            ))}
+                                            )}
                                             <tr>
                                                 <td colSpan="2" style={{ textAlign: 'right', fontWeight: 'bold' }}>Total Price:</td>
                                                 <td colSpan="2" style={{ fontWeight: 'bold' }}>{calculateTotalPrice()}</td>
@@ -276,7 +290,9 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
                                 <MDBTableHead>
                                     <tr>
                                         <th scope='col'>Cage Number</th>
-                                        <th scope='col'>Status</th>
+                                        <th scope='col' onClick={handleSort} style={{ cursor: 'pointer' }}>
+                                            Status {sortOrder === 'asc' ? '▲' : '▼'}
+                                        </th>
                                         <th scope='col'>Action</th>
                                     </tr>
                                 </MDBTableHead>
@@ -289,20 +305,20 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
                                                 </div>
                                             </td>
                                             <td>
-                                            <MDBBadge color={cage.isOccupied ? 'warning' : 'secondary'} pill>
-                                                        {cage.isOccupied ? 'Occupied' : "Unoccupied"}
-                                                    </MDBBadge>
+                                                <MDBBadge color={cage.isOccupied ? 'warning' : 'secondary'} pill>
+                                                    {cage.isOccupied ? 'Occupied' : "Unoccupied"}
+                                                </MDBBadge>
                                             </td>
                                             <td>
                                                 <MDBBtn
-                                                    color={cage.isOccupied ? 'warning' : isCageSelected(cage.cageId)? 'danger' :'secondary'}
+                                                    color={cage.isOccupied ? 'warning' : isCageSelected(cage.cageId) ? 'danger' : 'secondary'}
                                                     style={{ color: 'black' }}
                                                     rounded
                                                     size='sm'
                                                     onClick={() => handleAddCage(cage)}
                                                     disabled={isCageSelected(cage.cageId) || cage.isOccupied}
                                                 >
-                                                    {isCageSelected(cage.cageId)? 'Selected' : cage.isOccupied ? 'Already Occupied' : 'Select' }
+                                                    {isCageSelected(cage.cageId) ? 'Selected' : cage.isOccupied ? 'Already Occupied' : 'Select'}
                                                 </MDBBtn>
                                             </td>
                                         </tr>
