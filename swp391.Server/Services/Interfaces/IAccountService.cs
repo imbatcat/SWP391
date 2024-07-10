@@ -21,5 +21,6 @@ namespace PetHealthcare.Server.Services.Interfaces
         string GenerateId(bool isVet);
 
         Task<IEnumerable<VetListDTO>> GetVetListToChoose(DateOnly date, int timeslotId);
+        Task UpdateVetAccount(string id, AccountUpdateDTO VetAccount);
     }
 }

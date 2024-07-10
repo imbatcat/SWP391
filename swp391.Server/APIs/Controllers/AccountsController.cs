@@ -85,29 +85,18 @@ namespace PetHealthcare.Server.APIs.Controllers
         // change the information of the account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("accounts/{id}")]
-        public async Task<IActionResult> PutAccount(string id, AccountUpdateDTO account)
+        public async Task<IActionResult> PutAccount([FromRoute]string id, AccountUpdateDTO account)
         {
             await _context.UpdateAccount(id, account);
-
-            //try
-            //{
-            //    await _context.SaveChangesAsync();
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!AccountExists(id))
-            //    {
-            //        return NotFound();
-            //    }
-            //    else
-            //    {
-            //        throw;
-            //    }
-            //}
-
             return NoContent();
         }
-
+        //change the position and department of the choosen vet
+        [HttpPut("accounts/veterinarians/{id}")]
+        public async Task<AccountUpdateDTO> PutVetAccount([FromRoute]string id, AccountUpdateDTO vet)
+        {
+            await _context.UpdateVetAccount(id, vet);
+            return vet;
+        }
         // POST: create a new user and insert it into database
         [Authorize(Roles = "Admin")]
         [HttpPost("accounts")]

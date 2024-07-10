@@ -103,7 +103,7 @@ export default function AppointmentCheckin() {
 
   async function checkinAppointment(app) {
     async function fetchData() {
-      const response = await fetch(`https://localhost:7206/api/Appointment/Checkin/${app.appointmentId}`, {
+        const response = await fetch(`https://localhost:7206/api/appointment-management/appointments/${app.appointmentId}/check-in`, {
         method: 'POST',
         credentials: 'include',
       });

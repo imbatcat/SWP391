@@ -84,18 +84,29 @@ namespace PetHealthcare.Server.Services
 
         public async Task UpdateAccount(string id, AccountUpdateDTO Account)
         {
-            var _account = new Account
+            //    var _account = new Account
+            //    {
+            //        AccountId = id,
+            //        FullName = Account.FullName,
+
+            //        Email = Account.Email,
+            //        PhoneNumber = Account.PhoneNumber,
+            //        IsMale = Account.IsMale,
+            //    };
+            //await _accountService.Update(_account);
+        }
+        public async Task UpdateVetAccount(string id, AccountUpdateDTO VetAccount)
+        {
+
+            var _vetAccount = new Veterinarian
             {
                 AccountId = id,
-                FullName = Account.FullName,
-                Username = Account.Username,
-                Email = Account.Email,
-                PhoneNumber = Account.PhoneNumber,
-                IsMale = Account.IsMale,
+                RoleId = 3,
+                Position = VetAccount.Position,
+                Department = VetAccount.Department,
             };
-            await _accountService.Update(_account);
+            await _accountService.UpdateVetAccount(_vetAccount);
         }
-
         public string GenerateId(bool isVet = false)
         {
             string prefix = "";

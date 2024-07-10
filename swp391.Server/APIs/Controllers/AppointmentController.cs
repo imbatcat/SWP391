@@ -275,8 +275,8 @@ namespace PetHealthcare.Server.APIs.Controllers
             }
             return Ok(toCreateAppointment);
         }
-
-        [HttpPost("appointment/{appointmentId}/check-in")]
+        
+        [HttpPost("appointments/{appointmentId}/check-in")]
         public async Task<IActionResult> CheckInCustomer(string appointmentId) //api for customer to checkin for the customer
         {
             try
