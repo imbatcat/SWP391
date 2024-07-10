@@ -492,6 +492,33 @@ namespace PetHealthcare.Server.Services
             }
             return appList;
         }
+
+        public async Task<AppointmentEmailDTO> CreateAppointmentEmail(string appointmentId)
+        {
+            AppointmentEmailDTO appointmentEmail = new AppointmentEmailDTO();
+            try
+            {
+                Appointment app = await _appointmentRepository.GetByCondition(a => a.AppointmentId == appointmentId);
+                AppointmentEmailDTO appointment = new AppointmentEmailDTO
+                {
+                    CustomerName = app.Account.FullName,
+                    Email = app.Account.Email,
+                    AppointmentTime = Convert.ToString(app.TimeSlot.StartTime) + Convert.ToString(app.TimeSlot.EndTime),
+                    PetName = app.Pet.PetName,
+                    VeterinarianName = app.Veterinarian.FullName,
+                    CheckinQr = app.QRCodeImageUrl,
+                    appointmentDate = app.AppointmentDate,
+                    AppointmentType = app.AppointmentType,
+                    AppointmentId = appointmentId,
+                };
+                appointmentEmail = appointment;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error with creating appointment email");
+            }
+            return appointmentEmail;
+        }
     }
 }
 

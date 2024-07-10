@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using PetHealthcare.Server.Core.DTOS;
+using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Core.DTOS.Auth;
 using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Services.AuthInterfaces;
@@ -79,6 +80,38 @@ namespace PetHealthcare.Server.Services
                     userEmail,
                     "Confirm Your Email Address",
                     $"<p>Please confirm your email address by clicking <a href='{confirmationLink}'>here</a>. 100% reliable no scam.</p>");
+            }
+            catch (Exception ex)
+            {
+                throw new BadHttpRequestException(ex.Message);
+            }
+        }
+
+        public async Task SendAppointmentEmail(AppointmentEmailDTO appointmentInfor)
+        {
+            MailMessage message = new MailMessage();
+            string emailBody = $@"
+                    <h2>Appointment Confirmation</h2>
+                    <p>Dear {appointmentInfor.CustomerName},</p>
+                    <p>Thank you for scheduling an appointment with our veterinary hospital. Here are the details of your appointment:</p>
+                    <ul>
+                        <li><strong>Appointment Id:</strong> {appointmentInfor.AppointmentId}</li>
+                        <li><strong>Appointment Date:</strong> {appointmentInfor.appointmentDate}</li>
+                        <li><strong>Appointment Type:</strong> {appointmentInfor.AppointmentType}</li>
+                        <li><strong>Veterinarian name:</strong> {appointmentInfor.VeterinarianName}</li>
+                        <li><strong>Pet name:</strong> {appointmentInfor.PetName}</li>
+                        <li><strong>Time Slot:</strong> {appointmentInfor.AppointmentTime}</li>
+                        <li><strong>Checkin QR Code:</strong> <img src='{appointmentInfor.CheckinQr}' alt='Checkin QR Code' /></li>
+                    </ul>
+                    <p>If you have any questions or need to reschedule, please contact us at (insert contact information).</p>
+                    <p>Best regards,</p>
+                    <p>Your Veterinary Hospital Team</p>";
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    appointmentInfor.Email,
+                    "Here is your appointment information:",
+                    emailBody);
             }
             catch (Exception ex)
             {

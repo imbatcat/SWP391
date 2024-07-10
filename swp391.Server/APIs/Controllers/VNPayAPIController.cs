@@ -6,6 +6,7 @@ using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Core.Helpers;
 using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Services;
+using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
 using System.Diagnostics;
 using System.Text.Json;
@@ -20,14 +21,16 @@ namespace PetHealthcare.Server.APIs.Controllers
         private readonly AppointmentService _appointmentService;
         private readonly PetHealthcareDbContext context;
         private readonly BookingPaymentService bookingPaymentService;
+        private readonly IAuthenticationService _authenticationService;
         public VNPayAPIController(IVnPayService vnPayService, PetHealthcareDbContext context, AppointmentService appointmentService,
-            BookingPaymentService _bookingPaymentService, ITempDataDictionaryFactory tempDataDictionaryFactory)
+            BookingPaymentService _bookingPaymentService, ITempDataDictionaryFactory tempDataDictionaryFactory, IAuthenticationService _authenticationService)
         {
             _vnPayService = vnPayService;
             this.context = context;
             _appointmentService = appointmentService;
             bookingPaymentService = _bookingPaymentService;
             _tempDataDictionaryFactory = tempDataDictionaryFactory;
+            this._authenticationService = _authenticationService;
         }
         private ITempDataDictionary TempData => _tempDataDictionaryFactory.GetTempData(HttpContext);
         private readonly IVnPayService _vnPayService;
@@ -89,6 +92,8 @@ namespace PetHealthcare.Server.APIs.Controllers
                             AppointmentId = appointmentId,
                         };
                         context.BookingPayments.Add(bookingPayment);
+                        AppointmentEmailDTO appointmentEmailDTO = await _appointmentService.CreateAppointmentEmail(appointmentId);
+                        await _authenticationService.SendAppointmentEmail(appointmentEmailDTO);
                     }
                     else
                     {

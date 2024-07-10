@@ -36,5 +36,6 @@ namespace PetHealthcare.Server.Services.Interfaces
         string GetQRCodeByAppointmentId(string appointmentId);
 
         Task<IEnumerable<AppointmentForStaffDTO>> GetAllAppointmentsForStaff();
+        Task<AppointmentEmailDTO> CreateAppointmentEmail(string appointmentId);
     }
 }
