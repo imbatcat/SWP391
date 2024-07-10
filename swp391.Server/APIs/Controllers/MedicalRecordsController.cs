@@ -53,9 +53,11 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
         [HttpGet("appointments/{appointmentId}/medical-records")]
         [Authorize(Roles = "Vet")]
-        public async Task<MedicalRecordVetDTO> GetMedicalRecordsByAppointmentId([FromRoute] string appointmentId)
+        public async Task<MedicalRecordVetDTO?> GetMedicalRecordsByAppointmentId([FromRoute] string appointmentId)
         {
-            return await _context.GetMedicalRecordsByAppointmentId(appointmentId);
+            var res = await _context.GetMedicalRecordsByAppointmentId(appointmentId);
+            return res != null ? res : null;
+
         }
         //GET: get all medical Records of a veterinarian from VetId
         [HttpGet("vets/{VetId}/medical-records")]
@@ -101,25 +103,19 @@ namespace PetHealthcare.Server.APIs.Controllers
             return CreatedAtAction(nameof(PostMedicalRecord), new { id = medicalRecordDTO.PetId + medicalRecordDTO.AppointmentId }, medicalRecordDTO);
         }
 
-        //// DELETE: api/MedicalRecords/5
-        //[HttpDelete("{id}")]
-        //public async Task<IActionResult> DeleteMedicalRecord(string id)
-        //{
-        //    var medicalRecord = await _context.MedicalRecords.FindAsync(id);
-        //    if (medicalRecord == null)
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    _context.MedicalRecords.Remove(medicalRecord);
-        //    await _context.SaveChangesAsync();
-
-        //    return NoContent();
-        //}
-
-        //private bool MedicalRecordExists(string id)
-        //{
-        //    return _context.MedicalRecords.Any(e => e.MedicalRecordId == id);
-        //}
+        [HttpPost("medical-records/create-empty")]
+        [Authorize(Roles = "Vet, Staff, Customer, Admin")]
+        public async Task<ActionResult<MedicalRecordResDTO>> CreateEmptyMedicalRecord([FromBody] MedicalRecordBlankDTO medicalRecordBlankDTO)
+        {
+            try
+            {
+                var response = await _context.CreateBlankMedicalRecord(medicalRecordBlankDTO);
+                return CreatedAtAction(nameof(CreateEmptyMedicalRecord), new { id = medicalRecordBlankDTO.PetId + medicalRecordBlankDTO.AppointmentId }, response);
+            } catch (BadHttpRequestException)
+            {
+                return BadRequest();
+            }
+                
+        }
     }
 }

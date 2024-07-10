@@ -33,7 +33,7 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/Cages', {
+                const response = await fetch('https://localhost:7206/api/cage-management/cages', {
                     method: 'GET',
                     credentials: 'include',
                 });
@@ -80,13 +80,13 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
     const handleRemoveCage = (cageId) => {
         setSelectedCages((prevCage) => prevCage.filter(cage => cage.cageId !== cageId));
     };
-    console.log(selectedCages[0].cageNumber);
     const handleSubmitService = async () => {
         const reqBody = {
-            'cageNumber': selectedCages[0].cageNumber
+            cageNumber: selectedCages[0].cageNumber,
+            isOccupied: true
         };
         console.log(JSON.stringify(reqBody));
-        const fetchPromise = fetch(`https://localhost:7206/api/Cages/${selectedCages[0].cageId}`, {
+        const fetchPromise = fetch(`https://localhost:7206/api/cage-management/cages/${selectedCages[0].cageId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

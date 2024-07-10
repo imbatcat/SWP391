@@ -1,6 +1,9 @@
-﻿using NanoidDotNet;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
+using NanoidDotNet;
 using PetHealthcare.Server.Core.DTOS;
 using PetHealthcare.Server.Models;
+using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Repositories.Interfaces;
 using PetHealthcare.Server.Services.Interfaces;
 using System.Linq.Expressions;
@@ -10,10 +13,12 @@ namespace PetHealthcare.Server.Services
     public class AccountService : IAccountService
     {
         private readonly IAccountRepository _accountService;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AccountService(IAccountRepository service)
+        public AccountService(IAccountRepository accountService, UserManager<ApplicationUser> userManager)
         {
-            _accountService = service;
+            _accountService = accountService;
+            _userManager = userManager;
         }
 
         public async Task<Account?> CreateAccount(AccountDTO Account, bool isGoogle)
@@ -49,6 +54,13 @@ namespace PetHealthcare.Server.Services
 
         public async Task DeleteAccount(Account Account)
         {
+            var user = await _userManager.FindByEmailAsync(Account.Email);
+            user.LockoutEnabled = !user.LockoutEnabled;
+            if (user.LockoutEnabled)
+            {
+                user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
+            }
+            await _userManager.UpdateAsync(user);
             var _account = new Account
             {
                 AccountId = Account.AccountId,
@@ -191,6 +203,35 @@ namespace PetHealthcare.Server.Services
         public async Task<IEnumerable<VetListDTO>> GetVetListToChoose(DateOnly date, int timeslotId)
         {
             return await _accountService.GetVetListToChoose(date, timeslotId);
+        }
+
+        public async Task UpdateAccPassword(AccountUpdatePassDTO account)
+        {
+            var Account = new Account
+            {
+                Email = account.Email,
+                Password = account.Password,
+            };
+            await _accountService.UpdateAccPassword(Account);
+        }
+
+        public async Task UnlockAccount(string accountId)
+        {
+            try
+            {
+                var account = await _accountService.GetByCondition(a => a.AccountId.Equals(accountId));
+                if (account != null)
+                {
+                    var user = await _userManager.FindByEmailAsync(account.Email);
+                    user.LockoutEnabled = false;
+                    await _userManager.UpdateAsync(user);
+                    await _accountService.UnlockAccount(accountId);
+                }
+                else throw new BadHttpRequestException("No such account");
+            } catch (Exception ex)
+            {
+                throw new Exception("There's something wrong");
+            }
         }
     }
 }

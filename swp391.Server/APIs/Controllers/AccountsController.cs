@@ -90,12 +90,13 @@ namespace PetHealthcare.Server.APIs.Controllers
             await _context.UpdateAccount(id, account);
             return NoContent();
         }
-        //change the position and department of the choosen vet
-        [HttpPut("accounts/veterinarians/{id}")]
-        public async Task<AccountUpdateDTO> PutVetAccount([FromRoute]string id, AccountUpdateDTO vet)
+
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("accounts/unlock-account/{accountId}")]
+        public async Task<ActionResult<Account>> UnlockAccount([FromRoute] string accountId)
         {
-            await _context.UpdateVetAccount(id, vet);
-            return vet;
+            await _context.UnlockAccount(accountId);
+            return Ok(); 
         }
         // POST: create a new user and insert it into database
         [Authorize(Roles = "Admin")]

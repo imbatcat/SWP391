@@ -22,5 +22,7 @@ namespace PetHealthcare.Server.Services.Interfaces
 
         Task<IEnumerable<VetListDTO>> GetVetListToChoose(DateOnly date, int timeslotId);
         Task UpdateVetAccount(string id, AccountUpdateDTO VetAccount);
+        Task UpdateAccPassword(AccountUpdatePassDTO account);
+        Task UnlockAccount(string accountId);
     }
 }
