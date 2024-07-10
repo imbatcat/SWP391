@@ -21,8 +21,7 @@ function PetModalForm() {
     const [petNotes, setPetNotes] = useState('');
     const [vaccinationHistory, setVaccinationHistory] = useState('');
 
-    const createPetApi = async (e) => {
-        e.preventDefault();
+    const createPetApi = async () => {
         console.log(user.id);
         const petInfo = {
             petName,
@@ -37,7 +36,7 @@ function PetModalForm() {
             accountId: user.id
         };
         try {
-            const response = await fetch('https://localhost:7206/api/Pets', {
+            const response = await fetch('https://localhost:7206/api/pet-management/pets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

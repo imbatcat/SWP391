@@ -81,8 +81,8 @@ function UserPets() {
                                     <MDBRow className="row-cols-1 row-cols-md-3 g-4">
                                         {petList.map((pet, index) => (
                                             <MDBCol key={index}>
-                                                <MDBCard>
-                                                    <MDBCardImage src={pet.imgUrl} alt='pet image' position='top' />
+                                                <MDBCard style={{minHeight:'300px'}}>
+                                                    <MDBCardImage style={{minHeight:'200px',maxHeight:'200px', objectFit:'fill'}} src={pet.imgUrl} alt='pet image' position='top' />
                                                     <MDBCardBody>
                                                         <MDBCardTitle>{pet.petName}</MDBCardTitle>
                                                         <MDBCardText>{pet.petBreed}</MDBCardText>
