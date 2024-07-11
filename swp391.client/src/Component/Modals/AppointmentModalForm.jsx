@@ -16,6 +16,44 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import React from 'react';
+
+function CircularProgressWithLabel(props) {
+    return (
+        <Box position="relative" display="inline-flex">
+            <GradientCircularProgress variant="determinate" {...props} />
+            <Box
+                top={0}
+                left={0}
+                bottom={0}
+                right={0}
+                position="absolute"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+            </Box>
+        </Box>
+    );
+}
+
+function GradientCircularProgress() {
+  return (
+    <React.Fragment>
+      <svg width={0} height={0}>
+        <defs>
+          <linearGradient id="my_gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#e01cd5" />
+            <stop offset="100%" stopColor="#1CB5E0" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <CircularProgress sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }} />
+    </React.Fragment>
+  );
+}
 
 function AppointmentForm({ toggleOpen }) {
     const [user, setUser] = useUser();
@@ -23,6 +61,7 @@ function AppointmentForm({ toggleOpen }) {
     const [petList, setPetList] = useState([]);
     const [timeSlotList, setTimeSlotList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+
     const [formData, setFormData] = useState({
         accountId: user.id,
         petId: '',
@@ -152,7 +191,17 @@ function AppointmentForm({ toggleOpen }) {
     };
 
     if (isLoading) {
-        return (<div>Loading...</div>);
+        return (
+        <>
+            <MDBModalHeader>
+                <MDBModalTitle style={{ fontSize: '24px' }}>Appointment Information</MDBModalTitle>
+                <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
+            </MDBModalHeader>
+            <MDBModalBody style={{justifyContent:'center', display:'flex'}}>
+                <CircularProgressWithLabel/>
+            </MDBModalBody>
+        </>
+        );
     }
 
     return (

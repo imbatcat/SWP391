@@ -22,11 +22,51 @@ import MainLayout from "../../Layouts/MainLayout";
 import { toast } from 'react-toastify';
 import UserSidebar from '../../Component/UserSidebar/UserSidebar';
 import img3 from '../../assets/images/hero3.png';
+import CircularProgress from '@mui/material/CircularProgress';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import React from 'react';
+
+function CircularProgressWithLabel(props) {
+    return (
+        <Box position="relative" display="inline-flex">
+            <GradientCircularProgress variant="determinate" {...props} />
+            <Box
+                top={0}
+                left={0}
+                bottom={0}
+                right={0}
+                position="absolute"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+            >
+            </Box>
+        </Box>
+    );
+}
+
+function GradientCircularProgress() {
+  return (
+    <React.Fragment>
+      <svg width={0} height={0}>
+        <defs>
+          <linearGradient id="my_gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#e01cd5" />
+            <stop offset="100%" stopColor="#1CB5E0" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <CircularProgress sx={{ 'svg circle': { stroke: 'url(#my_gradient)' } }} />
+    </React.Fragment>
+  );
+}
 
 function UserPets() {
     const [user, setUser] = useUser();
     const [petList, setPetList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [progress, setProgress] = useState(0);
     const [centredModal, setCentredModal] = useState(false);
     const [selectedPet, setSelectedPet] = useState(null);
 
@@ -59,7 +99,22 @@ function UserPets() {
     }, [user]);
 
     if (isLoading) {
-        return <div>Loading...</div>; // Loading state
+        return (
+            <MainLayout>
+                <section style={{ backgroundColor: '#eee' }}>
+                    <MDBContainer className="py-5">
+                        <MDBRow>
+                            <MDBCol lg="4">
+                                <UserSidebar />
+                            </MDBCol>
+                            <MDBCol lg="8" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                <CircularProgressWithLabel value={progress} />
+                            </MDBCol>
+                        </MDBRow>
+                    </MDBContainer>
+                </section>
+            </MainLayout>
+        );
     }
 
     const toggleOpen = (Pet = null) => {
@@ -81,8 +136,8 @@ function UserPets() {
                                     <MDBRow className="row-cols-1 row-cols-md-3 g-4">
                                         {petList.map((pet, index) => (
                                             <MDBCol key={index}>
-                                                <MDBCard style={{minHeight:'300px'}}>
-                                                    <MDBCardImage style={{minHeight:'200px',maxHeight:'200px', objectFit:'fill'}} src={pet.imgUrl} alt='pet image' position='top' />
+                                                <MDBCard style={{ minHeight: '300px'}}>
+                                                    <MDBCardImage style={{ minHeight: '170px', maxHeight: '170px', objectFit: 'fill' }} src={pet.imgUrl} alt='pet image' position='top' />
                                                     <MDBCardBody>
                                                         <MDBCardTitle>{pet.petName}</MDBCardTitle>
                                                         <MDBCardText>{pet.petBreed}</MDBCardText>

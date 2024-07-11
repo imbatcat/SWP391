@@ -11,6 +11,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import { Link } from 'react-router-dom';
 
 function AppointmentList() {
   const [user, setUser] = useUser();
@@ -135,6 +136,7 @@ function AppointmentList() {
                 <TableCell>Status</TableCell>
                 <TableCell>Booking Price</TableCell>
                 <TableCell>Note</TableCell>
+                <TableCell>Medical Record</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -176,6 +178,12 @@ function AppointmentList() {
                   </TableCell>
                   <TableCell>
                     <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
+                  </TableCell>
+                  <TableCell>
+                    <Link to='/vet/MedicalRecord'
+                          state={app}>
+                      <MDBBtn color='danger'>View Detail</MDBBtn>
+                  </Link>
                   </TableCell>
                 </TableRow>
               ))}
