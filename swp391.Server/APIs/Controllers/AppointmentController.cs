@@ -29,6 +29,13 @@ namespace PetHealthcare.Server.APIs.Controllers
         {
             return await _appointment.GetAllAppointment();
         }
+
+        [HttpGet("vets/{vetId}/appointments")]
+        public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointmentsForVet([FromRoute] string vetId)
+        {
+            return await _appointment.ViewAppointmentListForVet(vetId);
+        }
+
         [HttpGet("staff/get-all")]
         public async Task<ActionResult<IEnumerable<AppointmentForStaffDTO>>> GetAllAppointmentForStaff()
         {

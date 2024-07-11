@@ -23,7 +23,7 @@ namespace PetHealthcare.Server.Services.Interfaces
         string GenerateId();
 
         Task<Account?> GetAccountById(string id);
-        Task<IEnumerable<AppointmentListForVetDTO?>> ViewAppointmentListForVet(string id, DateOnly date);
+        Task<IEnumerable<GetAllAppointmentForAdminDTO?>> ViewAppointmentListForVet(string vetId);
         Task<IEnumerable<VetAppointment?>> ViewVetAppointmentList(string id);
         Task<bool> UpdateCheckinStatus(string appointmentId);
 
