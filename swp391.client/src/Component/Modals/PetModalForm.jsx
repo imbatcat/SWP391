@@ -2,7 +2,7 @@ import {
     MDBBtn,
     MDBCol,
     MDBInput,
-    MDBRow
+    MDBRow,
 } from 'mdb-react-ui-kit';
 import { useState } from 'react';
 import { toast } from 'react-toastify';
@@ -11,39 +11,58 @@ import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 function PetModalForm() {
     const [user, setUser] = useUser();
-    const [petName, setPetName] = useState('');
-    const [petAge, setPetAge] = useState(0);
-    const [petBreed, setPetBreed] = useState('');
-    const [isMale, setIsMale] = useState('');
-    const [isCat, setIsCat] = useState('');
-    const [petImg, setPetImg] = useState(null);
-    const [petImgUrl, setPetImgUrl] = useState(null);
-    const [petNotes, setPetNotes] = useState('');
-    const [vaccinationHistory, setVaccinationHistory] = useState('');
+    const [formData, setFormData] = useState({
+        petName: '',
+        petAge: '',
+        petBreed: '',
+        isMale: true,
+        isCat: 'Cat',
+        imgUrl: '',
+        description: '',
+        vaccinationHistory: '',
+        isDisable: false,
+        accountId: user.id, // Pre-populate with user ID
+    });
+    const [buffer, setBuffer] = useState([]);
 
-    const createPetApi = async (e) => {
+    const handleInputChange = (e) => {
+        const { name, value, files } = e.target;
+
+        // Handle file upload separately
+        if (files) {
+            const reader = new FileReader();
+            setFormData((prevState) => ({ ...prevState, imgUrl: files[0] })); // Update imgUrl in state
+            reader.readAsDataURL(files[0]);
+            reader.onload = () => setFormData((prevState) => ({ ...prevState, imgUrl: reader.result }));
+            reader.onerror = (error) => console.error('Error:', error);
+            return; // Prevent further processing for file uploads
+        }
+
+        // Update other form data in state
+        setFormData((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const createPetApi = async (e, data) => {
         e.preventDefault();
-        console.log(user.id);
-        const petInfo = {
-            petName,
-            petAge,
-            petBreed,
-            isMale: isMale === 'Male',
-            isCat: isCat === 'Cat',
-            imgUrl: petImgUrl,
-            description: petNotes,
-            vaccinationHistory,
-            isDisable: false,
-            accountId: user.id
-        };
+
+        const { petName, petAge, petBreed, isMale, isCat, imgUrl, description, vaccinationHistory } = data;
+
+        if (!petName || !petAge || !petBreed || !isMale || !isCat || !description || !vaccinationHistory) {
+            toast.error('Please fill in all required fields.');
+            return;
+        }
+
         try {
-            const response = await fetch('https://localhost:7206/api/Pets', {
+            const response = await fetch('https://localhost:7206/api/pet-management/pets', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 credentials: 'include',
-                body: JSON.stringify(petInfo)
+                body: JSON.stringify(data), // Use data directly
             });
             if (!response.ok) {
                 throw new Error('Failed to add pet');
@@ -52,142 +71,129 @@ function PetModalForm() {
             toast.success(`${petName} has been added`);
         } catch (error) {
             console.error(error.message);
-        }
-    };
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (!petName || !petAge || !petBreed || !isMale || !isCat || !petNotes || !vaccinationHistory) {
-            toast.error('Please fill in all required fields.');
-            return;
-        }
-        createPetApi();
-    };
-
-    const handleInputChange = (e) => {
-        const { id, name, value, files } = e.target;
-        if (files) {
-            var reader = new FileReader();
-            setPetImg(files[0]);
-            reader.readAsDataURL(files[0]);
-            reader.onload = () => {
-                setPetImgUrl(reader.result);
-            };
-            reader.onerror = (error) => {
-                console.error('Error', error);
-            };
-        } else {
-            switch (name || id) {
-                case 'petName':
-                    setPetName(value);
-                    break;
-                case 'petAge':
-                    setPetAge(value);
-                    break;
-                case 'petBreed':
-                    setPetBreed(value);
-                    break;
-                case 'isMale':
-                    setIsMale(value);
-                    break;
-                case 'isCat':
-                    setIsCat(value);
-                    break;
-                case 'petNotes':
-                    setPetNotes(value);
-                    break;
-                case 'vaccinationHistory':
-                    setVaccinationHistory(value);
-                    break;
-                default:
-                    break;
+            if (buffer.length > 0) {
+                setTimeout(() => {
+                    setBuffer([]);
+                    createPetApi(e, buffer[0]);
+                }, 1000);
             }
         }
     };
+
+    const handleSubmit = (e) => {
+        if (formData.isDisable) {
+            setBuffer([...buffer, formData]);
+            return;
+        }
+        createPetApi(e, formData);
+    };
+
     const handleReset = (e) => {
         e.preventDefault();
-        setPetName('');
-        setPetAge(0);
-        setPetBreed('');
-        setIsMale('');
-        setIsCat('');
-        setPetImg(null);
-        setPetImgUrl(null);
-        setPetNotes('');
-        setVaccinationHistory('');
-        };
+        setFormData({
+            petName: '',
+            petAge: '',
+            petBreed: '',
+            isMale: true,
+            isCat: 'Cat',
+            imgUrl: '',
+            description: '',
+            vaccinationHistory: '',
+            isDisable: false,
+            accountId: user.id, // Reset but retain user ID
+        });
+    };
 
     return (
         <form>
-            <MDBRow className='mb-4'>
-                <MDBCol>
-                    <MDBInput id='petName' name='petName' label='Pet Name' value={petName} onChange={handleInputChange} />
+            <MDBRow>
+                <MDBCol size='6'>
+                    <MDBInput
+                        label='Pet Name'
+                        name='petName'
+                        value={formData.petName}
+                        onChange={handleInputChange}
+                    />
                 </MDBCol>
-                <MDBCol>
-                <MDBInput id='petAge' label='Pet Age' type='date' min='0' value={petAge} onChange={handleInputChange} />
-                </MDBCol>
-                <MDBCol>
-                    <MDBInput id='petBreed' name='petBreed' label='Pet Breed' type='text' value={petBreed} onChange={handleInputChange} />
+                <MDBCol size='6'>
+                    <MDBInput
+                        label='Pet Age'
+                        name='petAge'
+                        value={formData.petAge}
+                        onChange={handleInputChange}
+                    />
                 </MDBCol>
             </MDBRow>
-            <MDBRow className='mb-4'>
-                <MDBCol>
+            <MDBRow>
+                <MDBCol size='6'>
+                    <MDBInput
+                        label='Pet Breed'
+                        name='petBreed'
+                        value={formData.petBreed}
+                        onChange={handleInputChange}
+                    />
+                </MDBCol>
+                <MDBCol size='6'>
                     <FormControl fullWidth>
-                        <InputLabel id="is-male-label">Gender</InputLabel>
+                        <InputLabel id='gender-select-label'>Gender</InputLabel>
                         <Select
-                            labelId="is-male-label"
-                            id="isMale"
-                            name="isMale"
-                            value={isMale}
-                            label="Gender"
+                            labelId='gender-select-label'
+                            id='gender-select'
+                            name='isMale'
+                            value={formData.isMale ? 'Male' : 'Female'}
                             onChange={handleInputChange}
                         >
-                            <MenuItem value="Male">Male</MenuItem>
-                            <MenuItem value="Female">Female</MenuItem>
+                            <MenuItem value='Male'>Male</MenuItem>
+                            <MenuItem value='Female'>Female</MenuItem>
                         </Select>
                     </FormControl>
                 </MDBCol>
-                <MDBCol>
+            </MDBRow>
+            <MDBRow>
+                <MDBCol size='6'>
                     <FormControl fullWidth>
-                        <InputLabel id="is-cat-label">Type</InputLabel>
+                        <InputLabel id='species-select-label'>Species</InputLabel>
                         <Select
-                            labelId="is-cat-label"
-                            id="isCat"
-                            name="isCat"
-                            value={isCat}
-                            label="Type"
+                            labelId='species-select-label'
+                            id='species-select'
+                            name='isCat'
+                            value={formData.isCat}
                             onChange={handleInputChange}
                         >
-                            <MenuItem value="Cat">Cat</MenuItem>
-                            <MenuItem value="Dog">Dog</MenuItem>
+                            <MenuItem value='Cat'>Cat</MenuItem>
+                            <MenuItem value='Dog'>Dog</MenuItem>
                         </Select>
                     </FormControl>
                 </MDBCol>
-            </MDBRow>
-            <MDBRow className='mb-4'>
-                <MDBCol>
-                    <MDBInput id='petImgUrl' type='file' name='photo' accept='image/*' onChange={handleInputChange} />
-                </MDBCol>
-                {petImgUrl && (
-                    <div>
-                        <img
-                            src={URL.createObjectURL(petImg)}
-                            alt='pet photo'
-                            height={'200px'}
-                        />
-                    </div>
-                )}
-            </MDBRow>
-            <MDBRow className='mb-4'>
-                <MDBCol>
-                    <MDBInput id='petNotes' name='petNotes' label='Description' type='text' size='lg' value={petNotes} onChange={handleInputChange} />
+                <MDBCol size='6'>
+                    <MDBInput
+                        label='Image URL'
+                        name='imgUrl'
+                        type='file'
+                        onChange={handleInputChange}
+                    />
                 </MDBCol>
             </MDBRow>
-            <MDBRow className='mb-4'>
-                <MDBCol>
-                    <MDBInput id='vaccinationHistory' name='vaccinationHistory' label='Vaccination History' type='text' size='lg' value={vaccinationHistory} onChange={handleInputChange} />
+            <MDBRow>
+                <MDBCol size='12'>
+                    <MDBInput
+                        label='Description'
+                        name='description'
+                        value={formData.description}
+                        onChange={handleInputChange}
+                    />
                 </MDBCol>
             </MDBRow>
-
+            <MDBRow>
+                <MDBCol size='12'>
+                    <MDBInput
+                        label='Vaccination History'
+                        name='vaccinationHistory'
+                        value={formData.vaccinationHistory}
+                        onChange={handleInputChange}
+                    />
+                </MDBCol>
+            </MDBRow>
             <MDBBtn onClick={handleSubmit} type='submit' outline color='dark' className='mb-4' block>
                 Submit
             </MDBBtn>

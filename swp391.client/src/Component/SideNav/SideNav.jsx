@@ -16,7 +16,7 @@ function SideNav({ searchInput, handleSearchInputChange }) {
     const navigate = useNavigate();
     const logout = async () => {
         try {
-            const response = await fetch(`https://localhost:7206/api/ApplicationAuth/logout`, {
+            const response = await fetch(`https://localhost:7206/api/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

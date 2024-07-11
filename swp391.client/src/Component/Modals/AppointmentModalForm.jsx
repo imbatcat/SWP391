@@ -32,6 +32,7 @@ function AppointmentForm({ toggleOpen }) {
         appointmentNotes: '',
         appointmentType: '',
     });
+    const [buffer, setBuffer] = useState([]);
 
     const apis = [
         `https://localhost:7206/api/pet-management/accounts/${user.id}/pets`,
@@ -72,15 +73,15 @@ function AppointmentForm({ toggleOpen }) {
         getData();
     }, []);
 
-    const addAppointment = async () => {
-        console.log(formData);
+    const addAppointment = async (data) => {
+        console.log(data);
         const fetchPromise = fetch('https://localhost:7206/api/vn-pay-api-management/make-payment', {
             method: 'POST',
             headers: {
                 'Content-type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify(formData)
+            body: JSON.stringify(data)
         });
 
         toast.promise(
@@ -93,13 +94,19 @@ function AppointmentForm({ toggleOpen }) {
 
         try {
             const response = await fetchPromise;
-            var data = await response.json();
-            openLink(data.url);
+            var responseData = await response.json();
+            openLink(responseData.url);
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
+            if (buffer.length > 0) {
+                setTimeout(() => {
+                    setBuffer([]);
+                    addAppointment(buffer[0]);
+                }, 1000);
+            }
         }
     };
 
@@ -118,11 +125,15 @@ function AppointmentForm({ toggleOpen }) {
             toast.error('Please fill in all required fields.');
             return;
         }
+        if (formData.isDisable) {
+            setBuffer([...buffer, formData]);
+            return;
+        }
         addAppointment(formData);
     };
 
     const tomorrow = () => {
-        const today = new Date(); 
+        const today = new Date();
         today.setDate(today.getDate() + 1);
         return today.toISOString().split('T')[0];
     };
@@ -190,15 +201,15 @@ function AppointmentForm({ toggleOpen }) {
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <MDBInput 
-                                id='appDate' 
-                                name='appointmentDate' 
-                                label='Appointment Date' 
-                                type='date' 
-                                min={tomorrow()} 
-                                max={maxDate} 
-                                value={formData.appointmentDate} 
-                                onChange={handleDateChange} 
+                            <MDBInput
+                                id='appDate'
+                                name='appointmentDate'
+                                label='Appointment Date'
+                                type='date'
+                                min={tomorrow()}
+                                max={maxDate}
+                                value={formData.appointmentDate}
+                                onChange={handleDateChange}
                             />
                         </MDBCol>
                     </MDBRow>

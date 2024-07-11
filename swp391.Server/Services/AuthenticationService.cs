@@ -1,9 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.WebUtilities;
+using NanoidDotNet;
+using Newtonsoft.Json.Linq;
 using PetHealthcare.Server.Core.DTOS;
 using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Core.DTOS.Auth;
+using PetHealthcare.Server.Core.Helpers;
 using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
@@ -145,6 +149,74 @@ namespace PetHealthcare.Server.Services
                 throw new BadHttpRequestException(ex.Message);
             }
 
+        }
+
+        public async Task<ResponseUserDTO> SignInGoogle(GoogleLoginModel model)
+        {
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync($"https://oauth2.googleapis.com/tokeninfo?id_token={model.token}");
+            if (response.IsSuccessStatusCode)
+            {
+                var user = new ApplicationUser();
+                var content = await response.Content.ReadAsStringAsync();
+                JObject userInfo = JObject.Parse(content);
+                string name = userInfo["given_name"].ToString();
+                string fullName = userInfo["name"].ToString();
+                string email = userInfo["email"].ToString();
+
+                user = await _userManager.FindByEmailAsync(email);
+
+                if (user == null)
+                {
+                    try
+                    {
+                        AccountDTO newAccount = new AccountDTO
+                        {
+                            FullName = fullName,
+                            Email = email,
+                            UserName = name + "_" + Nanoid.Generate(size: 5),
+                            Password = null,
+                            IsMale = false,
+                            RoleId = 1,
+                            PhoneNumber = null,
+                            DateOfBirth = null,
+
+                        };
+                        var acc = await _accountService.CreateAccount(newAccount, true);
+                        user = new ApplicationUser
+                        {
+                            UserName = acc.AccountId,
+                            Email = email,
+                            AccountFullname = fullName
+                        };
+
+                        var role = Helpers.GetRole(acc.RoleId);
+                        var result = await _userManager.CreateAsync(user);
+                        if (result.Succeeded)
+                        {
+                            await _userManager.AddToRoleAsync(user, role);
+                        }
+                        throw new BadHttpRequestException("There's something wrong");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new BadHttpRequestException(ex.Message);
+                    }
+                } else if (!user.LockoutEnabled)
+                {
+                    await _signInManager.SignInAsync(user, true);
+                    return new ResponseUserDTO
+                    {
+                        id = user.UserName,
+                        role = "Customer"
+                    };
+                } else
+                {
+                    throw new BadHttpRequestException("");
+                }
+
+            }
+            throw new BadHttpRequestException("");
         }
 
         public async Task<RegisterErrorDTO?> ValidateUniqueFields(AccountDTO accountDTO)

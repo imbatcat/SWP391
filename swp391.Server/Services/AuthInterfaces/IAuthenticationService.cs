@@ -13,6 +13,7 @@ namespace PetHealthcare.Server.Services.AuthInterfaces
         Task<string> GenerateConfirmationToken(ApplicationUser user, string email, bool isChange = false);
         Task<string> GenerateForgotPasswordToken(ApplicationUser user, string email);
         Task<string?> GetUserRole(ApplicationUser user);
+        Task<ResponseUserDTO> SignInGoogle(GoogleLoginModel model);
 
         Task<RegisterErrorDTO?> ValidateUniqueFields(AccountDTO accountDTO);
 
