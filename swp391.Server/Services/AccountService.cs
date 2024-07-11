@@ -223,7 +223,6 @@ namespace PetHealthcare.Server.Services
                 if (account != null)
                 {
                     var user = await _userManager.FindByEmailAsync(account.Email);
-                    user.LockoutEnabled = false;
                     await _userManager.UpdateAsync(user);
                     await _accountService.UnlockAccount(accountId);
                 }

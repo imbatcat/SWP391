@@ -237,9 +237,9 @@ public class ApplicationAuthController : ControllerBase
         {
             var account = await _authenticationService.SignInGoogle(model);
             return account;
-        } catch (BadHttpRequestException)
+        } catch (BadHttpRequestException ex)
         {
-            return BadRequest(new { message = "There's something wrong with your Google account" });
+            return BadRequest(new { message = ex.Message });
         }
     }
 }

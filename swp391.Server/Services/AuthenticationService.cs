@@ -183,68 +183,68 @@ namespace PetHealthcare.Server.Services
         {
             var httpClient = new HttpClient();
             var response = await httpClient.GetAsync($"https://oauth2.googleapis.com/tokeninfo?id_token={model.token}");
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                var user = new ApplicationUser();
-                var content = await response.Content.ReadAsStringAsync();
-                JObject userInfo = JObject.Parse(content);
-                string name = userInfo["given_name"].ToString();
-                string fullName = userInfo["name"].ToString();
-                string email = userInfo["email"].ToString();
-
-                user = await _userManager.FindByEmailAsync(email);
-
-                if (user == null)
-                {
-                    try
-                    {
-                        AccountDTO newAccount = new AccountDTO
-                        {
-                            FullName = fullName,
-                            Email = email,
-                            UserName = name + "_" + Nanoid.Generate(size: 5),
-                            Password = null,
-                            IsMale = false,
-                            RoleId = 1,
-                            PhoneNumber = null,
-                            DateOfBirth = null,
-
-                        };
-                        var acc = await _accountService.CreateAccount(newAccount, true);
-                        user = new ApplicationUser
-                        {
-                            UserName = acc.AccountId,
-                            Email = email,
-                            AccountFullname = fullName
-                        };
-
-                        var role = Helpers.GetRole(acc.RoleId);
-                        var result = await _userManager.CreateAsync(user);
-                        if (result.Succeeded)
-                        {
-                            await _userManager.AddToRoleAsync(user, role);
-                        }
-                        throw new BadHttpRequestException("There's something wrong");
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new BadHttpRequestException(ex.Message);
-                    }
-                } else if (!user.LockoutEnabled)
-                {
-                    await _signInManager.SignInAsync(user, true);
-                    return new ResponseUserDTO
-                    {
-                        id = user.UserName,
-                        role = "Customer"
-                    };
-                } else
-                {
-                    throw new BadHttpRequestException("");
-                }
-
+                throw new BadHttpRequestException("Failed to verify token.");
             }
-            throw new BadHttpRequestException("");
+
+            var content = await response.Content.ReadAsStringAsync();
+            JObject userInfo = JObject.Parse(content);
+
+            var name = userInfo["given_name"]?.ToString();
+            var fullName = userInfo["name"]?.ToString();
+            var email = userInfo["email"]?.ToString();
+
+            if (string.IsNullOrEmpty(email))
+            {
+                throw new BadHttpRequestException("Email not found in token.");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                AccountDTO newAccount = new AccountDTO
+                {
+                    FullName = fullName,
+                    Email = email,
+                    UserName = name + "_" + Nanoid.Generate(size: 5),
+                    Password = null,
+                    IsMale = false,
+                    RoleId = 1,
+                    PhoneNumber = null,
+                    DateOfBirth = null,
+
+                };
+                var acc = await _accountService.CreateAccount(newAccount, true);
+                user = new ApplicationUser
+                {
+                    UserName = acc.AccountId,
+                    Email = email,
+                    AccountFullname = fullName,
+                    EmailConfirmed = true,
+                };
+
+                var role = Helpers.GetRole(acc.RoleId);
+                var result = await _userManager.CreateAsync(user);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                }
+            }
+
+            if (user.LockoutEnd != null)
+            {
+                throw new BadHttpRequestException("User account is locked until " + user.LockoutEnd.ToString());
+            }
+
+            await _signInManager.SignInAsync(user, true);
+            return new ResponseUserDTO
+            {
+                id = user.UserName,
+                role = "Customer"
+            };
+
         }
 
         public async Task<RegisterErrorDTO?> ValidateUniqueFields(AccountDTO accountDTO)
