@@ -21,7 +21,6 @@ import { useState } from 'react';
 import ForgotPassForm from '../../Component/ForgotPass/ForgotPassForm';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useAuth } from '../../Context/AuthProvider';
 import { useUser } from '../../Context/UserContext';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -30,7 +29,6 @@ function Login() {
     const [buffer, setBuffer] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
 
-    const [isAuthenticated, setIsAuthenticated] = useAuth();
     const [user, setUser] = useUser();
     const [basicModal, setBasicModal] = useState(false);
     const navigate = useNavigate();
@@ -66,10 +64,9 @@ function Login() {
 
             localStorage.setItem("user", JSON.stringify(data));
             setUser(data);
-            setIsAuthenticated(true);
             toast.success('Login successful!');
             handleNavigation(data.role);
-            console.log(data); // Assuming setProfile is a function to update your component's state with the user profile
+            console.log(data); 
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }
@@ -100,7 +97,6 @@ function Login() {
             const userData = await response.json();
             localStorage.setItem("user", JSON.stringify(userData));
             setUser(userData);
-            setIsAuthenticated(true);
             console.log('ok');
             toast.success('Login successful!');
             handleNavigation(userData.role);

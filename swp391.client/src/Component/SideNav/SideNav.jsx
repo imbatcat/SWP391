@@ -5,13 +5,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SideNavData } from './SideNavData';
 import './SideNav.css';
 import { IconContext } from 'react-icons';
-import { useAuth } from '../../Context/AuthProvider';
 import { toast } from 'react-toastify';
 import { MDBCol, MDBContainer, MDBIcon} from 'mdb-react-ui-kit';
 
 function SideNav({ searchInput, handleSearchInputChange }) {
     const [sidebar, setSidebar] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useAuth();
     const showSidebar = () => setSidebar(!sidebar);
     const navigate = useNavigate();
     const logout = async () => {
@@ -26,7 +24,6 @@ function SideNav({ searchInput, handleSearchInputChange }) {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            setIsAuthenticated(false);
             localStorage.removeItem("user");
             navigate('/');
         } catch (error) {

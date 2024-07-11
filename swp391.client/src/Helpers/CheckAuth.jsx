@@ -1,17 +1,21 @@
-import { useAuth } from "../Context/AuthProvider";
-import { Navigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import React, { useState, useEffect } from 'react';
 import { useUser } from "../Context/UserContext";
+import Cookies from 'js-cookie';
 
 function CheckAuth({ children, allowedRoles }) {
-    console.log('banana')
-    const [isAuthenticated, setIsAuthenticated] = useAuth();
+    const navigate = useNavigate();
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        var userToken = Cookies.get('AspNetLogin');
+        return userToken ? true : false;
+    });
     const [user, setUser] = useUser();
 
+    console.log(isAuthenticated)
     const logout = async () => {
         try {
-            const response = await fetch(`https://localhost:7206/api/ApplicationAuth/logout`, {
+            const response = await fetch(`https://localhost:7206/api/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -31,6 +35,7 @@ function CheckAuth({ children, allowedRoles }) {
     };
     const handleAuth = () => {
         if (!isAuthenticated) {
+            navigate('/', {replace: true});
             toast.info('Please login');
             return false;
         }
@@ -40,7 +45,6 @@ function CheckAuth({ children, allowedRoles }) {
             logout();
             return false;
         }
-
         return true;
     }
 
