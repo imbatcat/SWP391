@@ -103,7 +103,7 @@ function App() {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
 
-        fetch("https://localhost:7206/api/vn-pay-api-management/PaymentCallback", {
+        fetch("https://localhost:7206/api/vn-pay-api-management/payment-callback", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
