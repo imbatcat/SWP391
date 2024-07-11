@@ -24,46 +24,30 @@ function ForgotPassForm() {
 
         setIsSending(true);
 
-        const fetchPromise = fetch(`https://localhost:7206/api/auth/send-reset-password-email`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include', // Include credentials if needed
-            body: JSON.stringify({ email })
-        });
-
+        const sendResetPasswordEmail = async () => {
+            var response = await fetch(`https://localhost:7206/api/auth/send-reset-password-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email })
+            })
+            if (response.status !== 200) throw new Error("Invalid email"); 
+        };
         toast.promise(
-            fetchPromise,
+            sendResetPasswordEmail().catch(err => {
+                console.error(err);
+                throw new err
+            }),
             {
                 pending: 'Sending reset password email...',
-                success: 'Check your emails',
-                error: 'Something went wrong'
+                success: 'Email sent successfully!',
+                error: 'Failed to send email!'
             }
-        );
-
-        try {
-            const response = await fetchPromise;
-            if (response.ok) {
-                navigate('');
-            } else {
-                console.log(response.message);
-            }
-        } catch (error) {
-            console.log("Something went wrong");
-        } finally {
-            setIsSending(false);
-            processBuffer();
-        }
-    };
-
-    const processBuffer = async () => {
-        if (buffer.length > 0) {
-            const nextEmail = buffer.shift();
-            setBuffer(buffer);
-            setEmail(nextEmail);
-            await SendResetPassword();
-        }
+        ).finally(() => {
+            setIsSending(false); 
+        });
     };
 
     return (

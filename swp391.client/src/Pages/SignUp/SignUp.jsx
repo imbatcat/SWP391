@@ -105,29 +105,32 @@ function SignUp() {
         };
 
         toast.promise(
-            fetchRegister(),
+            fetchRegister().catch(err => {
+                console.error(err); 
+                setIsDisabled(false); 
+                if (buffer.length > 0) {
+                    var nextFormData = buffer.shift()
+                    setBuffer([]); 
+                    handleRegister(err, nextFormData); 
+                }
+                throw err; 
+            }),
             {
                 pending: 'Registering your account...',
                 success: 'Check your email to activate your account!',
+                error: 'Registration failed!' 
             }
         ).then(() => {
-            navigate('/');
-            console.log('ok');
-        }).catch((error) => {
-            setIsDisabled(false);
-            console.error(error);
-            if (buffer.length > 0) {
-                setTimeout(() => {
-                    setBuffer([]);
-                    handleRegister(e, buffer[0]);
-                }, 1000);
-            }
+            navigate('/'); 
+            console.log('ok'); 
+        }).finally(() => {
+            setIsDisabled(false); 
         });
     };
 
     const handleRegisterClick = (e) => {
         if (isDisabled) {
-            setBuffer([...buffer, registerData]);
+            setBuffer((prevBuffer) => [...prevBuffer, registerData]);
             return;
         }
         handleRegister(e, registerData);

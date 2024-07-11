@@ -5,22 +5,20 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SideNavData } from './SideNavDataForStaff';
 import './SideNavForStaff.css';
 import { IconContext } from 'react-icons';
-import { useAuth } from '../../Context/AuthProvider';
 import { toast } from 'react-toastify';
 import { MDBCol, MDBContainer, MDBIcon } from 'mdb-react-ui-kit';
 import QRCodeScannerModal from '../QRCodeScanner/QRCodeScanner';
 
 function SideNavForStaff({ searchInput, handleSearchInputChange }) {
     const [sidebar, setSidebar] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useAuth();
     const [scannerModal, setScannerModal] = useState(false);
+    const showSidebar = () => setSidebar(!sidebar);
     const navigate = useNavigate();
     const toggleOpen = () => setScannerModal(!scannerModal);
-    const showSidebar = () => setSidebar(!sidebar);
     
     const logout = async () => {
         try {
-            const response = await fetch(`https://localhost:7206/api/ApplicationAuth/logout`, {
+            const response = await fetch(`https://localhost:7206/api/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -30,7 +28,6 @@ function SideNavForStaff({ searchInput, handleSearchInputChange }) {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            setIsAuthenticated(false);
             localStorage.removeItem("user");
             navigate('/');
         } catch (error) {

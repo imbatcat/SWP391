@@ -265,23 +265,39 @@ namespace PetHealthcare.Server.Services
             return await _appointmentRepository.GetAccountById(id);
         }
 
-        public async Task<IEnumerable<AppointmentListForVetDTO?>> ViewAppointmentListForVet(string id, DateOnly date)
+        public async Task<IEnumerable<GetAllAppointmentForAdminDTO?>> ViewAppointmentListForVet(string vetId)
         {
-            IEnumerable<Appointment> appointmentList = await _appointmentRepository.GetAllAppointmentListForVet(id, date);
-
-            List<AppointmentListForVetDTO> appointmentListForVetDTO = new List<AppointmentListForVetDTO>();
-            foreach (Appointment app in appointmentList)
+            IEnumerable<Appointment> appList = await _appointmentRepository.GetAll();
+            List<GetAllAppointmentForAdminDTO> CAList = new List<GetAllAppointmentForAdminDTO>();
+            foreach (Appointment app in appList)
             {
-                appointmentListForVetDTO.Add(new AppointmentListForVetDTO
+                if (app.VeterinarianAccountId == vetId)
                 {
-                    AppointmentDate = app.AppointmentDate,
-                    AppointmentNotes = app.AppointmentNotes,
-                    CustomerName = app.Account.FullName,
-                    CustomerPhone = app.Account.PhoneNumber,
-                    PetName = app.Pet.PetName,
-                });
+                    GetAllAppointmentForAdminDTO appointmentDTO = new GetAllAppointmentForAdminDTO
+                    {
+                        AppointmentId = app.AppointmentId,
+                        AppointmentDate = app.AppointmentDate,
+                        AppointmentNotes = app.AppointmentNotes,
+                        VeterinarianName = app.Veterinarian.FullName,
+                        PetName = app.Pet.PetName,
+                        BookingPrice = app.BookingPrice,
+                        AppointmentType = app.AppointmentType,
+                        TimeSlot = app.TimeSlot.StartTime.ToString("H\\:mm") + " - " + app.TimeSlot.EndTime.ToString("H\\:mm"),
+                        IsCancel = app.IsCancel,
+                        IsCheckIn = app.IsCheckIn,
+                        IsCheckUp = app.IsCheckUp,
+                        CheckinTime = app.CheckinTime,
+                        OwnerName = app.Account.FullName,
+                        PhoneNumber = app.Account.PhoneNumber,
+                        AccountId = app.AccountId,
+                        PetId = app.PetId,
+                        VeterinarianId = app.VeterinarianAccountId,
+                    };
+                    CAList.Add(appointmentDTO);
+                }
+
             }
-            return appointmentListForVetDTO;
+            return CAList;
         }
 
         public async Task<IEnumerable<VetAppointment?>> ViewVetAppointmentList(string id)

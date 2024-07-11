@@ -99,6 +99,7 @@ function MedicalRecord() {
         getMedicalRecord();
     }, [appointment.appointmentId]);
 
+    const [buffer, setBuffer] = useState([])
     const [ownerData, setOwnerData] = useState(null);
     const [assignServiceModal, setAssignServiceModal] = useState(false);
     const [assignCageModal, setAssignCageModal] = useState(false);
@@ -182,10 +183,10 @@ function MedicalRecord() {
         });
     };
 
-    //console.log(existingRecord.medicalRecordId);
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e, reqBody) => {
         e.preventDefault();
         console.log(existingRecord);
+
         // Validation
         const emptyFields = Object.keys(formData).filter(key => !formData[key]);
         if (emptyFields.length > 0) {
@@ -193,17 +194,18 @@ function MedicalRecord() {
             return;
         }
 
-
-        try {
-
-            let reqBody = formData;
+        if (!reqBody) {
             reqBody = {
-                ...reqBody,
+                ...formData,
                 petId: appointment.petId,
                 appointmentId: appointment.appointmentId
             };
+        } else {
+            setBuffer((prevBuffer) => [...prevBuffer, reqBody]);
+            return;
+        }
 
-            console.log(reqBody);
+        try {
             const response = await fetch(`https://localhost:7206/api/medical-record-management/medical-records/${formData.medicalRecordId}`, {
                 method: 'PUT',
                 credentials: 'include',
@@ -223,10 +225,16 @@ function MedicalRecord() {
         } catch (error) {
             console.error('Error:', error);
             toast.error(`Error: ${error.message}`);
+            handleBuffer();
         }
     };
 
-    //console.log(formData);
+    const handleBuffer = async () => {
+        if (buffer.length > 0) {
+            const nextForm = buffer.shift();
+            await handleSubmit({ preventDefault: () => { } }, nextForm);
+        }
+    };
 
     let today = new Date();
 
@@ -334,7 +342,7 @@ function MedicalRecord() {
                                 <MDBCardTitle>Special title treatment</MDBCardTitle>
 
                                 <MDBCardText>
-                                    <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: 'auto' }}>
+                                    <form onSubmit={(e) => handleSubmit(e, null)} style={{ maxWidth: '600px', margin: 'auto' }}>
 
                                         <MDBRow>
                                             <MDBCol>

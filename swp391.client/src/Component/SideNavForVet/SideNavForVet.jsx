@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { SideNavData } from './SideNavDataForVet';
 import './SideNavForVet.css';
 import { IconContext } from 'react-icons';
-import { useAuth } from '../../Context/AuthProvider';
 import { toast } from 'react-toastify';
 import { MDBBtn, MDBCol, MDBContainer, MDBIcon, MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalFooter, MDBModalHeader, MDBModalTitle} from 'mdb-react-ui-kit';
 import QrScanner from 'react-qr-scanner';
@@ -13,14 +12,13 @@ import QRCodeScannerModal from '../QRCodeScanner/QRCodeScanner';
 
 function SideNavForVet({ searchInput, handleSearchInputChange }) {
     const [sidebar, setSidebar] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useAuth();
     const [scannerModal, setScannerModal] = useState(false);
     const showSidebar = () => setSidebar(!sidebar);
     const navigate = useNavigate();
     const toggleOpen = () => setScannerModal(!scannerModal);
     const logout = async () => {
         try {
-            const response = await fetch(`https://localhost:7206/api/ApplicationAuth/logout`, {
+            const response = await fetch(`https://localhost:7206/api/auth/logout`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -30,7 +28,6 @@ function SideNavForVet({ searchInput, handleSearchInputChange }) {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-            setIsAuthenticated(false);
             localStorage.removeItem("user");
             navigate('/');
         } catch (error) {

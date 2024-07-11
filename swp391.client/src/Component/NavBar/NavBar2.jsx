@@ -16,21 +16,23 @@ import {
     MDBCollapse,
     MDBModal,
 } from 'mdb-react-ui-kit';
-import { useAuth } from '../../Context/AuthProvider';
 import { useUser } from '../../Context/UserContext';
-import { redirect } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import SelectModal from '../Modals/SelectModal';
+import CheckAuth from '../../Helpers/CheckAuth';
+import Cookies from 'js-cookie';
 
 export default function NavBar2() {
-    const [isAuthenticated, setIsAuthenticated] = useAuth();
+    const [isAuthenticated, setIsAuthenticated] = useState(() => {
+        var userToken = Cookies.get('AspNetLogin');
+        return userToken ? true : false;
+    });
     const [user, setUser] = useUser();
     const [openBasic, setOpenBasic] = useState(false);
     const [basicModal, setBasicModal] = useState(false);
-    const toggleOpen = () => setBasicModal(!basicModal);
     const navigate = useNavigate();
+    const toggleOpen = () => setBasicModal(!basicModal);
     const logout = async (e) => {
-        e.preventDefault();
         try {
             const response = await fetch(`https://localhost:7206/api/auth/logout`, {
                 method: 'POST',
@@ -44,7 +46,7 @@ export default function NavBar2() {
             }
             setIsAuthenticated(false);
             localStorage.removeItem("user");
-            return redirect("/");
+            navigate('/', {replace: true})
         } catch (error) {
             toast.error('Error logging out!');
             console.error(error.message);

@@ -12,16 +12,19 @@ import {
     MDBModalFooter,
 } from 'mdb-react-ui-kit';
 import { useUser } from '../../Context/UserContext';
-import { toast } from 'react-toastify';
+import Spinner from '../../Component/Spinner/Spinner';
+
 export default function PetList() {
     const [petLists, setPetLists] = useState([]);
     const [user, setUser] = useUser();
     // const [petList, setPetList] = useState(null);
     const [centredModal, setCentredModal] = useState(false);
     const [selectedPet, setSelectedPet] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const getPetList = async (user) => {
+            setIsLoading(true);
             console.log(user.id + '1');
             try {
                 const response = await fetch(`https://localhost:7206/api/pet-management/accounts/${user.id}/pets`, {
@@ -39,6 +42,8 @@ export default function PetList() {
                 setPetLists(pets);
             } catch (error) {
                 console.error(error.message);
+            } finally {
+                setIsLoading(false);
             }
         };
 
@@ -53,7 +58,12 @@ export default function PetList() {
     return (
         < div className='Pet-display' >
             <div className='Pet-display-list'>
-                {petLists.map((pet, index) => (
+                {isLoading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                        <Spinner />
+                    </div>
+                ) : 
+                    (petLists.map((pet, index) => (
                     <div className="Pet-item" key={index}>
                         <div className="Pet-item-img-container">
                             <img className='Pet-item-image' src={pet.img} alt='' />
@@ -68,7 +78,9 @@ export default function PetList() {
                             </>
                         </div>
                     </div>
-                ))}
+                    )))
+                }
+                
             </div>
 
             {

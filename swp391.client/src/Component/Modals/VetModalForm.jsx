@@ -28,18 +28,23 @@ function VetModalForm() {
     });
 
     const createStaffApi = async () => {
-        console.log(formData);
-        const fetchPromise = fetch('https://localhost:7206/api/account-management/accounts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(formData)
-        });
-
+        const createStaff = async() => {
+            console.log(formData);
+            const fetchPromise = await fetch('https://localhost:7206/api/account-management/accounts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(formData)
+            });
+            if (fetchPromise.status !== 200) throw new Error();
+        }
         toast.promise(
-            fetchPromise,
+            createStaff().catch(err => {
+                console.error(err.message);
+                throw new err
+            }),
             {
                 pending: 'Submitting...',
                 success: `${formData.fullName} has been added successfully!`,
@@ -50,16 +55,6 @@ function VetModalForm() {
                 }
             }
         );
-
-        try {
-            const response = await fetchPromise;
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            console.log('ok');
-        } catch (error) {
-            console.error(error.message);
-        }
     };
 
     // Handle changes for each input/checkbox

@@ -5,7 +5,10 @@ import HomeContent from '../../Component/Home Content/HomeContent';
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 function Home() {
-    const [params, setParams] = useState(new URLSearchParams(window.location.search));
+    const [params, setParams] = useState(() => {
+        var data = new URLSearchParams(window.location.search);
+        return data.size === 0 ? null : data;   
+    });
     useEffect(() => {
         const callback = async () => {
             const response = await fetch("https://localhost:7206/api/vn-pay-api-management/payment-callback", {
@@ -17,12 +20,17 @@ function Home() {
                 body: params.toString()
             });
             const data = await response.json();
-            if (data && data !== "") toast.success('Your appointment has been successfully booked!');
-
+            if (data && response.status === 200) toast.success('Your appointment has been successfully booked!');
+            else throw new Error()
         };
 
-        if (params != null) {
-            callback();
+        if (params !== null) {
+            toast.promise(
+                callback(),
+                {
+                    pending: 'Registering your appointment...',
+                }
+            )
         }
     }, [params]);
     return (

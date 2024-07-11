@@ -5,7 +5,6 @@ import './index.css';
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { AuthProvider } from "./Context/AuthProvider";
 import Login from './Pages/Login/Login';
 import Home from './Pages/Home/Home';
 import SignUp from './Pages/SignUp/SignUp';
@@ -247,20 +246,18 @@ const router = createBrowserRouter([
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <GoogleOAuthProvider clientId="279261034420-76gqakprrgtiq9pc879d8e4ukhk9cour.apps.googleusercontent.com">
-        <AuthProvider>
-            <UserProvider>
-                <RouterProvider router={router} />
-                <ToastContainer
-                    position="top-center"
-                    autoClose={1000}
-                    hideProgressBar={true}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    draggable
-                    theme="light"
-                />
-            </UserProvider>
-        </AuthProvider>
+        <UserProvider>
+            <RouterProvider router={router} />
+            <ToastContainer
+                position="top-center"
+                autoClose={1000}
+                hideProgressBar={true}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                draggable
+                theme="light"
+            />
+        </UserProvider>
     </GoogleOAuthProvider>
 );

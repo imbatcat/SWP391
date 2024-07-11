@@ -13,6 +13,7 @@ import {
     MDBCol,
     MDBRow,
 } from 'mdb-react-ui-kit';
+import Spinner from '../../Component/Spinner/Spinner';
 import { useEffect, useState } from "react";
 import { useUser } from "../../Context/UserContext";
 import MainLayout from "../../Layouts/MainLayout";
@@ -60,12 +61,9 @@ function UserAppointments() {
         if (user) getAppointmentList(user);
     }, [user]);
 
-    if (isLoading) {
-        return <div>Loading...</div>; // Loading state
-    }
 
-    const toggleOpen = (appointment = null) => {
-        setSelectedAppointment(appointment);
+    const toggleOpen = (Appointment = null) => {
+        setSelectedAppointment(Appointment);
         setCentredModal(!centredModal);
     };
 
@@ -91,7 +89,7 @@ function UserAppointments() {
                             <MDBCol>
                                 <MDBCard className="mb-4 mb-lg-0">
                                     <MDBCardBody className="p-0">
-                                        {appointmentList && appointmentList.length > 0 ? (
+                                        {/* {appointmentList && appointmentList.length > 0 ? ( */}
                                             <Paper sx={{ width: '100%', overflow: 'hidden' }}>
                                                 <TableContainer sx={{ maxHeight: 440 }}>
                                                     <Table stickyHeader aria-label="sticky table">
@@ -108,7 +106,16 @@ function UserAppointments() {
                                                             </TableRow>
                                                         </TableHead>
                                                         <TableBody>
-                                                            {appointmentList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
+                                                    {isLoading ? (
+                                                        <tr>
+                                                        <td colSpan="6">
+                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                                <Spinner />
+                                                            </div>
+                                                        </td>
+                                                        </tr>
+                                                    ) :
+                                                            (appointmentList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
                                                                 <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                                                                     <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                                                                     <TableCell>{appointment.petName}</TableCell>
@@ -121,7 +128,7 @@ function UserAppointments() {
                                                                         <MDBBtn size="sm" onClick={() => toggleOpen(appointment)}>Details</MDBBtn>
                                                                     </TableCell>
                                                                 </TableRow>
-                                                            ))}
+                                                            )))}
                                                         </TableBody>
                                                     </Table>
                                                 </TableContainer>
@@ -135,9 +142,7 @@ function UserAppointments() {
                                                     onRowsPerPageChange={handleChangeRowsPerPage}
                                                 />
                                             </Paper>
-                                        ) : (
-                                            <div>No upcoming appointments</div>
-                                        )}
+                                        {/* } */}
                                     </MDBCardBody>
                                 </MDBCard>
                             </MDBCol>

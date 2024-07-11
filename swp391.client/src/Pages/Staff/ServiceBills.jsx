@@ -14,7 +14,9 @@ export default function ServiceBills() {
     const [groupedBillList, setGroupedBillList] = useState([]);
     const [searchInput, setSearchInput] = useState('');
     const [isPaidClicked, setIsPaidClicked] = useState(false);
-
+    const [buffer, setBuffer] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    
     const handleSearchInputChange = (e) => {
         const value = e.target.value.toLowerCase();
         setSearchInput(value);
@@ -37,29 +39,18 @@ export default function ServiceBills() {
             if (!response.ok) {
                 throw new Error("An error occurred");
             }
-
+            if (response.status !== 200) throw new Error();
             const data = await response.json();
-            if (data && data.message === 'Paid failed') {
-                throw new Error("Payment failed");
-            }
             return data;
         };
 
         setIsPaidClicked(true); // Assuming this state management is required
 
         toast.promise(
-            fetchData(orderId)
-                .then(() => {
-                    toast.success('Order paid');
-                    console.log('Payment successful');
-                    refreshPage(); // Call the function to refresh the page
-                })
-                .catch(error => {
-                    toast.error(error.message);
-                })
-                .finally(() => {
-                    setIsPaidClicked(false); // Ensure this runs regardless of promise outcome
-                }),
+            fetchData(orderId).catch(error => {
+                console.log(error);
+                setIsProcessing(false);
+            }),
             {
                 pending: 'Processing payment...',
                 success: 'Payment processed successfully!',
@@ -69,7 +60,13 @@ export default function ServiceBills() {
                     }
                 }
             }
-        );
+        ).then(() => {
+            toast.success('Order paid');
+            console.log('Payment successful');
+            refreshPage();
+        }).finally(() => {
+            setIsProcessing(false);
+        });
     };
 
     useEffect(() => {
