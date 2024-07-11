@@ -63,7 +63,7 @@ function WorkSchedule() {
     }, []);
     async function fetchData(vetId) {
         try {
-            const response = await fetch(`https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`, {
+            const response = await fetch(`https://localhost:7206/api/appointment-management/vets/get-all`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -74,9 +74,10 @@ function WorkSchedule() {
                 throw new Error("Error fetching data");
             }
             const data = await response.json();
-            setAppointments(data);
+            const filteredData = data.filter(appointment => appointment.veterinarianId === vetId);
+            setAppointments(filteredData);
             setIsLoading(false);
-            console.log(data);
+            console.log(filteredData);
         } catch (error) {
             console.error(error.message);
         }
