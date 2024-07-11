@@ -18,6 +18,7 @@ import DatePicker from "react-datepicker";
 import { toast } from 'react-toastify';
 import "react-datepicker/dist/react-datepicker.css";
 import refreshPage from '../../Helpers/RefreshPage';
+import { AiOutlineConsoleSql } from 'react-icons/ai';
 
 const columns = [
   { id: 'appointmentId', label: 'Appointment ID', minWidth: 170 },
@@ -43,30 +44,34 @@ export default function AppointmentCheckin() {
   });
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [buffer, setBuffer] = useState([]);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const date = `${convertedDate.year}-${convertedDate.month}-${convertedDate.day}`;
-    async function fetchData() {
+    const fetchData = async () => {
       const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${date}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
         method: 'GET',
         credentials: 'include',
       });
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      return response.json();
+      if (response.status !== 200) throw new Error() 
+      const data = await fetchData.json();
+      setAppointmentList(data);
+      setFilteredAppointmentList(data);
     }
-    toast.promise(
-      fetchData().then(data => {
-        setAppointmentList(data);
-        setFilteredAppointmentList(data);
-      }),
-      {
-        pending: 'Loading appointments...',
-        success: 'Appointments loaded successfully!',
-        error: 'Failed to load appointments.'
-      }
-    );
+
+    try {
+      toast.promise(
+        fetchData(),
+        {
+          pending: 'Loading appointments...',
+          success: 'Appointments loaded successfully!',
+          error: 'Failed to load appointments.'
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    }
   }, [convertedDate]);
 
   const handleDateChange = (date) => {
@@ -102,30 +107,46 @@ export default function AppointmentCheckin() {
   };
 
   async function checkinAppointment(app) {
-    async function fetchData() {
-        const response = await fetch(`https://localhost:7206/api/appointment-management/appointments/${app.appointmentId}/check-in`, {
+    if (isProcessing) {
+      setBuffer((prevBuffer) => [...prevBuffer, app]);
+      return;
+    }
+
+    setIsProcessing(true);
+
+    const fetchData = async () => {
+      const response = await fetch(`https://localhost:7206/api/appointment-management/appointments/${app.appointmentId}/check-in`, {
         method: 'POST',
         credentials: 'include',
       });
+    
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
+      setAppointmentList([]);
       refreshPage();
       return response.json();
     }
 
     toast.promise(
-      fetchData().then(
-        setAppointmentList([])
-      ),
+      fetchData().catch(err => {
+          console.log(err); 
+          setIsProcessing(false); 
+          if (buffer.length > 0) {
+            var nextForm = buffer.shift()
+            setBuffer([]); 
+            checkinAppointment(nextForm); 
+          }
+      }),
       {
-        pending: 'Checking in...',
-        success: 'Checked in!',
-        error: 'There is something wrong'
+          pending: 'Checking in...',
+          success: 'Checked in!',
+          error: 'There is something wrong',
       }
-    );
+  ).finally(() => {
+      setIsProcessing(false); 
+  });
   }
-
   return (
     <>
       <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />

@@ -81,38 +81,34 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
         setSelectedCages((prevCage) => prevCage.filter(cage => cage.cageId !== cageId));
     };
     const handleSubmitService = async () => {
-        const reqBody = {
-            cageNumber: selectedCages[0].cageNumber,
-            isOccupied: true
-        };
-        console.log(JSON.stringify(reqBody));
-        const fetchPromise = fetch(`https://localhost:7206/api/cage-management/cages/${selectedCages[0].cageId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(reqBody)
-        });
-
+        const assignToCage = async () => {
+            const reqBody = {
+                cageNumber: selectedCages[0].cageNumber,
+                isOccupied: true
+            };
+            console.log(JSON.stringify(reqBody));
+            const fetchPromise = await fetch(`https://localhost:7206/api/cage-management/cages/${selectedCages[0].cageId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(reqBody)
+            });
+            if (fetchPromise.status !== 200) throw new Error("There's something wrong");
+        }
+        
         toast.promise(
-            fetchPromise,
+            assignToCage().catch(err => {
+                console.error(err); 
+                throw new err
+            }),
             {
                 pending: 'Submitting your request...',
                 success: 'Request submitted successfully!',
-                error: {
-                    render({ data }) {
-                        // data is the error object
-                        return `Error: ${data.message}`;
-                    }
-                }
+                error: "There's someting wrong",
             }
         );
-        try {
-            await fetchPromise;
-        } catch (error) {
-            console.error(error); // log error for debugging purposes
-        }
     };
 
 

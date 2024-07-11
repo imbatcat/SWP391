@@ -82,39 +82,35 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
         setSelectedServices((prevServices) => prevServices.filter(service => service.serviceId !== serviceId));
     };
     const handleSubmitService = async () => {
-        let serviceIdList = selectedServices.map(item => item.serviceId);
-        const reqBody = {
-            'serviceId': serviceIdList,
-            'medicalRecordId': mRecId
-        };
-        console.log(JSON.stringify(reqBody));
-        const fetchPromise = fetch('https://localhost:7206/api/service-order-management/service-orders', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(reqBody)
-        });
+        const submitServices = async () => {
+            let serviceIdList = selectedServices.map(item => item.serviceId);
+            const reqBody = {
+                'serviceId': serviceIdList,
+                'medicalRecordId': mRecId
+            };
+            console.log(JSON.stringify(reqBody));
+            const fetchPromise = await fetch('https://localhost:7206/api/service-order-management/service-orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(reqBody)
+            });
+            if (fetchPromise.status !== 200) throw new Error();
+        }
 
         toast.promise(
-            fetchPromise,
+            submitServices().catch(err => {
+                console.error(err)
+                throw new err;
+            }),
             {
                 pending: 'Submitting your request...',
                 success: 'Request submitted successfully!',
-                error: {
-                    render({ data }) {
-                        // data is the error object
-                        return `Error: ${data.message}`;
-                    }
-                }
+                error: "There's something wrong" 
             }
         );
-        try {
-            await fetchPromise;
-        } catch (error) {
-            console.error(error); // log error for debugging purposes
-        }
     };
 
 

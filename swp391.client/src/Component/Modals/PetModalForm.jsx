@@ -82,7 +82,7 @@ function PetModalForm() {
 
     const handleSubmit = (e) => {
         if (formData.isDisable) {
-            setBuffer([...buffer, formData]);
+            setBuffer((prevBuffer) => [...prevBuffer, formData]);
             return;
         }
         createPetApi(e, formData);

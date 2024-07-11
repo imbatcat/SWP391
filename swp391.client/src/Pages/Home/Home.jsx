@@ -17,12 +17,18 @@ function Home() {
                 body: params.toString()
             });
             const data = await response.json();
-            if (data && data !== "") toast.success('Your appointment has been successfully booked!');
-
+            if (data && response.status === 200) toast.success('Your appointment has been successfully booked!');
+            else throw new Error()
         };
 
         if (params != null) {
-            callback();
+            toast.promise(
+                callback(),
+                {
+                    pending: 'Registering your appointment...',
+                    success: 'Appointment registered!',
+                }
+            )
         }
     }, [params]);
     return (

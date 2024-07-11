@@ -165,7 +165,6 @@ public class ApplicationAuthController : ControllerBase
     {
         try
         {
-
             var _user = await _userManager.FindByEmailAsync(user.Email);
             if (_user == null) return BadRequest(new { message = "Email does not exists" });
             if (!(await _userManager.IsEmailConfirmedAsync(_user)))

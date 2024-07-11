@@ -33,6 +33,8 @@ function AppointmentForm({ toggleOpen }) {
         appointmentType: '',
     });
     const [buffer, setBuffer] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    
 
     const apis = [
         `https://localhost:7206/api/pet-management/accounts/${user.id}/pets`,
@@ -75,40 +77,40 @@ function AppointmentForm({ toggleOpen }) {
 
     const addAppointment = async (data) => {
         console.log(data);
-        const fetchPromise = fetch('https://localhost:7206/api/vn-pay-api-management/make-payment', {
-            method: 'POST',
-            headers: {
-                'Content-type': 'application/json'
-            },
-            credentials: 'include',
-            body: JSON.stringify(data)
-        });
-
+        const makePayment = async () => {
+            const fetchPromise = await fetch('https://localhost:7206/api/vn-pay-api-management/make-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+            console.log(fetchPromise.status);
+            if (fetchPromise.status !== 200) throw new Error;
+            const responseData = await fetchPromise.json();
+            console.log(responseData.url);
+            openLink(responseData.url);
+        }
         toast.promise(
-            fetchPromise,
+            makePayment().catch(err => {
+                if (buffer.length > 0) {
+                    var nextFormData = buffer.shift();
+                    setBuffer([]);
+                    addAppointment(nextFormData);
+                }
+                setIsProcessing(false);
+                throw err; 
+            }),
             {
                 pending: 'Processing... You will be directed to payment gateway shortly.',
                 error: 'Error registering appointment'
             }
-        );
+        ).finally(() => {
+            setIsProcessing(false);
+        });
+    }
 
-        try {
-            const response = await fetchPromise;
-            var responseData = await response.json();
-            openLink(responseData.url);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-        } catch (error) {
-            console.error('There has been a problem with your fetch operation:', error);
-            if (buffer.length > 0) {
-                setTimeout(() => {
-                    setBuffer([]);
-                    addAppointment(buffer[0]);
-                }, 1000);
-            }
-        }
-    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -125,10 +127,11 @@ function AppointmentForm({ toggleOpen }) {
             toast.error('Please fill in all required fields.');
             return;
         }
-        if (formData.isDisable) {
-            setBuffer([...buffer, formData]);
+        if (isProcessing) {
+            setBuffer((prevBuffer) => [...prevBuffer, formData]);
             return;
         }
+        setIsProcessing(true);
         addAppointment(formData);
     };
 
@@ -139,7 +142,6 @@ function AppointmentForm({ toggleOpen }) {
     };
 
     const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
-
     // Check if the selected date is a Sunday
     const isSunday = (dateString) => {
         const date = new Date(dateString);
