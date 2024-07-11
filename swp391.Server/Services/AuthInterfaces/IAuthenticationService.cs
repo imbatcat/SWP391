@@ -16,7 +16,7 @@ namespace PetHealthcare.Server.Services.AuthInterfaces
         Task<ResponseUserDTO> SignInGoogle(GoogleLoginModel model);
 
         Task<RegisterErrorDTO?> ValidateUniqueFields(AccountDTO accountDTO);
-
+        Task SendUpdateDischargeDateEmail(AdmissionRecordEmailDTO adr);
         Task SendAppointmentEmail(AppointmentEmailDTO appointmentInfor);
     }
 }

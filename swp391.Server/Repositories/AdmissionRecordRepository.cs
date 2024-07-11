@@ -32,7 +32,7 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<AdmissionRecord?> GetByCondition(Expression<Func<AdmissionRecord, bool>> expression)
         {
-            return await _context.AdmissionRecords.FirstOrDefaultAsync(expression);
+            return await _context.AdmissionRecords.Include("Pet.Account").FirstOrDefaultAsync(expression);
         }
 
         public async Task SaveChanges()
@@ -42,13 +42,13 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task Update(AdmissionRecord entity)
         {
-            var dickHead = await GetByCondition(x => x.AdmissionId == entity.AdmissionId);
-            if (dickHead != null)
+            var toUpdateAdmission = await GetByCondition(x => x.AdmissionId == entity.AdmissionId);
+            if (toUpdateAdmission != null)
             {
-                _context.Entry(dickHead).State = EntityState.Modified;
-                dickHead.PetCurrentCondition = entity.PetCurrentCondition;
-                dickHead.DischargeDate = entity.DischargeDate;
-                dickHead.IsDischarged = entity.IsDischarged;
+                _context.Entry(toUpdateAdmission).State = EntityState.Modified;
+                toUpdateAdmission.PetCurrentCondition = entity.PetCurrentCondition;
+                toUpdateAdmission.DischargeDate = entity.DischargeDate;
+                toUpdateAdmission.IsDischarged = entity.IsDischarged;
                 await SaveChanges();
             }
         }

@@ -97,7 +97,6 @@ namespace PetHealthcare.Server.Services
 
         public async Task SendAppointmentEmail(AppointmentEmailDTO appointmentInfor)
         {
-            string qrCodeCid = "qrcode_cid"; // A unique identifier for the QR code image
             MailMessage message = new MailMessage();
             string emailBody = $@"
             <h2 style='color: #000000;'>Appointment Confirmation</h2>
@@ -119,6 +118,35 @@ namespace PetHealthcare.Server.Services
                 await _emailService.SendEmailAsync(
                     appointmentInfor.Email,
                     "Here is your appointment information:",
+                    emailBody);
+            }
+            catch (Exception ex)
+            {
+                throw new BadHttpRequestException(ex.Message);
+            }
+        }
+
+        public async Task SendUpdateDischargeDateEmail(AdmissionRecordEmailDTO adr)
+        {
+            MailMessage message = new MailMessage();
+            string emailBody = $@"
+            <h2 style='color: #000000;'>Update pet dischage date</h2>
+            <p style='color: #000000;'>Dear {adr.CustomerName},</p>
+            <p style='color: #000000;'>This email is to inform you that there is an update for your pet discharge date:</p>
+            <ul>
+                <li style='color: #000000;'><strong>Pet name:</strong> {adr.PetName}</li>
+                <li style='color: #000000;'><strong>Old discharge date:</strong> {adr.OldDischargeDate}</li>
+                <li style='color: #000000;'><strong>New discharge date:</strong> {adr.NewDischargeDate}</li>
+            </ul>
+            <p style='color: #000000;'>Please pick up your pet on the discharge date.</p>
+            <p style='color: #000000;'>Note: Pets not picked up within 10 days from the discharge date will be under the management of the hospital.</p>
+            <p style='color: #000000;'>Best regards,</p>
+            <p style='color: #000000;'>Your Veterinary Hospital Team</p>";
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    adr.Email,
+                    "Update pet discharge date:",
                     emailBody);
             }
             catch (Exception ex)
