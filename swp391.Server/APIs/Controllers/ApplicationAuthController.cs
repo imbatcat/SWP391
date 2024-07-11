@@ -82,23 +82,30 @@ public class ApplicationAuthController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            // This doesn't count login failures towards account lockout
-            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var user = await _userManager.FindByNameAsync(loginAccount.UserName);
-            if (user == null)
+            string username = loginAccount.Email_Username;
+            ApplicationUser user = null;
+            if (loginAccount.Email_Username.Contains("@"))
             {
-                return BadRequest(new { message = "No such username" });
-            }
-            if (!user.EmailConfirmed)
+                user = await _userManager.FindByEmailAsync(loginAccount.Email_Username);
+                if (user == null)
+                {
+                    return BadRequest(new { message = "Email does not exists" });
+                }
+                if (!user.EmailConfirmed)
+                {
+                    return BadRequest(new { message = "Account is not confirmed" });
+                }
+                username = user.UserName;
+            } else
             {
-                return BadRequest(new { message = "Account is not confirmed" });
+                user = await _userManager.FindByNameAsync(loginAccount.Email_Username);
             }
-            var result = await _signInManager.PasswordSignInAsync(loginAccount.UserName, loginAccount.Password, loginAccount.RememberMe, lockoutOnFailure: false);
+            var result = await _signInManager.PasswordSignInAsync(username, loginAccount.Password, loginAccount.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
                 return Ok(new ResponseUserDTO
                 {
-                    id = (await _accountService.GetAccountByCondition(x => x.Username == user.UserName)).AccountId,
+                    id = (await _accountService.GetAccountByCondition(x => x.Username == username)).AccountId,
                     role = await _authenticationService.GetUserRole(user)
                 });
             }
@@ -223,72 +230,16 @@ public class ApplicationAuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpPost("signinGoogle")]
+    [HttpPost("sign-in-google")]
     public async Task<ActionResult<ResponseUserDTO>> GoogleLogin([FromBody] GoogleLoginModel model)
     {
-        var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync($"https://oauth2.googleapis.com/tokeninfo?id_token={model.token}");
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var user = new ApplicationUser();
-            var content = await response.Content.ReadAsStringAsync();
-            JObject userInfo = JObject.Parse(content);
-            string name = userInfo["given_name"].ToString();
-            string fullName = userInfo["name"].ToString();
-            string email = userInfo["email"].ToString();
-
-            user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                try
-                {
-                    AccountDTO newAccount = new AccountDTO
-                    {
-                        FullName = fullName,
-                        Email = email,
-                        UserName = name,
-                        Password = null,
-                        IsMale = false,
-                        RoleId = 1,
-                        PhoneNumber = null,
-                        DateOfBirth = null,
-
-                    };
-                    var acc = await _accountService.CreateAccount(newAccount, true);
-                    user = new ApplicationUser
-                    {
-                        UserName = acc.AccountId,
-                        Email = email,
-                        AccountFullname = fullName
-                    };
-
-                    var role = Helpers.GetRole(acc.RoleId);
-                    var result = await _userManager.CreateAsync(user);
-                    if (result.Succeeded)
-                    {
-                        await _userManager.AddToRoleAsync(user, role);
-                    }
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError(string.Empty, error.Description);
-                        return BadRequest(ModelState);
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    return BadRequest(new { message = ex.Message, Exception = ex.InnerException });
-                }
-            }
-            await _signInManager.SignInAsync(user, true);
-            return new ResponseUserDTO
-            {
-                id = user.UserName,
-                role = "Customer"
-            };
-
+            var account = await _authenticationService.SignInGoogle(model);
+            return account;
+        } catch (BadHttpRequestException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
-
-        return BadRequest(new { message = "There's something wrong with your Google account" });
     }
 }

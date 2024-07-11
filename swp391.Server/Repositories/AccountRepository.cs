@@ -65,6 +65,17 @@ namespace PetHealthcare.Server.Repositories
                 await SaveChanges();
             }
         }
+        public async Task UpdateVetAccount(Veterinarian veterinarian)
+        {
+            var account = await GetVet(veterinarian.RoleId, veterinarian.AccountId);            
+            if (account != null)
+            {
+                context.Entry(account).State = EntityState.Modified;
+                account.Position = veterinarian.Position;
+                account.Department = veterinarian.Department;
+                await SaveChanges();
+            }
+        }
         public bool CheckRoleId(int roleId)
         {
             return context.Roles.Any(r => r.RoleId == roleId);
@@ -96,7 +107,10 @@ namespace PetHealthcare.Server.Repositories
             }
             return accounts;
         }
-
+        public async Task<Veterinarian?> GetVet(int roleId,string id)
+        {
+            return await context.Veterinarians.FirstOrDefaultAsync(a => a.RoleId == roleId && a.AccountId.Equals(id));
+        }
         public async Task<bool> SetAccountIsDisabled(RequestAccountDisable entity)
         {
             var account = await GetByCondition(e => e.Username == entity.username);

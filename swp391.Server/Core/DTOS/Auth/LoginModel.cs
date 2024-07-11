@@ -5,8 +5,8 @@ namespace PetHealthcare.Server.Core.DTOS.Auth
     public class LoginModel
     {
         [Required]
-        [Display(Name = "User name")]
-        public string UserName { get; set; }
+        [Display(Name = "Email")]
+        public string Email_Username { get; set; }
 
         [Required]
         [DataType(DataType.Password)]

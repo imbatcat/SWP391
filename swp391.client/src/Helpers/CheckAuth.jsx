@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { useUser } from "../Context/UserContext";
 
 function CheckAuth({ children, allowedRoles }) {
+    console.log('banana')
     const [isAuthenticated, setIsAuthenticated] = useAuth();
     const [user, setUser] = useUser();
 

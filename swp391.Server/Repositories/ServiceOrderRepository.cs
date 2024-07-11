@@ -6,7 +6,9 @@ using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Repositories.Interfaces;
 using SQLitePCL;
 using System.Linq.Expressions;
+using System;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Diagnostics;
 
 namespace PetHealthcare.Server.Repositories
 {
@@ -32,28 +34,57 @@ namespace PetHealthcare.Server.Repositories
         public async Task CreateServiceOrder(ServiceOrderDTO order)
         {
             string SoId = GenerateId();
+            bool isHospitalBill = false;
             try
             {
-
-                ServiceOrder toCreateServiceOrder = new ServiceOrder
+                foreach (int serviceId in order.ServiceId) 
                 {
-                    ServiceOrderId = SoId,
-                    OrderDate = DateOnly.FromDateTime(DateTime.Today),
-                    OrderStatus = "Pending",
-                    MedicalRecordId = order.MedicalRecordId,
-                    Price = context.Services.Where(s => order.ServiceId.Contains(s.ServiceId)).Sum(s => s.ServicePrice),
-                };
-                context.ServiceOrders.Add(toCreateServiceOrder);
-                foreach (int serviceId in order.ServiceId)
-                {
+                    if(serviceId == 9)
+                    {
+                        isHospitalBill = true;
+                    }
                     context.ServiceOrderDetails.Add(new ServiceOrderDetails
                     {
                         ServiceId = serviceId,
                         ServiceOrderId = SoId,
                     });
-
                 }
+                if(isHospitalBill) //calculating hospital fees
+                {
+                    AdmissionRecord adms = await context.AdmissionRecords.FirstOrDefaultAsync(ad => ad.MedicalRecordId.Equals(order.MedicalRecordId));
+                    DateOnly dischargeDate = new DateOnly(adms.DischargeDate.Value.Year, adms.DischargeDate.Value.Month, adms.DischargeDate.Value.Day);
+                    DateOnly admissionDate = new DateOnly(adms.AdmissionDate.Value.Year, adms.AdmissionDate.Value.Month, adms.AdmissionDate.Value.Day);
+                    // Subtracting two DateOnly instances to get the difference in days
+                    int daysDifference = (dischargeDate.ToDateTime(TimeOnly.MinValue) - admissionDate.ToDateTime(TimeOnly.MinValue)).Days;
+                    double hospitalFees = context.Services.FirstOrDefault(s => s.ServiceId == 9).ServicePrice;
+
+                    ServiceOrder toCreateServiceOrder = new ServiceOrder
+                    {
+                        ServiceOrderId = SoId,
+                        OrderDate = DateOnly.FromDateTime(DateTime.Today),
+                        OrderStatus = "Pending",
+                        MedicalRecordId = order.MedicalRecordId,
+                        Price = hospitalFees * daysDifference,
+                    };
+                    context.ServiceOrders.Add(toCreateServiceOrder);
+                } else
+                {
+
+                    ServiceOrder toCreateServiceOrder = new ServiceOrder
+                    {
+                        ServiceOrderId = SoId,
+                        OrderDate = DateOnly.FromDateTime(DateTime.Today),
+                        OrderStatus = "Pending",
+                        MedicalRecordId = order.MedicalRecordId,
+                        Price = context.Services.Where(s => order.ServiceId.Contains(s.ServiceId)).Sum(s => s.ServicePrice),
+                    };
+                    context.ServiceOrders.Add(toCreateServiceOrder);
+                }
+                
                 await SaveChanges();
+            } catch(NullReferenceException)
+            {
+                Debug.WriteLine("Null exception");
             }
             catch (Exception ex)
             {

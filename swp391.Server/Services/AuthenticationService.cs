@@ -1,13 +1,22 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.WebUtilities;
+using NanoidDotNet;
+using Newtonsoft.Json.Linq;
 using PetHealthcare.Server.Core.DTOS;
+using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Core.DTOS.Auth;
+using PetHealthcare.Server.Core.Helpers;
 using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
 using System.Net.Mail;
 using System.Text;
+using QRCoder;
+using System.Net.Mime;
+using System.Net;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PetHealthcare.Server.Services
 {
@@ -86,6 +95,67 @@ namespace PetHealthcare.Server.Services
             }
         }
 
+        public async Task SendAppointmentEmail(AppointmentEmailDTO appointmentInfor)
+        {
+            MailMessage message = new MailMessage();
+            string emailBody = $@"
+            <h2 style='color: #000000;'>Appointment Confirmation</h2>
+            <p style='color: #000000;'>Dear {appointmentInfor.CustomerName},</p>
+            <p style='color: #000000;'>Thank you for scheduling an appointment with our veterinary hospital. Here are the details of your appointment:</p>
+            <ul>
+                <li style='color: #000000;'><strong>Appointment Id:</strong> {appointmentInfor.AppointmentId}</li>
+                <li style='color: #000000;'><strong>Appointment Date:</strong> {appointmentInfor.appointmentDate}</li>
+                <li style='color: #000000;'><strong>Appointment Type:</strong> {appointmentInfor.AppointmentType}</li>
+                <li style='color: #000000;'><strong>Veterinarian name:</strong> {appointmentInfor.VeterinarianName}</li>
+                <li style='color: #000000;'><strong>Pet name:</strong> {appointmentInfor.PetName}</li>
+                <li style='color: #000000;'><strong>Time Slot:</strong> {appointmentInfor.AppointmentTime}</li>
+            </ul>
+            <p style='color: #000000;'>Pleas go to profile --> Appoinment --> Click on an appointment to get your check in QrCode or show this email to staff to check in</p>
+            <p style='color: #000000;'>Best regards,</p>
+            <p style='color: #000000;'>Your Veterinary Hospital Team</p>";
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    appointmentInfor.Email,
+                    "Here is your appointment information:",
+                    emailBody);
+            }
+            catch (Exception ex)
+            {
+                throw new BadHttpRequestException(ex.Message);
+            }
+        }
+
+        public async Task SendUpdateDischargeDateEmail(AdmissionRecordEmailDTO adr)
+        {
+            MailMessage message = new MailMessage();
+            string emailBody = $@"
+            <h2 style='color: #000000;'>Update pet dischage date</h2>
+            <p style='color: #000000;'>Dear {adr.CustomerName},</p>
+            <p style='color: #000000;'>This email is to inform you that there is an update for your pet discharge date:</p>
+            <ul>
+                <li style='color: #000000;'><strong>Pet name:</strong> {adr.PetName}</li>
+                <li style='color: #000000;'><strong>Old discharge date:</strong> {adr.OldDischargeDate}</li>
+                <li style='color: #000000;'><strong>New discharge date:</strong> {adr.NewDischargeDate}</li>
+            </ul>
+            <p style='color: #000000;'>Please pick up your pet on the discharge date.</p>
+            <p style='color: #000000;'>Note: Pets not picked up within 10 days from the discharge date will be under the management of the hospital.</p>
+            <p style='color: #000000;'>Best regards,</p>
+            <p style='color: #000000;'>Your Veterinary Hospital Team</p>";
+            try
+            {
+                await _emailService.SendEmailAsync(
+                    adr.Email,
+                    "Update pet discharge date:",
+                    emailBody);
+            }
+            catch (Exception ex)
+            {
+                throw new BadHttpRequestException(ex.Message);
+            }
+        }
+
+
         public async Task SendForgotPasswordEmail(ApplicationUser user, string userEmail)
         {
             if (await _userManager.GetEmailAsync(user) != userEmail)
@@ -106,6 +176,74 @@ namespace PetHealthcare.Server.Services
             {
                 throw new BadHttpRequestException(ex.Message);
             }
+
+        }
+
+        public async Task<ResponseUserDTO> SignInGoogle(GoogleLoginModel model)
+        {
+            var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync($"https://oauth2.googleapis.com/tokeninfo?id_token={model.token}");
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new BadHttpRequestException("Failed to verify token.");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            JObject userInfo = JObject.Parse(content);
+
+            var name = userInfo["given_name"]?.ToString();
+            var fullName = userInfo["name"]?.ToString();
+            var email = userInfo["email"]?.ToString();
+
+            if (string.IsNullOrEmpty(email))
+            {
+                throw new BadHttpRequestException("Email not found in token.");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                AccountDTO newAccount = new AccountDTO
+                {
+                    FullName = fullName,
+                    Email = email,
+                    UserName = name + "_" + Nanoid.Generate(size: 5),
+                    Password = null,
+                    IsMale = false,
+                    RoleId = 1,
+                    PhoneNumber = null,
+                    DateOfBirth = null,
+
+                };
+                var acc = await _accountService.CreateAccount(newAccount, true);
+                user = new ApplicationUser
+                {
+                    UserName = acc.AccountId,
+                    Email = email,
+                    AccountFullname = fullName,
+                    EmailConfirmed = true,
+                };
+
+                var role = Helpers.GetRole(acc.RoleId);
+                var result = await _userManager.CreateAsync(user);
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, role);
+                }
+            }
+
+            if (user.LockoutEnd != null)
+            {
+                throw new BadHttpRequestException("User account is locked until " + user.LockoutEnd.ToString());
+            }
+
+            await _signInManager.SignInAsync(user, true);
+            return new ResponseUserDTO
+            {
+                id = user.UserName,
+                role = "Customer"
+            };
 
         }
 

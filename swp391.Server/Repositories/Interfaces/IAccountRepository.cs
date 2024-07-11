@@ -15,6 +15,7 @@ namespace PetHealthcare.Server.Repositories.Interfaces
         Task CreateVet(Veterinarian veterinarian);
         Task<bool> Any(Expression<Func<Account, bool>> predicate);
         Task<IEnumerable<VetListDTO>> GetVetListToChoose(DateOnly date, int timeslotId);
+        Task UpdateVetAccount(Veterinarian veterinarian);
         Task UpdateAccPassword(Account entity);
     }
 }

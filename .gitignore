@@ -396,3 +396,4 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/swp391.Server/Core/DTOS/AdmissionRecordDTOs

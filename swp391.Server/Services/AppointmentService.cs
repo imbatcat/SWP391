@@ -58,14 +58,12 @@ namespace PetHealthcare.Server.Services
         {
             _appointmentRepository.Delete(appointment);
         }
-        public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointment(string vetId)
+        public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointment()
         {
             IEnumerable<Appointment> appList = await _appointmentRepository.GetAll();
             List<GetAllAppointmentForAdminDTO> CAList = new List<GetAllAppointmentForAdminDTO>();
             foreach (Appointment app in appList)
             {
-                if (app.VeterinarianAccountId == vetId)
-                {
                     GetAllAppointmentForAdminDTO appointmentDTO = new GetAllAppointmentForAdminDTO
                     {
                         AppointmentId = app.AppointmentId,
@@ -87,8 +85,6 @@ namespace PetHealthcare.Server.Services
                         VeterinarianId = app.VeterinarianAccountId,
                     };
                     CAList.Add(appointmentDTO);
-                }
-
             }
             return CAList;
         }
@@ -364,7 +360,7 @@ namespace PetHealthcare.Server.Services
                 {
                     toCheckInAppointment.TimeSlotId = newTimeSlot;
                     await _appointmentRepository.SaveChanges();
-                }
+                }   
             }
             if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
             {
@@ -491,6 +487,33 @@ namespace PetHealthcare.Server.Services
                 });
             }
             return appList;
+        }
+
+        public async Task<AppointmentEmailDTO> CreateAppointmentEmail(string appointmentId)
+        {
+            AppointmentEmailDTO appointmentEmail = new AppointmentEmailDTO();
+            try
+            {
+                Appointment app = await _appointmentRepository.GetByCondition(a => a.AppointmentId == appointmentId);
+                AppointmentEmailDTO appointment = new AppointmentEmailDTO
+                {
+                    CustomerName = app.Account.FullName,
+                    Email = app.Account.Email,
+                    AppointmentTime = Convert.ToString(app.TimeSlot.StartTime) +"  -  " + Convert.ToString(app.TimeSlot.EndTime),
+                    PetName = app.Pet.PetName,
+                    VeterinarianName = app.Veterinarian.FullName,
+                    CheckinQr = app.QRCodeImageUrl,
+                    appointmentDate = app.AppointmentDate,
+                    AppointmentType = app.AppointmentType,
+                    AppointmentId = appointmentId,
+                };
+                appointmentEmail = appointment;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error with creating appointment email");
+            }
+            return appointmentEmail;
         }
     }
 }

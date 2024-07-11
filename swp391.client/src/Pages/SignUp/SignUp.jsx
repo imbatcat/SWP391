@@ -12,8 +12,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './SignUp.css';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
-import { useState } from 'react';
-
+import { useState, useEffect } from 'react';
 
 function SignUp() {
     const [formData, setFormData] = useState({
@@ -27,9 +26,34 @@ function SignUp() {
         gender: '',
     });
 
+    const [registerData, setRegisterData] = useState({
+        fullName: '',
+        userName: '',
+        phoneNumber: '',
+        email: '',
+        dateOfBirth: '',
+        password: '',
+        isMale: '',
+        roleId: 1
+    });
+
+    const [buffer, setBuffer] = useState([]);
     const [errors, setErrors] = useState();
     const [isDisabled, setIsDisabled] = useState(false);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setRegisterData({
+            fullName: formData.lastname + formData.firstname,
+            userName: formData.username,
+            phoneNumber: formData.phonenumber,
+            email: formData.email,
+            dateOfBirth: formData.dateOfBirth,
+            password: formData.password,
+            isMale: formData.gender,
+            roleId: 1
+        });
+    }, [formData]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -49,13 +73,11 @@ function SignUp() {
 
     const checkPassword = () => {
         const passwordRegex = /^(?=.*[!@#$%^&*()_+{}|:<>?/~\-=[\];.,])(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z]).{6,}$/;
-
-        // Example usage:
         const isValidPassword = passwordRegex.test(formData.password);
         return isValidPassword;
     };
 
-    const handleRegister = async (e) => {
+    const handleRegister = async (e, data) => {
         e.preventDefault();
         setIsDisabled(true);
 
@@ -70,16 +92,7 @@ function SignUp() {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({
-                    userName: formData.username,
-                    password: formData.password,
-                    fullName: formData.lastname + formData.firstname,
-                    email: formData.email,
-                    phoneNumber: formData.phonenumber,
-                    isMale: formData.gender,
-                    roleId: 1,
-                    dateOfBirth: formData.dateOfBirth
-                })
+                body: JSON.stringify(data)
             });
 
             if (!response.ok) {
@@ -103,17 +116,31 @@ function SignUp() {
         }).catch((error) => {
             setIsDisabled(false);
             console.error(error);
+            if (buffer.length > 0) {
+                setTimeout(() => {
+                    setBuffer([]);
+                    handleRegister(e, buffer[0]);
+                }, 1000);
+            }
         });
     };
 
+    const handleRegisterClick = (e) => {
+        if (isDisabled) {
+            setBuffer([...buffer, registerData]);
+            return;
+        }
+        handleRegister(e, registerData);
+    };
+
     return (
-        < div className='pageSignUp' >
+        <div className='pageSignUp'>
             <MDBContainer fluid className='page-container'>
                 <MDBRow className='justify-content-center align-items-center m-5'>
                     <MDBCard className='card'>
                         <MDBCardBody className='px-4'>
                             <h3 className="fw-bold mb-4 pb-2 pb-md-0 mb-md-5">Registration Form</h3>
-                            <form onSubmit={(e) => handleRegister(e)}>
+                            <form onSubmit={handleRegisterClick}>
                                 <MDBRow>
                                     <MDBCol md='6'>
                                         <MDBInput

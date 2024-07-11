@@ -1,7 +1,9 @@
-﻿using NanoidDotNet;
+﻿using Microsoft.AspNetCore.Authentication;
+using NanoidDotNet;
 using PetHealthcare.Server.Core.DTOS;
 using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Repositories.Interfaces;
+using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
 using System.Linq.Expressions;
 
@@ -10,10 +12,12 @@ namespace PetHealthcare.Server.Services
     public class AdmissionRecordService : IAdmissionRecordService
     {
         private readonly IAdmissionRecordRepository _admissionRecordService;
+        private readonly AuthInterfaces.IAuthenticationService _authenticationService;
 
-        public AdmissionRecordService(IAdmissionRecordRepository AdmissionRecordService)
+        public AdmissionRecordService(IAdmissionRecordRepository AdmissionRecordService,  AuthInterfaces.IAuthenticationService authenticationService)
         {
             _admissionRecordService = AdmissionRecordService;
+            _authenticationService = authenticationService;
         }
 
         public async Task CreateAdmissionRecord(AdmissionRecordRegisterDTO entity)
@@ -52,13 +56,25 @@ namespace PetHealthcare.Server.Services
         public async Task UpdateAdmissionRecord(string id, AdmissionRecordDTO entity)
         {
             var existingRecord = await _admissionRecordService.GetByCondition(a => a.AdmissionId == id);
+            AdmissionRecordEmailDTO adr = new AdmissionRecordEmailDTO();
             if (existingRecord != null)
             {
+                //
+                adr.CustomerName = existingRecord.Pet.Account.FullName;
+                adr.Email = existingRecord.Pet.Account.Email;
+                adr.OldDischargeDate = existingRecord.DischargeDate;
+                adr.NewDischargeDate = entity.DischargeDate;
+                adr.PetName = existingRecord.Pet.PetName;
+                await _authenticationService.SendUpdateDischargeDateEmail(adr);
+                //
+
                 existingRecord.DischargeDate = entity.DischargeDate;
                 existingRecord.PetCurrentCondition = entity.PetCurrentCondition;
                 existingRecord.IsDischarged = entity.IsDischarged;
             }
+            
             await _admissionRecordService.Update(existingRecord);
+            
         }
 
         private string GenerateId()

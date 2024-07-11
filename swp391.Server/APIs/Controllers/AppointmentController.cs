@@ -24,10 +24,10 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // GET: api/Services
-        [HttpGet("vets/{vetId}/appointments")]
-        public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointment([FromRoute] string vetId)
+        [HttpGet("vets/get-all")]
+        public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointment()
         {
-            return await _appointment.GetAllAppointment(vetId);
+            return await _appointment.GetAllAppointment();
         }
         [HttpGet("staff/get-all")]
         public async Task<ActionResult<IEnumerable<AppointmentForStaffDTO>>> GetAllAppointmentForStaff()
@@ -275,8 +275,8 @@ namespace PetHealthcare.Server.APIs.Controllers
             }
             return Ok(toCreateAppointment);
         }
-
-        [HttpPost("appointment/{appointmentId}/check-in")]
+        
+        [HttpPost("appointments/{appointmentId}/check-in")]
         public async Task<IActionResult> CheckInCustomer(string appointmentId) //api for customer to checkin for the customer
         {
             try
