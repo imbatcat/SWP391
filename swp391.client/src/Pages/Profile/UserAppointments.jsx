@@ -44,6 +44,7 @@ function UserAppointments() {
                 throw new Error('Error fetching data');
             } else if (response.status === 404) {
                 setAppointmentList(null);
+            
             } else {
                 const userData = await response.json();
                 setAppointmentList(userData);

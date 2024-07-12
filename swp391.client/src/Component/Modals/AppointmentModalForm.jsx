@@ -17,6 +17,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import CircularProgressWithLabel from '../CircularProgress/CircularProgressWithLabel';
+import LinearProgress from '@mui/material/LinearProgress';
 
 function AppointmentForm({ toggleOpen }) {
     const [user, setUser] = useUser();
@@ -24,6 +25,7 @@ function AppointmentForm({ toggleOpen }) {
     const [petList, setPetList] = useState([]);
     const [timeSlotList, setTimeSlotList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isVetListLoading, setIsVetListLoading] = useState(false);
 
     const [formData, setFormData] = useState({
         accountId: user.id,
@@ -74,6 +76,7 @@ function AppointmentForm({ toggleOpen }) {
     }, []);
 
     const getVetList = async () => {
+        setIsVetListLoading(true);
         try {
             const response = await fetch(`https://localhost:7206/api/account-management/date/${formData.appointmentDate}/time-slot/${formData.timeSlotId}/choose-vet`, {
                 method: 'GET',
@@ -95,7 +98,7 @@ function AppointmentForm({ toggleOpen }) {
             toast.error(error.message);
             console.error(error.message);
         } finally {
-            setIsLoading(false);
+            setIsVetListLoading(false);
         }
     };
 
@@ -280,6 +283,7 @@ function AppointmentForm({ toggleOpen }) {
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
+                            {isVetListLoading && <LinearProgress />}
                             <VetSelectionTable vetList={vetList} formData={formData} handleChange={handleChange} />
                         </MDBCol>
                     </MDBRow>
