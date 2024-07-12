@@ -17,23 +17,21 @@ namespace PetHealthcare.Server.APIs.Controllers
     [ApiController]
     public class VNPayAPIController : ControllerBase
     {
-        private readonly ITempDataDictionaryFactory _tempDataDictionaryFactory;
         private readonly AppointmentService _appointmentService;
         private readonly PetHealthcareDbContext context;
         private readonly BookingPaymentService bookingPaymentService;
+        private readonly IVnPayService _vnPayService;
         private readonly IAuthenticationService _authenticationService;
         public VNPayAPIController(IVnPayService vnPayService, PetHealthcareDbContext context, AppointmentService appointmentService,
-            BookingPaymentService _bookingPaymentService, ITempDataDictionaryFactory tempDataDictionaryFactory, IAuthenticationService _authenticationService)
+            BookingPaymentService _bookingPaymentService, IAuthenticationService _authenticationService)
         {
             _vnPayService = vnPayService;
             this.context = context;
             _appointmentService = appointmentService;
             bookingPaymentService = _bookingPaymentService;
-            _tempDataDictionaryFactory = tempDataDictionaryFactory;
             this._authenticationService = _authenticationService;
         }
-        private ITempDataDictionary TempData => _tempDataDictionaryFactory.GetTempData(HttpContext);
-        private readonly IVnPayService _vnPayService;
+        
         // GET: VNPayController
         [HttpPost("make-payment")]
         public async  Task<ActionResult<VNPayResponseUrl>> CreatePaymentUrl([FromBody] CreateAppointmentDTO model)
@@ -51,7 +49,8 @@ namespace PetHealthcare.Server.APIs.Controllers
                 return BadRequest("Timeslot full please choose another timeslot");
             }
 
-            TempData["AppointmentDTO"] = JsonSerializer.Serialize(appointmentDTO);
+            //TempData["AppointmentDTO"] = JsonSerializer.Serialize(appointmentDTO);
+            VnPayDataStoreHelper.SaveAppointmentData(model);
             var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
 
             return Ok(new VNPayResponseUrl { Url = url });
@@ -62,19 +61,10 @@ namespace PetHealthcare.Server.APIs.Controllers
         {
             var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(string.Join("&", form.Select(x => $"{x.Key}={x.Value}")));
             var response = _vnPayService.PaymentExecute(new QueryCollection(query));
-            CreateAppointmentDTO appointmentDTO = new CreateAppointmentDTO();
+            CreateAppointmentDTO appointmentDTO = VnPayDataStoreHelper.getAppointment();
+            Debug.WriteLine(appointmentDTO.AccountId);
             try
             {
-                if (TempData.ContainsKey("AppointmentDTO"))
-                {
-                    var appointmentJson = TempData["AppointmentDTO"].ToString();
-                    appointmentDTO = JsonSerializer.Deserialize<CreateAppointmentDTO>(appointmentJson);
-                }
-                else
-                {
-                    Debug.WriteLine("No appointment data in TempData");
-                    return BadRequest("No appointment data");
-                }
                 if (response.VnPayResponseCode.Equals("00"))
                 {
                     string appointmentId = _appointmentService.GenerateId();
