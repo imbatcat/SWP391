@@ -24,7 +24,6 @@ const columns = [
   { id: 'customerName', label: 'Owner Name', minWidth: 170 },
   { id: 'petName', label: 'Pet Name', minWidth: 170 },
   { id: 'vetName', label: 'Veterinarian', minWidth: 170 },
-  { id: 'status', label: 'Status', minWidth: 170 },
   { id: 'actions', label: 'Actions', minWidth: 170, align: 'center' },
 ];
 
@@ -39,12 +38,14 @@ export default function AppointmentCheckin() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    const today = new Date()
-    const date = today.toISOString().split('T')[0];
+    const now = new Date();
+    const today = now.getFullYear() + '-' +
+      ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+      ('0' + now.getDate()).slice(-2);
 
-    console.log(date);
+    console.log(today);
     const fetchData = async () => {
-      const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${date}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
+      const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${today}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -136,7 +137,7 @@ export default function AppointmentCheckin() {
       <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
 
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: 440 }}>
+        <TableContainer sx={{ maxHeight: 540 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

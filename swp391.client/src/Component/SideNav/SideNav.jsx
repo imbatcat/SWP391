@@ -7,11 +7,15 @@ import './SideNav.css';
 import { IconContext } from 'react-icons';
 import { toast } from 'react-toastify';
 import { MDBCol, MDBContainer, MDBIcon} from 'mdb-react-ui-kit';
+import QRCodeScannerModal from '../QRCodeScanner/QRCodeScanner';
 
 function SideNav({ searchInput, handleSearchInputChange }) {
     const [sidebar, setSidebar] = useState(false);
+    const [scannerModal, setScannerModal] = useState(false);
     const showSidebar = () => setSidebar(!sidebar);
     const navigate = useNavigate();
+    const toggleOpen = () => setScannerModal(!scannerModal);
+    
     const logout = async () => {
         try {
             const response = await fetch(`https://localhost:7206/api/auth/logout`, {
@@ -20,7 +24,7 @@ function SideNav({ searchInput, handleSearchInputChange }) {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-            }); 
+            });
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -32,6 +36,20 @@ function SideNav({ searchInput, handleSearchInputChange }) {
             console.error(error.message);
         }
     };
+
+    const handleScan = (data) => {
+        if (data) {
+            handleSearchInputChange({ target: { value: data.text } });
+            setScannerModal(false);
+        }
+    };
+
+    const handleError = (err) => {
+        console.error(err);
+        toast.error('Error scanning QR code!');
+    };
+
+
     return (
         <>
             <IconContext.Provider value={{ color: '#fff' }}>
@@ -46,14 +64,16 @@ function SideNav({ searchInput, handleSearchInputChange }) {
                             <input
                                 type="text"
                                 className="search-hover"
-                                 placeholder="Search here"
-                                 value={searchInput}
-                                 onChange={handleSearchInputChange}
+                                placeholder="Search here"
+                                value={searchInput}
+                                onChange={handleSearchInputChange}
                             />
-                             <MDBIcon icon='search' style={{marginLeft:'-35px'}} />
+                            <MDBIcon icon='search' style={{ marginLeft: '-35px' }} />
                         </MDBContainer>
-                    </MDBCol>   
-                    
+                    </MDBCol>
+                    <MDBCol style={{ justifyContent: 'center', display: 'flex' }} md='1'>
+                        <AiIcons.AiOutlineExpand size='45px' onClick={toggleOpen} />
+                    </MDBCol>
                 </div>
                 <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
                     <ul className='nav-menu-items' onClick={showSidebar}>
@@ -79,6 +99,13 @@ function SideNav({ searchInput, handleSearchInputChange }) {
                         </li>
                     </ul>
                 </nav>
+
+                <QRCodeScannerModal
+                    scannerModal={scannerModal}
+                    toggleOpen={toggleOpen}
+                    handleScan={handleScan}
+                    handleError={handleError}
+                />
             </IconContext.Provider>
         </>
     );

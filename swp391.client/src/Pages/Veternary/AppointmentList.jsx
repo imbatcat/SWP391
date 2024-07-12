@@ -20,6 +20,7 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { LinearProgress } from '@mui/material';
 
 function AppointmentList() {
   const [user, setUser] = useUser();
@@ -68,6 +69,30 @@ function AppointmentList() {
       setFilteredAppointments(appointments.filter(app => app.veterinarianId === user.id));
     } else {
       setFilteredAppointments(appointments);
+    }
+  };
+
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedAccordion(isExpanded ? panel : false);
+    if (isExpanded) {
+      let filteredList = appointments;
+      if (panel === 'waiting') {
+        filteredList = appointments.filter(app => app.isCheckIn && !app.isCheckUp && app.veterinarianId === user.id);
+      } else if (panel === 'today') {
+        const now = new Date();
+        const today = now.getFullYear() + '-' +
+          ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+          ('0' + now.getDate()).slice(-2);
+
+          console.log(today); // Outputs: YYYY-MM-DD
+        filteredList = appointments.filter(app => app.appointmentDate === today && app.veterinarianId === user.id);
+      } else {
+        filteredList = appointments.filter(app => app.veterinarianId === user.id);
+      }
+      setFilteredAppointments(filteredList);
+    } else {
+      filterAppointments();
+      
     }
   };
 
@@ -129,33 +154,15 @@ function AppointmentList() {
     setExpandedAccordion(false);
   };
 
-  const handleAccordionChange = (panel) => (event, isExpanded) => {
-    setExpandedAccordion(isExpanded ? panel : false);
-    if (isExpanded) {
-      let filteredList = appointments;
-      if (panel === 'waiting') {
-        filteredList = appointments.filter(app => app.isCheckIn && !app.isCheckUp && app.veterinarianId === user.id);
-      } else if (panel === 'today') {
-        const today = new Date().toISOString().split('T')[0];
-        filteredList = appointments.filter(app => app.appointmentDate === today && app.veterinarianId === user.id);
-      } else {
-        filteredList = appointments.filter(app => app.veterinarianId === user.id);
-      }
-      setFilteredAppointments(filteredList);
-    } else {
-      filterAppointments();
-    }
-  };
+  
 
   const pageCount = Math.ceil(filteredAppointments.length / rowsPerPage);
 
-  if (isLoading) {
-    return <div>Loading...</div>; // Loading state
-  }
 
   return (
     <div>
       <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
+      {isLoading && <LinearProgress/>}
       <Paper sx={{ width: '100%', height:'87vh' }}>
         <Box sx={{ width: '100%' }}>
           <Tabs

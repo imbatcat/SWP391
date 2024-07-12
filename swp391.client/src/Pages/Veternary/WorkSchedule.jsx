@@ -100,9 +100,9 @@ function WorkSchedule() {
         ).length;
     };
     const getBadgeColor = (count) => {
-        if (count > 0 && count < 4) return 'success';
-        if (count >= 4 && count < 7) return 'warning';
-        if (count >= 7) return 'danger';
+        if (count > 0 && count < 3) return 'success';
+        if (count >= 3 && count <= 5) return 'warning';
+        if (count == 6) return 'danger';
         return 'secondary';
     };
     const handleBadgeClick = (date, timeSlot) => {
