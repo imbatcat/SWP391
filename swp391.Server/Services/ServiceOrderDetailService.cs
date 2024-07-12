@@ -10,29 +10,41 @@ namespace PetHealthcare.Server.Services
     {
         private readonly IServiceOrderDetailRepository _repository;
         private readonly IServiceOrderService _serviceOrderService;
-        public ServiceOrderDetailService(IServiceOrderDetailRepository repository, IServiceOrderService serviceOrderService)
+        private readonly IMedicalRecordService _medicalRecordService;
+
+        public ServiceOrderDetailService(IServiceOrderDetailRepository repository, IServiceOrderService serviceOrderService, IMedicalRecordService medicalRecordService)
         {
             _repository = repository;
             _serviceOrderService = serviceOrderService;
+            _medicalRecordService = medicalRecordService;
         }
 
         public async Task<IEnumerable<ServiceOrderDetailDTO>> getAllServieOrderDetail()
         {
             IEnumerable<ServiceOrderDetails> orDetailList = await _repository.getAllServieOrderDetail();
+            var medRecList = await _medicalRecordService.GetAllMedicalRecord();
             List<ServiceOrderDetailDTO> serviceOrderDetailList = new List<ServiceOrderDetailDTO>();
             var currentDate = DateOnly.FromDateTime(DateTime.Today);
             foreach (ServiceOrderDetails detail in orDetailList)
             {
-                var id = detail.ServiceOrderId;
-                var serviceOrder = await _serviceOrderService.GetServiceOrderById(id);
-                if (serviceOrder.OrderStatus == "Pending" && serviceOrder.OrderDate.CompareTo(currentDate) == 0)
+                foreach (var medRec in medRecList)
                 {
-                    serviceOrderDetailList.Add(new ServiceOrderDetailDTO
+                    var id = detail.ServiceOrderId;
+                    var serviceOrder = await _serviceOrderService.GetServiceOrderById(id);
+                    if (medRec.ServiceOrders != null)
                     {
-                        OrderId = detail.ServiceOrderId,
-                        ServiceName = detail.Service.ServiceName,
-                        Price = detail.Service.ServicePrice,
-                    });
+
+                    if (medRec.ServiceOrders.First().ServiceOrderId.Equals(detail.ServiceOrderId) && serviceOrder.OrderStatus == "Pending" && serviceOrder.OrderDate.CompareTo(currentDate) == 0)
+                    {
+                        serviceOrderDetailList.Add(new ServiceOrderDetailDTO
+                        {
+                            OrderId = detail.ServiceOrderId,
+                            ServiceName = detail.Service.ServiceName,
+                            Price = detail.Service.ServicePrice,
+                            AppointmentId = medRec.AppointmentId
+                        });
+                    }
+                    }
                 }
             }
             return serviceOrderDetailList;
