@@ -33,9 +33,9 @@ namespace PetHealthcare.Server.Models
         // Reference entities
 
         // Adding restrict behavior will restrain from accidental deletion from Account and Pet, avoiding the deletion cycle
-        [ForeignKey("AccountId")]
         [DeleteBehavior(DeleteBehavior.Restrict)]
         public Account Account { get; set; }
+        [ForeignKey(nameof(AccountId))]
         public string AccountId { get; set; }
 
         [ForeignKey("PetId")]

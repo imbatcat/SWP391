@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NanoidDotNet;
+using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Repositories.Interfaces;
 using System.Diagnostics;
@@ -37,7 +38,44 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<IEnumerable<Appointment>> GetAll()
         {
-            return await context.Appointments.Include(a => a.Account).Include(a => a.Pet).Include(a => a.Veterinarian).Include(a => a.TimeSlot).ToListAsync();
+            return await context.Appointments
+                .Include(a => a.Account)
+                .Include(a => a.Pet)
+                .Include(a => a.Veterinarian)
+                .Include(a => a.TimeSlot)
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAppointments()
+        {
+            return await context.Appointments
+                .Include(a => a.Account)
+                .Include(a => a.Pet)
+                .Include(a => a.Veterinarian)
+                .Include(a => a.TimeSlot)
+                .AsNoTracking()
+                .Select(a => new GetAllAppointmentForAdminDTO {
+                    AppointmentId =  a.AppointmentId,
+                    AppointmentDate =  a.AppointmentDate,
+                    AppointmentNotes = a.AppointmentNotes,
+                    AppointmentType = a.AppointmentType,
+                    OwnerName = a.Account.FullName,
+                    AccountId = a.AccountId,
+                    PhoneNumber = a.Account.PhoneNumber,
+                    PetName = a.Pet.PetName,
+                    PetId = a.PetId,
+                    VeterinarianId = a.Veterinarian.AccountId,
+                    VeterinarianName = a.Veterinarian.FullName,
+                    TimeSlot = $"{a.TimeSlot.StartTime:H\\:mm} - {a.TimeSlot.EndTime:H\\:mm}",
+                    BookingPrice = a.BookingPrice,
+                    IsCancel = a.IsCancel,
+                    IsCheckIn = a.IsCheckIn,
+                    IsCheckUp = a.IsCheckUp,
+                    CheckinTime = a.CheckinTime
+                })
+                .ToListAsync();
+
         }
 
         public async Task<Appointment?> GetByCondition(Expression<Func<Appointment, bool>> expression)
@@ -116,5 +154,6 @@ namespace PetHealthcare.Server.Repositories
         {
             return context.Appointments.Find(appointmentId).QRCodeImageUrl;
         }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using PetHealthcare.Server.Models;
+﻿using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
+using PetHealthcare.Server.Models;
 
 namespace PetHealthcare.Server.Repositories.Interfaces
 {
@@ -6,6 +7,7 @@ namespace PetHealthcare.Server.Repositories.Interfaces
     {
         bool isInputtedVetIdValid(string id);
         Task<IEnumerable<Appointment>> GetAppointmentsOfWeek(DateOnly startWeekDate, DateOnly endWeekDate);
+        Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAppointments();
 
         Task<Account?> GetAccountById(string id);
 
