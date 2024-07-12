@@ -13,7 +13,7 @@ using PetHealthcare.Server.Services.Interfaces;
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var config = builder.Configuration;
-const string DataSrc = "MEOMATLON\\SQLEXPRESS", Password = "MukuroHoshimiya";
+const string DataSrc = "LAPTOP-8QVR89KA\\SQLEXPRESS02", Password = "12345";
 
 
 // Add services to the container.
@@ -26,8 +26,6 @@ option => option.UseSqlServer(
         $"Data Source={DataSrc}; User = sa; Password ={Password};Initial Catalog=PetHealthCareSystemAuth;Integrated Security=True;Connect Timeout=10;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False"));
 #endregion
 
-builder.Services.AddControllersWithViews().AddSessionStateTempDataProvider();
-builder.Services.AddSession();
 
 
 #region Repositories
@@ -144,15 +142,11 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseRouting();
 
 app.UseHttpsRedirection();
-app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers().RequireAuthorization();
 //app.MapIdentityApi<ApplicationUser>();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=VNPay}/{action=Index}/{id?}");
 
 app.Run();
