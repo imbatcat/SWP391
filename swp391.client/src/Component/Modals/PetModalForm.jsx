@@ -16,7 +16,7 @@ function PetModalForm() {
         petAge: '',
         petBreed: '',
         isMale: true,
-        isCat: 'Cat',
+        isCat: true,
         imgUrl: '',
         description: '',
         vaccinationHistory: '',
@@ -39,18 +39,19 @@ function PetModalForm() {
         }
 
         // Update other form data in state
+        const updatedValue = name === 'isMale' || name === 'isCat' ? (value === 'true') : value;
         setFormData((prevState) => ({
             ...prevState,
-            [name]: value,
+            [name]: updatedValue,
         }));
     };
 
     const createPetApi = async (e, data) => {
         e.preventDefault();
-
+        console.log(data);
         const { petName, petAge, petBreed, isMale, isCat, imgUrl, description, vaccinationHistory } = data;
 
-        if (!petName || !petAge || !petBreed || !isMale || !isCat || !description || !vaccinationHistory) {
+        if (!petName || !petAge || !petBreed || !description || !vaccinationHistory) {
             toast.error('Please fill in all required fields.');
             return;
         }
@@ -157,7 +158,7 @@ function PetModalForm() {
                             labelId='species-select-label'
                             id='species-select'
                             name='isCat'
-                            value={formData.isCat}
+                            value={formData.isCat ? 'Cat' : 'Dog'}
                             onChange={handleInputChange}
                         >
                             <MenuItem value='Cat'>Cat</MenuItem>
