@@ -11,11 +11,13 @@ import { useUser } from "../../Context/UserContext";
 import MainLayout from "../../Layouts/MainLayout";
 import { toast } from 'react-toastify';
 import UserSidebar from '../../Component/UserSidebar/UserSidebar';
+import CircularProgressWithLabel from '../../Component/CircularProgress/CircularProgressWithLabel';
 
 function UserProfile() {
     const [user, setUser] = useUser();
     const [userDetails, setUserDetails] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [progress, setProgress] = useState(0);
 
     const getUserDetails = async (user) => {
 
@@ -48,8 +50,32 @@ function UserProfile() {
     }, [user]);
 
     if (isLoading) {
-        return <div>Loading...</div>; // Loading state
+        return (
+            <MainLayout>
+                <section style={{ backgroundColor: '#eee' }}>
+                    <MDBContainer className="py-5">
+
+                        <MDBRow>
+                            <MDBCol lg="4">
+                                <UserSidebar></UserSidebar>
+                            </MDBCol>
+                            <MDBCol lg="8">
+                                <MDBCard className="mb-4">
+                                    <MDBCardBody>
+                                    <MDBCol lg="8" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                        <CircularProgressWithLabel value={progress} />
+                                    </MDBCol>  
+                                    </MDBCardBody>
+                                </MDBCard>
+
+                             </MDBCol>
+                        </MDBRow>
+                    </MDBContainer>
+                </section>
+            </MainLayout>
+        );
     }
+
     return (
         <>
             <MainLayout>
@@ -94,7 +120,7 @@ function UserProfile() {
                                                 <hr></hr>
                                             </>
                                         )}
-                                        <hr></hr>
+                                    
                                         <MDBRow>
                                             <MDBCol sm="3">
                                                 <MDBCardText>Email</MDBCardText>

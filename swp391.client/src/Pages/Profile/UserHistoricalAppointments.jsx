@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
     MDBBtn,
     MDBContainer,
@@ -17,8 +18,9 @@ import { useUser } from "../../Context/UserContext";
 import MainLayout from "../../Layouts/MainLayout";
 import { toast } from 'react-toastify';
 import UserSidebar from "../../Component/UserSidebar/UserSidebar";
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from '@mui/material';
 import QRCode from 'react-qr-code';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Pagination, Stack } from '@mui/material';
+import CircularProgressWithLabel from '../../Component/CircularProgress/CircularProgressWithLabel';
 
 function UserHistoricalAppointments() {
     const [user, setUser] = useUser();
@@ -26,8 +28,9 @@ function UserHistoricalAppointments() {
     const [isLoading, setIsLoading] = useState(true);
     const [centredModal, setCentredModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(1); // MUI Pagination component is 1-based index
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [progress, setProgress] = useState(0);
 
     const getAppointmentList = async (user) => {
         try {
@@ -59,8 +62,8 @@ function UserHistoricalAppointments() {
         if (user) getAppointmentList(user);
     }, [user]);
 
-    const toggleOpen = (Appointment = null) => {
-        setSelectedAppointment(Appointment);
+    const toggleOpen = (appointment = null) => {
+        setSelectedAppointment(appointment);
         setCentredModal(!centredModal);
     };
 
@@ -68,10 +71,8 @@ function UserHistoricalAppointments() {
         setPage(newPage);
     };
 
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
-    };
+    // Sort appointments by date (earliest to latest)
+    const sortedAppointmentList = appointmentList.sort((a, b) => new Date(b.appointmentDate) - new Date(a.appointmentDate));
 
     return (
         <>
@@ -103,13 +104,13 @@ function UserHistoricalAppointments() {
                                                 {isLoading ? (
                                                     <TableRow>
                                                         <TableCell colSpan="8" align="center">
-                                                            <Spinner />
+                                                        <CircularProgressWithLabel value={progress} />
                                                         </TableCell>
                                                     </TableRow>
                                                 ) : (
-                                                    appointmentList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
+                                                    sortedAppointmentList.slice((page - 1) * rowsPerPage, page * rowsPerPage).map((appointment, index) => (
                                                         <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                                                            <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                                                            <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
                                                             <TableCell>{appointment.petName}</TableCell>
                                                             <TableCell>{appointment.veterinarianName}</TableCell>
                                                             <TableCell>{appointment.timeSlot}</TableCell>
@@ -125,15 +126,15 @@ function UserHistoricalAppointments() {
                                             </TableBody>
                                         </Table>
                                     </TableContainer>
-                                    <TablePagination
-                                        rowsPerPageOptions={[10, 25, 100]}
-                                        component="div"
-                                        count={appointmentList.length}
-                                        rowsPerPage={rowsPerPage}
-                                        page={page}
-                                        onPageChange={handleChangePage}
-                                        onRowsPerPageChange={handleChangeRowsPerPage}
-                                    />
+                                    <Stack spacing={2} sx={{ alignItems: 'center', my: 2 }}>
+                                        <Pagination
+                                            count={Math.ceil(appointmentList.length / rowsPerPage)}
+                                            page={page}
+                                            onChange={handleChangePage}
+                                            variant="outlined"
+                                            color="secondary"
+                                        />
+                                    </Stack>
                                 </Paper>
                             </MDBCol>
                         </MDBRow>

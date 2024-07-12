@@ -1,3 +1,4 @@
+import * as React from 'react';
 import {
     MDBBtn,
     MDBCard,
@@ -20,7 +21,8 @@ import MainLayout from "../../Layouts/MainLayout";
 import { toast } from 'react-toastify';
 import UserSidebar from "../../Component/UserSidebar/UserSidebar";
 import QRCode from 'react-qr-code';
-import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TablePagination } from '@mui/material';
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Pagination, Stack } from '@mui/material';
+import CircularProgressWithLabel from '../../Component/CircularProgress/CircularProgressWithLabel';
 
 function UserAppointments() {
     const [user, setUser] = useUser();
@@ -28,13 +30,14 @@ function UserAppointments() {
     const [isLoading, setIsLoading] = useState(true);
     const [centredModal, setCentredModal] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState(null);
-    const [page, setPage] = useState(0);
+    const [page, setPage] = useState(1); // MUI Pagination component is 1-based index
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [progress, setProgress] = useState(0);
 
     const getAppointmentList = async (user) => {
         try {
             const response = await fetch(`https://localhost:7206/api/appointment-management/appointments/accounts/${user.id}/lists/current`, {
-                method: 'GET', // *GET, POST, PUT, DELETE, etc.
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -44,7 +47,6 @@ function UserAppointments() {
                 throw new Error('Error fetching data');
             } else if (response.status === 404) {
                 setAppointmentList(null);
-            
             } else {
                 const userData = await response.json();
                 setAppointmentList(userData);
@@ -69,11 +71,6 @@ function UserAppointments() {
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-    };
-
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(+event.target.value);
-        setPage(0);
     };
 
     // Sort appointments by date
@@ -112,14 +109,14 @@ function UserAppointments() {
                                                             <TableRow>
                                                                 <TableCell colSpan="8">
                                                                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                                                        <Spinner />
+                                                                        <CircularProgressWithLabel value={progress}/>
                                                                     </div>
                                                                 </TableCell>
                                                             </TableRow>
                                                         ) : (
-                                                            sortedAppointmentList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
+                                                            sortedAppointmentList.slice((page - 1) * rowsPerPage, page * rowsPerPage).map((appointment, index) => (
                                                                 <TableRow hover role="checkbox" tabIndex={-1} key={index}>
-                                                                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                                                                    <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
                                                                     <TableCell>{appointment.petName}</TableCell>
                                                                     <TableCell>{appointment.veterinarianName}</TableCell>
                                                                     <TableCell>{appointment.timeSlot}</TableCell>
@@ -135,15 +132,15 @@ function UserAppointments() {
                                                     </TableBody>
                                                 </Table>
                                             </TableContainer>
-                                            <TablePagination
-                                                rowsPerPageOptions={[10, 25, 100]}
-                                                component="div"
-                                                count={appointmentList.length}
-                                                rowsPerPage={rowsPerPage}
-                                                page={page}
-                                                onPageChange={handleChangePage}
-                                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                            />
+                                            <Stack spacing={2} sx={{ alignItems: 'center', my: 2 }}>
+                                                <Pagination
+                                                    count={Math.ceil(appointmentList.length / rowsPerPage)}
+                                                    page={page}
+                                                    onChange={handleChangePage}
+                                                    variant="outlined"
+                                                    color="secondary"
+                                                />
+                                            </Stack>
                                         </Paper>
                                     </MDBCardBody>
                                 </MDBCard>
