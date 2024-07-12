@@ -15,6 +15,8 @@ import {
 import 'mdb-react-ui-kit/dist/css/mdb.min.css';
 // import './App.css';
 import MainLayout from '../../Layouts/MainLayout';
+import img1 from '../../assets/images/about1.jpg';
+import img2 from '../../assets/images/about2.jpg';
 
 function AboutUs() {
   return (
@@ -34,11 +36,12 @@ function AboutUs() {
       <section className="mb-5">
         <MDBRow>
           <MDBCol md="6">
-            <MDBCard>
+            <MDBCard style={{height:'100%'}}>
               <MDBCardImage
-                src="https://via.placeholder.com/600x400"
+                src={img2}
                 alt="Our team"
                 position="top"
+                
               />
               <MDBCardBody>
                 <MDBCardTitle>Our Team</MDBCardTitle>
@@ -53,16 +56,17 @@ function AboutUs() {
           <MDBCol md="6">
             <MDBCard>
               <MDBCardImage
-                src="https://via.placeholder.com/600x400"
+                src={img1}
                 alt="Our mission"
                 position="top"
+
               />
               <MDBCardBody>
                 <MDBCardTitle>Our Mission</MDBCardTitle>
                 <MDBCardText>
                   We strive to enhance the health and well-being of your pets through high-quality veterinary care and exceptional customer service.
                 </MDBCardText>
-                <MDBBtn color="primary">Learn More</MDBBtn>
+                <MDBBtn style={{alignContent:'end', display:'flex'}} color="primary">Learn More</MDBBtn>
               </MDBCardBody>
             </MDBCard>
           </MDBCol>

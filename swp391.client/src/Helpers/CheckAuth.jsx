@@ -35,9 +35,9 @@ function CheckAuth({ children, allowedRoles }) {
     };
     const handleAuth = () => {
         if (!isAuthenticated) {
-            navigate('/', {replace: true});
+            navigate('/login', {replace: true});
             toast.info('Please login');
-            return false;
+            return ;
         }
 
         if (allowedRoles && !allowedRoles.includes(user?.role)) {

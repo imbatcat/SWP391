@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    MDBBadge, MDBBtn, MDBTable, MDBTableBody, MDBTableHead,
-    MDBAccordion, MDBAccordionItem
-}
-    from 'mdb-react-ui-kit';
+    MDBBtn,
+    MDBAccordion,
+    MDBAccordionItem
+} from 'mdb-react-ui-kit';
 import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
 import { toast } from 'react-toastify';
 import refreshPage from '../../Helpers/RefreshPage';
@@ -16,7 +16,7 @@ export default function ServiceBills() {
     const [isPaidClicked, setIsPaidClicked] = useState(false);
     const [buffer, setBuffer] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
-    
+
     const handleSearchInputChange = (e) => {
         const value = e.target.value.toLowerCase();
         setSearchInput(value);
@@ -24,11 +24,12 @@ export default function ServiceBills() {
             setFilteredBillList(billList);
         } else {
             setFilteredBillList(billList.filter(acc =>
-                acc.orderId.toLowerCase().includes(value)
+                (acc.orderId && acc.orderId.toLowerCase().includes(value)) ||
+                (acc.customerName && acc.customerName.toLowerCase().includes(value))
             ));
         }
-        groupedBillList.filter(a => a.orderId == searchInput);
     };
+
     const handleOnPaidClick = async (orderId) => {
         const fetchData = async (orderId) => {
             const response = await fetch(`https://localhost:7206/api/service-order-management/service-orders/${orderId}/paid`, {
@@ -81,7 +82,6 @@ export default function ServiceBills() {
                     console.log(data);
                     setBillList(data);
                     setFilteredBillList(data);
-                    console.log(data);
                 }
                 else setBillList([]);
             } catch (error) {
@@ -92,7 +92,7 @@ export default function ServiceBills() {
     }, []);
 
     useEffect(() => {
-        if (billList != []) {
+        if (billList.length > 0) {
             const groupedServices = filteredBillList.reduce((acc, service) => {
                 const { orderId } = service;
                 if (!acc[orderId]) {
@@ -111,12 +111,12 @@ export default function ServiceBills() {
         }
     }, [filteredBillList, billList]);
 
-
     useEffect(() => {
         if (isPaidClicked) {
             setIsPaidClicked(true);
         }
     }, [isPaidClicked]);
+
     return (
         <>
             <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />

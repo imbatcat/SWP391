@@ -15,6 +15,11 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import Pagination from '@mui/material/Pagination';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function AppointmentList() {
   const [user, setUser] = useUser();
@@ -27,6 +32,7 @@ function AppointmentList() {
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('appointmentDate');
   const [tabValue, setTabValue] = useState('all');
+  const [expandedAccordion, setExpandedAccordion] = useState(false);
 
   async function fetchData() {
     try {
@@ -118,9 +124,27 @@ function AppointmentList() {
     setPage(newPage);
   };
 
-
   const handleChangeTab = (event, newValue) => {
     setTabValue(newValue);
+    setExpandedAccordion(false);
+  };
+
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedAccordion(isExpanded ? panel : false);
+    if (isExpanded) {
+      let filteredList = appointments;
+      if (panel === 'waiting') {
+        filteredList = appointments.filter(app => app.isCheckIn && !app.isCheckUp && app.veterinarianId === user.id);
+      } else if (panel === 'today') {
+        const today = new Date().toISOString().split('T')[0];
+        filteredList = appointments.filter(app => app.appointmentDate === today && app.veterinarianId === user.id);
+      } else {
+        filteredList = appointments.filter(app => app.veterinarianId === user.id);
+      }
+      setFilteredAppointments(filteredList);
+    } else {
+      filterAppointments();
+    }
   };
 
   const pageCount = Math.ceil(filteredAppointments.length / rowsPerPage);
@@ -145,6 +169,54 @@ function AppointmentList() {
             <Tab value="myAppointments" label="My Appointments" />
           </Tabs>
         </Box>
+        {tabValue === 'myAppointments' && (
+          <Box>
+            <Accordion expanded={expandedAccordion === 'waiting'} onChange={handleAccordionChange('waiting')}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="waiting-content"
+                id="waiting-header"
+              >
+                <Typography>Waiting (Check-in Appointments)</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {renderTable()}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expandedAccordion === 'today'} onChange={handleAccordionChange('today')}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="today-content"
+                id="today-header"
+              >
+                <Typography>Today (Active Appointments for Today)</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {renderTable()}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expandedAccordion === 'showAll'} onChange={handleAccordionChange('showAll')}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="showAll-content"
+                id="showAll-header"
+              >
+                <Typography>Show All</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {renderTable()}
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+        )}
+        {tabValue !== 'myAppointments' && renderTable()}
+      </Paper>
+    </div>
+  );
+
+  function renderTable() {
+    return (
+      <>
         <TableContainer sx={{ maxHeight: 500 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
@@ -228,9 +300,9 @@ function AppointmentList() {
           />
         </Box>
         <br/>
-      </Paper>
-    </div>
-  );
+      </>
+    );
+  }
 }
 
 export default AppointmentList;

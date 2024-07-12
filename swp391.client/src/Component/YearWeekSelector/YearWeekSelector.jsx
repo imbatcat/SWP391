@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { Select, MenuItem, FormControl, InputLabel, Box } from '@mui/material';
 import './YearWeekSelector.css';
+
 const YearWeekSelector = ({ onYearWeekChange }) => {
   const [years, setYears] = useState([]);
   const [weeks, setWeeks] = useState([]);
@@ -54,39 +56,54 @@ const YearWeekSelector = ({ onYearWeekChange }) => {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     return `${day}/${month}`;
   };
+
   const getCurrentWeek = () => {
     const currentDate = new Date();
     const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
     const dayOfYear = ((currentDate - startOfYear + 86400000) / 86400000);
-    
+
     // Adjust for start of the week (Monday as the first day of the week)
     const startOfWeekAdjustment = (startOfYear.getDay() || 7) - 1; // startOfYear.getDay() returns 0 for Sunday
-    
+
     // Calculate the current week number
     return Math.ceil((dayOfYear + startOfWeekAdjustment) / 7);
   };
-  
+
   return (
-<div>
-    <div>
-      <select className='yearweek-btn' id="year" value={selectedYear} onChange={(e) => setSelectedYear(parseInt(e.target.value))}>
-        {years.map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
-    </div>
-    <div>
-      <select className='yearweek-btn' id="week" value={selectedWeek} onChange={(e) => setSelectedWeek(parseInt(e.target.value))}>
-        {weeks.map((week) => (
-          <option key={week.week} value={week.week}>
-            {week.label}
-          </option>
-        ))}
-      </select>
-    </div>
-</div>
+    <Box >
+      <FormControl sx={{ sm: 1, maxWidth: 190 }}>
+        <InputLabel id="year-label">Year</InputLabel>
+        <Select
+          labelId="year-label"
+          id="year"
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+          size='small'
+        >
+          {years.map((year) => (
+            <MenuItem key={year} value={year}>
+              {year}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl sx={{ m: 1, maxWidth: 190 }} >
+        <InputLabel id="week-label">Week</InputLabel>
+        <Select
+          labelId="week-label"
+          id="week"
+          value={selectedWeek}
+          onChange={(e) => setSelectedWeek(parseInt(e.target.value))}
+          size='small'
+        >
+          {weeks.map((week) => (
+            <MenuItem key={week.week} value={week.week}>
+              {week.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Box>
   );
 };
 
