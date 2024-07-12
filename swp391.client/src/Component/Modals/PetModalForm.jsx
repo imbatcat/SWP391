@@ -104,7 +104,13 @@ function PetModalForm() {
             accountId: user.id, // Reset but retain user ID
         });
     };
-
+    const getCurrentDate = () => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
     return (
         <form>
             <MDBRow>
@@ -118,9 +124,10 @@ function PetModalForm() {
                 </MDBCol>
                 <MDBCol size='4'>
                     <MDBInput
-                        label='Pet Age'
+                        label='Date of Birth'
                         name='petAge'
                         type='date'
+                        max={getCurrentDate()}
                         value={formData.petAge}
                         onChange={handleInputChange}
                     />

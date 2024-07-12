@@ -60,6 +60,7 @@ function AppointmentForm({ toggleOpen }) {
             const petData = await response1.json();
             const timeslotData = await response2.json();
             setPetList(petData);
+            console.log(petData);
             setTimeSlotList(timeslotData);
 
             console.log(timeslotData);
@@ -182,18 +183,22 @@ function AppointmentForm({ toggleOpen }) {
         addAppointment(formData);
     };
 
-    const tomorrow = () => {
-        const today = new Date();
-        today.setDate(today.getDate() + 1);
-        return today.toISOString().split('T')[0];
-    };
 
     const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
     const isSunday = (dateString) => {
         const date = new Date(dateString);
         return date.getDay() === 0;
     };
-
+    const tomorrowDate = () => {
+        const today = new Date();
+        today.setDate(today.getDate() + 1); // Increment the date by one day
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+    console.log(tomorrowDate());
+    
     if (isLoading) {
         return (
             <>
@@ -248,7 +253,7 @@ function AppointmentForm({ toggleOpen }) {
                                 name='appointmentDate'
                                 label='Appointment Date'
                                 type='date'
-                                min={tomorrow()}
+                                min={tomorrowDate()}
                                 max={maxDate}
                                 value={formData.appointmentDate}
                                 onChange={handleDateChange}
