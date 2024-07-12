@@ -94,17 +94,17 @@ export default function ServiceBills() {
     useEffect(() => {
         if (billList.length > 0) {
             const groupedServices = filteredBillList.reduce((acc, service) => {
-                const { orderId } = service;
-                if (!acc[orderId]) {
-                    acc[orderId] = [];
+                const { appointmentId } = service;
+                if (!acc[appointmentId]) {
+                    acc[appointmentId] = [];
                 }
-                acc[orderId].push(service);
+                acc[appointmentId].push(service);
                 return acc;
             }, {});
             // Convert the grouped services object to an array
-            let arr = Object.keys(groupedServices).map(orderId => ({
-                orderId,
-                services: groupedServices[orderId]
+            let arr = Object.keys(groupedServices).map(appointmentId => ({
+                appointmentId,
+                services: groupedServices[appointmentId]
             }));
             setGroupedBillList(arr);
             console.log(arr);
@@ -123,9 +123,9 @@ export default function ServiceBills() {
             <MDBAccordion initialActive={1}>
                 {groupedBillList.map((bill, index) => (
                     <MDBAccordionItem
-                        key={bill.orderId}
+                        key={bill.appointmentId}
                         collapseId={`collapseId-${index}`}
-                        headerTitle={`Order ID: ${bill.orderId}`}
+                        headerTitle={`Appointment Id: ${bill.appointmentId}`}
                     >
                         {bill.services.map((service, serviceIndex) => (
                             <div key={serviceIndex}>
