@@ -18,23 +18,32 @@ const VetSelectionTable = ({ vetList, formData, handleChange }) => {
         <MDBTable bordered>
             <MDBTableHead>
                 <tr>
-                    <th>Select</th>
+                    
                     <th>Veterinarian Name</th>
+                    <th>Experience</th>
+                    <th>Department</th>
+                    <th>Current Capacity</th>
+                    <th>Select</th>
+
                 </tr>
             </MDBTableHead>
             <MDBTableBody>
                 {vetList.map((vet, index) => (
                     <tr key={index}>
+                        
+                        <td>{vet.vetName}</td>
+                        <td>{vet.experience}</td>
+                        <td>{vet.department}</td>
+                        <td>{vet.currentCapacity}</td>
                         <td>
                             <MDBBtn
                                 type='button'
-                                color={selectedVet === vet.accountId ? 'primary' : 'secondary'}
-                                onClick={() => handleVetSelect(vet.accountId)}
+                                color={selectedVet === vet.vetId ? 'danger' : 'mute'}
+                                onClick={() => handleVetSelect(vet.vetId)}
                             >
-                                {selectedVet === vet.accountId ? 'Selected' : 'Select'}
+                                {selectedVet === vet.vetId ? 'Selected' : 'Select'}
                             </MDBBtn>
                         </td>
-                        <td>{vet.fullName}</td>
                     </tr>
                 ))}
             </MDBTableBody>

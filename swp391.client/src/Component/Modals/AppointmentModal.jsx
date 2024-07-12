@@ -18,7 +18,7 @@ function AppointmentModal({ toggleOpen }) {
 
     return (
         <>
-            <MDBModalDialog>
+            <MDBModalDialog size='lg'>
                 <MDBModalContent>
                     {stepData == 0 && <AppointmentForm toggleOpen={toggleOpen}></AppointmentForm>}
 
