@@ -61,9 +61,8 @@ function UserAppointments() {
         if (user) getAppointmentList(user);
     }, [user]);
 
-
-    const toggleOpen = (Appointment = null) => {
-        setSelectedAppointment(Appointment);
+    const toggleOpen = (appointment = null) => {
+        setSelectedAppointment(appointment);
         setCentredModal(!centredModal);
     };
 
@@ -75,6 +74,9 @@ function UserAppointments() {
         setRowsPerPage(+event.target.value);
         setPage(0);
     };
+
+    // Sort appointments by date
+    const sortedAppointmentList = [...appointmentList].sort((a, b) => new Date(a.appointmentDate) - new Date(b.appointmentDate));
 
     return (
         <>
@@ -89,33 +91,32 @@ function UserAppointments() {
                             <MDBCol>
                                 <MDBCard className="mb-4 mb-lg-0">
                                     <MDBCardBody className="p-0">
-                                        {/* {appointmentList && appointmentList.length > 0 ? ( */}
-                                            <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                                                <TableContainer sx={{ maxHeight: 440 }}>
-                                                    <Table stickyHeader aria-label="sticky table">
-                                                        <TableHead>
+                                        <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                                            <TableContainer sx={{ maxHeight: 440 }}>
+                                                <Table stickyHeader aria-label="sticky table">
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <TableCell>No</TableCell>
+                                                            <TableCell>Pet name</TableCell>
+                                                            <TableCell>Veterinarian</TableCell>
+                                                            <TableCell>Time slot</TableCell>
+                                                            <TableCell>Date</TableCell>
+                                                            <TableCell>Booking price</TableCell>
+                                                            <TableCell>Status</TableCell>
+                                                            <TableCell>Details</TableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {isLoading ? (
                                                             <TableRow>
-                                                                <TableCell>No</TableCell>
-                                                                <TableCell>Pet name</TableCell>
-                                                                <TableCell>Veterinarian</TableCell>
-                                                                <TableCell>Time slot</TableCell>
-                                                                <TableCell>Date</TableCell>
-                                                                <TableCell>Booking price</TableCell>
-                                                                <TableCell>Status</TableCell>
-                                                                <TableCell>Details</TableCell>
+                                                                <TableCell colSpan="8">
+                                                                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                                                                        <Spinner />
+                                                                    </div>
+                                                                </TableCell>
                                                             </TableRow>
-                                                        </TableHead>
-                                                        <TableBody>
-                                                    {isLoading ? (
-                                                        <tr>
-                                                        <td colSpan="6">
-                                                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                                                <Spinner />
-                                                            </div>
-                                                        </td>
-                                                        </tr>
-                                                    ) :
-                                                            (appointmentList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
+                                                        ) : (
+                                                            sortedAppointmentList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((appointment, index) => (
                                                                 <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                                                                     <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                                                                     <TableCell>{appointment.petName}</TableCell>
@@ -128,21 +129,21 @@ function UserAppointments() {
                                                                         <MDBBtn size="sm" onClick={() => toggleOpen(appointment)}>Details</MDBBtn>
                                                                     </TableCell>
                                                                 </TableRow>
-                                                            )))}
-                                                        </TableBody>
-                                                    </Table>
-                                                </TableContainer>
-                                                <TablePagination
-                                                    rowsPerPageOptions={[10, 25, 100]}
-                                                    component="div"
-                                                    count={appointmentList.length}
-                                                    rowsPerPage={rowsPerPage}
-                                                    page={page}
-                                                    onPageChange={handleChangePage}
-                                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                                />
-                                            </Paper>
-                                        {/* } */}
+                                                            ))
+                                                        )}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
+                                            <TablePagination
+                                                rowsPerPageOptions={[10, 25, 100]}
+                                                component="div"
+                                                count={appointmentList.length}
+                                                rowsPerPage={rowsPerPage}
+                                                page={page}
+                                                onPageChange={handleChangePage}
+                                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                            />
+                                        </Paper>
                                     </MDBCardBody>
                                 </MDBCard>
                             </MDBCol>

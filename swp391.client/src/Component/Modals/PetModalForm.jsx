@@ -107,7 +107,7 @@ function PetModalForm() {
     return (
         <form>
             <MDBRow>
-                <MDBCol size='6'>
+                <MDBCol size='4'>
                     <MDBInput
                         label='Pet Name'
                         name='petName'
@@ -115,17 +115,16 @@ function PetModalForm() {
                         onChange={handleInputChange}
                     />
                 </MDBCol>
-                <MDBCol size='6'>
+                <MDBCol size='4'>
                     <MDBInput
                         label='Pet Age'
                         name='petAge'
+                        type='date'
                         value={formData.petAge}
                         onChange={handleInputChange}
                     />
                 </MDBCol>
-            </MDBRow>
-            <MDBRow>
-                <MDBCol size='6'>
+                <MDBCol size='4'>
                     <MDBInput
                         label='Pet Breed'
                         name='petBreed'
@@ -133,6 +132,9 @@ function PetModalForm() {
                         onChange={handleInputChange}
                     />
                 </MDBCol>
+            </MDBRow>
+            <br/>
+            <MDBRow>
                 <MDBCol size='6'>
                     <FormControl fullWidth>
                         <InputLabel id='gender-select-label'>Gender</InputLabel>
@@ -148,8 +150,6 @@ function PetModalForm() {
                         </Select>
                     </FormControl>
                 </MDBCol>
-            </MDBRow>
-            <MDBRow>
                 <MDBCol size='6'>
                     <FormControl fullWidth>
                         <InputLabel id='species-select-label'>Species</InputLabel>
@@ -165,15 +165,19 @@ function PetModalForm() {
                         </Select>
                     </FormControl>
                 </MDBCol>
-                <MDBCol size='6'>
+            </MDBRow>
+            <br/>
+            <MDBRow>
+                <MDBCol>
                     <MDBInput
-                        label='Image URL'
                         name='imgUrl'
                         type='file'
                         onChange={handleInputChange}
                     />
                 </MDBCol>
+                    
             </MDBRow>
+            <br/>
             <MDBRow>
                 <MDBCol size='12'>
                     <MDBInput
@@ -184,6 +188,7 @@ function PetModalForm() {
                     />
                 </MDBCol>
             </MDBRow>
+            <br/>
             <MDBRow>
                 <MDBCol size='12'>
                     <MDBInput
@@ -194,6 +199,7 @@ function PetModalForm() {
                     />
                 </MDBCol>
             </MDBRow>
+            <br/>
             <MDBBtn onClick={handleSubmit} type='submit' outline color='dark' className='mb-4' block>
                 Submit
             </MDBBtn>

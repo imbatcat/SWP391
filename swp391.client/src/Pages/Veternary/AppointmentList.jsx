@@ -156,7 +156,7 @@ function AppointmentList() {
   return (
     <div>
       <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-      <Paper sx={{ width: '100%' }}>
+      <Paper sx={{ width: '100%', height:'87vh' }}>
         <Box sx={{ width: '100%' }}>
           <Tabs
             value={tabValue}
@@ -217,7 +217,7 @@ function AppointmentList() {
   function renderTable() {
     return (
       <>
-        <TableContainer sx={{ maxHeight: 500 }}>
+        <TableContainer sx={{ maxHeight: 350 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

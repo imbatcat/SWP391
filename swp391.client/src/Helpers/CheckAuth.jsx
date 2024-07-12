@@ -9,6 +9,7 @@ function CheckAuth({ children, allowedRoles }) {
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
         var userToken = Cookies.get('AspNetLogin');
         return userToken ? true : false;
+        
     });
     const [user, setUser] = useUser();
 
