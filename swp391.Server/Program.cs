@@ -120,6 +120,7 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>(
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
+    // this sets the lifespan for generated tokens like email and reset password
     options.TokenLifespan = TimeSpan.FromMinutes(30);
 });
 #endregion 
