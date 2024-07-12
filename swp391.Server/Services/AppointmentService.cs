@@ -184,17 +184,9 @@ namespace PetHealthcare.Server.Services
                         }
                     }
                 }
+                //this line exists for preventing compile error
                 return null; 
             }).OrderBy(a => a.AppointmentStatus).ToList();
-            //catch error
-            if (resAppListForCustomers.Count() == 0 && listType.Equals("current", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new Exception("The current list is empty");
-            }
-            else if (resAppListForCustomers.Count() == 0 && listType.Equals("history", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new Exception("The history list is empty");
-            }
             return resAppListForCustomers;
         }
 

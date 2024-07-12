@@ -118,18 +118,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             }
             catch (Exception ex)
             {
-                if (ex.Message.Equals("Can't find that Account"))
-                {
-                    return NotFound(new { message = "Can't find that account id" });
-                }
-                if (ex.Message.Equals("The history list is empty"))
-                {
-                    return NotFound(new { message = "The history list is empty" });
-                }
-                else if (ex.Message.Equals("The current list is empty"))
-                {
-                    return NotFound(new { message = "The current list is empty" });
-                }
+                return NotFound(new { message = ex.Message });
             }
 
             return Ok(appointmentList);
