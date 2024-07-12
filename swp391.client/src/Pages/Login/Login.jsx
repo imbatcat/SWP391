@@ -25,7 +25,7 @@ import { useUser } from '../../Context/UserContext';
 import { GoogleLogin } from '@react-oauth/google';
 
 function Login() {
-    const [loginCredentials, setLoginCredentials] = useState({ email_username: '', password: '' });
+    const [loginCredentials, setLoginCredentials] = useState({ email_username: '', password: '' , rememberMe: true});
     const [buffer, setBuffer] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -87,7 +87,7 @@ function Login() {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify(credentials)
+                body: JSON.stringify(loginCredentials)
             });
 
             if (!response.ok) {
