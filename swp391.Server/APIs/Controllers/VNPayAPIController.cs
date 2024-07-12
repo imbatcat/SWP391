@@ -20,9 +20,10 @@ namespace PetHealthcare.Server.APIs.Controllers
         private readonly AppointmentService _appointmentService;
         private readonly PetHealthcareDbContext context;
         private readonly BookingPaymentService bookingPaymentService;
+        private readonly IVnPayService _vnPayService;
         private readonly IAuthenticationService _authenticationService;
         public VNPayAPIController(IVnPayService vnPayService, PetHealthcareDbContext context, AppointmentService appointmentService,
-            BookingPaymentService _bookingPaymentService, ITempDataDictionaryFactory tempDataDictionaryFactory, IAuthenticationService _authenticationService)
+            BookingPaymentService _bookingPaymentService, IAuthenticationService _authenticationService)
         {
             _vnPayService = vnPayService;
             this.context = context;
@@ -30,7 +31,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             bookingPaymentService = _bookingPaymentService;
             this._authenticationService = _authenticationService;
         }
-        private readonly IVnPayService _vnPayService;
+        
         // GET: VNPayController
         [HttpPost("make-payment")]
         public async  Task<ActionResult<VNPayResponseUrl>> CreatePaymentUrl([FromBody] CreateAppointmentDTO model)
