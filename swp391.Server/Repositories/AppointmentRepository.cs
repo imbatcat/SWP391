@@ -155,5 +155,17 @@ namespace PetHealthcare.Server.Repositories
             return context.Appointments.Find(appointmentId).QRCodeImageUrl;
         }
 
+        public async Task CheckUpAppointment(string appointmentId)
+        {
+            var appointment = await GetByCondition(a => a.AppointmentId == appointmentId);
+            if (appointment != null)
+            {
+                // this line ensures efcore to update the table.
+                context.Entry(appointment).State = EntityState.Modified;
+
+                appointment.IsCheckUp = true;
+                await SaveChanges();
+            }
+        }
     }
 }
