@@ -48,7 +48,6 @@ function AboutUs() {
                 <MDBCardText>
                   Our experienced and compassionate team is dedicated to providing the best care for your pets.
                 </MDBCardText>
-                <MDBBtn color="primary">Learn More</MDBBtn>
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
@@ -66,7 +65,6 @@ function AboutUs() {
                 <MDBCardText>
                   We strive to enhance the health and well-being of your pets through high-quality veterinary care and exceptional customer service.
                 </MDBCardText>
-                <MDBBtn style={{alignContent:'end', display:'flex'}} color="primary">Learn More</MDBBtn>
               </MDBCardBody>
             </MDBCard>
           </MDBCol>
@@ -116,14 +114,6 @@ function AboutUs() {
         </MDBRow>
       </section>
 
-      <section className="mb-5 text-center">
-        <MDBTypography tag="h2" className="mb-4">
-          Get in Touch
-        </MDBTypography>
-        <MDBBtn color="primary" size="lg">
-          Contact Us
-        </MDBBtn>
-      </section>
     </MDBContainer>
     </MainLayout>
     </div>

@@ -91,7 +91,10 @@ function AppointmentList() {
       }
       setFilteredAppointments(filteredList);
     } else {
-      filterAppointments();
+      setTimeout(()=>{
+        filterAppointments();
+      }, 5000);
+      
     }
   };
 
