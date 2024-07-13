@@ -1,4 +1,5 @@
-﻿using PetHealthcare.Server.Models;
+﻿using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
+using PetHealthcare.Server.Models;
 
 namespace PetHealthcare.Server.Repositories.Interfaces
 {
@@ -13,6 +14,8 @@ namespace PetHealthcare.Server.Repositories.Interfaces
         Task<IEnumerable<Appointment>> GetVetAppointmentList(string vetId);
 
         Task<IEnumerable<Appointment>> GetAllAppointmentForStaff(DateOnly date, int timeslot);
+
+        Task<IEnumerable<RequestResAppListForCustomer>> GetAllCustomerAppointment();
         string GetQRCodeByAppointmentId(string appointmentId);
     }
 }

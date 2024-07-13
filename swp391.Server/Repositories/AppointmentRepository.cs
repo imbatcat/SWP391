@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NanoidDotNet;
+using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Repositories.Interfaces;
 using System.Diagnostics;
@@ -115,6 +116,25 @@ namespace PetHealthcare.Server.Repositories
         public string GetQRCodeByAppointmentId(string appointmentId)
         {
             return context.Appointments.Find(appointmentId).QRCodeImageUrl;
+        }
+
+        public async Task<IEnumerable<RequestResAppListForCustomer>> GetAllCustomerAppointment()
+        {
+            return await context.Appointments.AsNoTracking().Include(app => app.Veterinarian).Include(app => app.Pet).Include(app => app.TimeSlot).Select(app => new RequestResAppListForCustomer
+            {
+                IsCancel = app.IsCancel,
+                IsCheckin = app.IsCheckIn,
+                BookingPrice = app.BookingPrice,
+                AppointmentDate = app.AppointmentDate,
+                AppointmentId = app.AppointmentId,
+                StartTime = app.TimeSlot.StartTime,
+                EndTime = app.TimeSlot.EndTime,
+                AccountId = app.AccountId,
+                IsCheckUp = app.IsCheckUp,
+                PetName = app.Pet.PetName,
+                VeterinarianName = app.Veterinarian.FullName,
+                
+            }).ToListAsync();
         }
     }
 }

@@ -116,7 +116,7 @@ namespace PetHealthcare.Server.Services
             await _appointmentRepository.Update(UpdateAppointment);
         }
 
-        public string GetAppointmentStatus(Appointment appointment)
+        public string GetAppointmentStatus(RequestResAppListForCustomer appointment)
         {
             string status = "Ongoing";
             DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
@@ -137,9 +137,9 @@ namespace PetHealthcare.Server.Services
             {
                 throw new Exception("Can't find that Account");
             }
-            IEnumerable<Appointment> appointmentsList = await _appointmentRepository.GetAll();
+            IEnumerable<RequestResAppListForCustomer> appointmentsList = await _appointmentRepository.GetAllCustomerAppointment();
             List<ResAppListForCustomer> resAppListForCustomers = new List<ResAppListForCustomer>();
-            foreach (Appointment appointment in appointmentsList)
+            foreach (RequestResAppListForCustomer appointment in appointmentsList)
             {
                 DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
                 if (listType.Equals("history", StringComparison.OrdinalIgnoreCase))
@@ -151,9 +151,9 @@ namespace PetHealthcare.Server.Services
                             AppointmentId = appointment.AppointmentId,
                             AppointmentDate = appointment.AppointmentDate,
                             BookingPrice = appointment.BookingPrice,
-                            PetName = appointment.Pet.PetName,
-                            VeterinarianName = appointment.Veterinarian.FullName,
-                            TimeSlot = appointment.TimeSlot.StartTime.ToString("h:mm") + " - " + appointment.TimeSlot.EndTime.ToString("h:mm"),
+                            PetName = appointment.PetName,
+                            VeterinarianName = appointment.VeterinarianName,
+                            TimeSlot = appointment.StartTime.ToString("h:mm") + " - " + appointment.EndTime.ToString("h:mm"),
                             AppointmentStatus = GetAppointmentStatus(appointment)
                         });
                     }
@@ -167,9 +167,9 @@ namespace PetHealthcare.Server.Services
                             AppointmentId = appointment.AppointmentId,
                             AppointmentDate = appointment.AppointmentDate,
                             BookingPrice = appointment.BookingPrice,
-                            PetName = appointment.Pet.PetName,
-                            VeterinarianName = appointment.Veterinarian.FullName,
-                            TimeSlot = appointment.TimeSlot.StartTime.ToString("h:mm") + " - " + appointment.TimeSlot.EndTime.ToString("h:mm"),
+                            PetName = appointment.PetName,
+                            VeterinarianName = appointment.VeterinarianName,
+                            TimeSlot = appointment.StartTime.ToString("h:mm") + " - " + appointment.EndTime.ToString("h:mm"),
                             AppointmentStatus = GetAppointmentStatus(appointment)
                         });
                     }
