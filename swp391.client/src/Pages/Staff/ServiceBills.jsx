@@ -94,17 +94,18 @@ export default function ServiceBills() {
     useEffect(() => {
         if (billList.length > 0) {
             const groupedServices = filteredBillList.reduce((acc, service) => {
-                const { appointmentId } = service;
-                if (!acc[appointmentId]) {
-                    acc[appointmentId] = [];
+                const { orderId } = service;
+                if (!acc[orderId]) {
+                    acc[orderId] = [];
                 }
-                acc[appointmentId].push(service);
+                acc[orderId].push(service);
                 return acc;
             }, {});
             // Convert the grouped services object to an array
-            let arr = Object.keys(groupedServices).map(appointmentId => ({
-                appointmentId,
-                services: groupedServices[appointmentId]
+            let arr = Object.keys(groupedServices).map(orderId => ({
+                orderId,
+                appointmentId: groupedServices[orderId][0].appointmentId,
+                services: groupedServices[orderId]
             }));
             setGroupedBillList(arr);
             console.log(arr);
