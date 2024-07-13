@@ -94,7 +94,6 @@ export default function NavBar2() {
                                 <MDBDropdownMenu>
                                     <MDBDropdownItem link href='https://zalo.me/g/alobzv478'>Zalo</MDBDropdownItem>
                                     <MDBDropdownItem link href='https://www.facebook.com/profile.php?id=100009406588322'>FaceBook</MDBDropdownItem>
-                                    <MDBDropdownItem link>09321231232</MDBDropdownItem>
                                 </MDBDropdownMenu>
                             </MDBDropdown>
                         </MDBNavbarItem>
