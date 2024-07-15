@@ -8,9 +8,19 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import { Link } from 'react-router-dom';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import Box from '@mui/material/Box';
+import Pagination from '@mui/material/Pagination';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { LinearProgress } from '@mui/material';
 
 function AppointmentList() {
   const [user, setUser] = useUser();
@@ -18,14 +28,16 @@ function AppointmentList() {
   const [searchInput, setSearchInput] = useState('');
   const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('appointmentDate');
+  const [tabValue, setTabValue] = useState('all');
+  const [expandedAccordion, setExpandedAccordion] = useState(false);
 
-  async function fetchData(vetId) {
+  async function fetchData() {
     try {
-      const response = await fetch(`https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`, {
+      const response = await fetch(`https://localhost:7206/api/appointment-management/vets/get-all`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -44,14 +56,45 @@ function AppointmentList() {
 
   useEffect(() => {
     if (user) {
-      fetchData(user.id);
+      fetchData();
     }
-    console.log(user.id);
   }, [user]);
 
-  if (isLoading) {
-    return <div>Loading...</div>; // Loading state
-  }
+  useEffect(() => {
+    filterAppointments();
+  }, [tabValue, appointments]);
+
+  const filterAppointments = () => {
+    if (tabValue === 'myAppointments') {
+      setFilteredAppointments(appointments.filter(app => app.veterinarianId === user.id));
+    } else {
+      setFilteredAppointments(appointments);
+    }
+  };
+
+  const handleAccordionChange = (panel) => (event, isExpanded) => {
+    setExpandedAccordion(isExpanded ? panel : false);
+    if (isExpanded) {
+      let filteredList = appointments;
+      if (panel === 'waiting') {
+        filteredList = appointments.filter(app => app.isCheckIn && !app.isCheckUp && app.veterinarianId === user.id);
+      } else if (panel === 'today') {
+        const now = new Date();
+        const today = now.getFullYear() + '-' +
+          ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+          ('0' + now.getDate()).slice(-2);
+
+          console.log(today); // Outputs: YYYY-MM-DD
+        filteredList = appointments.filter(app => app.appointmentDate === today && app.veterinarianId === user.id);
+      } else {
+        filteredList = appointments.filter(app => app.veterinarianId === user.id);
+      }
+      setFilteredAppointments(filteredList);
+    } else {
+      filterAppointments();
+      
+    }
+  };
 
   const getBadgeColor = (app) => {
     if (app.isCancel) {
@@ -70,13 +113,14 @@ function AppointmentList() {
     const value = e.target.value.toLowerCase();
     setSearchInput(value);
     if (value === '') {
-      setFilteredAppointments(appointments);
+      filterAppointments();
     } else {
-      setFilteredAppointments(appointments.filter(app =>
+      setFilteredAppointments(filteredAppointments.filter(app =>
         (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
         (app.ownerNumber && app.ownerNumber.toLowerCase().includes(value)) ||
         (app.appointmentDate && app.appointmentDate.toLowerCase().includes(value)) ||
-        (app.timeSlot && app.timeSlot.toLowerCase().includes(value))
+        (app.timeSlot && app.timeSlot.toLowerCase().includes(value)) ||
+        (app.appointmentId && app.appointmentId.toLowerCase().includes(value))
       ));
     }
   }
@@ -105,16 +149,82 @@ function AppointmentList() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(+event.target.value);
-    setPage(0);
+  const handleChangeTab = (event, newValue) => {
+    setTabValue(newValue);
+    setExpandedAccordion(false);
   };
+
+  
+
+  const pageCount = Math.ceil(filteredAppointments.length / rowsPerPage);
+
 
   return (
     <div>
       <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-      <Paper sx={{ width: '100%' }}>
-        <TableContainer sx={{ maxHeight: 640 }}>
+      {isLoading && <LinearProgress/>}
+      <Paper sx={{ width: '100%', height:'87vh' }}>
+        <Box sx={{ width: '100%' }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleChangeTab}
+            textColor="secondary"
+            indicatorColor="secondary"
+            aria-label="secondary tabs example"
+          >
+            <Tab value="all" label="All" />
+            <Tab value="myAppointments" label="My Appointments" />
+          </Tabs>
+        </Box>
+        {tabValue === 'myAppointments' && (
+          <Box>
+            <Accordion expanded={expandedAccordion === 'waiting'} onChange={handleAccordionChange('waiting')}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="waiting-content"
+                id="waiting-header"
+              >
+                <Typography>Waiting (Check-in Appointments)</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {renderTable()}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expandedAccordion === 'today'} onChange={handleAccordionChange('today')}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="today-content"
+                id="today-header"
+              >
+                <Typography>Today (Active Appointments for Today)</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {renderTable()}
+              </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={expandedAccordion === 'showAll'} onChange={handleAccordionChange('showAll')}>
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                aria-controls="showAll-content"
+                id="showAll-header"
+              >
+                <Typography>Show All</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                {renderTable()}
+              </AccordionDetails>
+            </Accordion>
+          </Box>
+        )}
+        {tabValue !== 'myAppointments' && renderTable()}
+      </Paper>
+    </div>
+  );
+
+  function renderTable() {
+    return (
+      <>
+        <TableContainer sx={{ maxHeight: 350 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>
@@ -134,12 +244,13 @@ function AppointmentList() {
                 <TableCell>Status</TableCell>
                 <TableCell>Booking Price</TableCell>
                 <TableCell>Note</TableCell>
+                <TableCell>Medical Record</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedAppointments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((app, index) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={app.id}>
-                  <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+              {sortedAppointments.slice((page - 1) * rowsPerPage, page * rowsPerPage).map((app, index) => (
+                <TableRow hover role="checkbox" tabIndex={-1} key={app.appointmentId}>
+                  <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
                   <TableCell>
                     <div className='d-flex align-items-center'>
                       <img
@@ -176,23 +287,29 @@ function AppointmentList() {
                   <TableCell>
                     <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
                   </TableCell>
+                  <TableCell>
+                    <Link to='/vet/MedicalRecord' state={app}>
+                      <MDBBtn color='danger'>View Detail</MDBBtn>
+                    </Link>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
-          component="div"
-          count={filteredAppointments.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
-    </div>
-  );
+        <Box display="flex" justifyContent="center" m={2}>
+          <Pagination
+            count={pageCount}
+            page={page}
+            onChange={handleChangePage}
+            variant="outlined"
+            color="secondary"
+          />
+        </Box>
+        <br/>
+      </>
+    );
+  }
 }
 
 export default AppointmentList;

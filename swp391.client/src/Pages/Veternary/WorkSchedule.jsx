@@ -63,7 +63,7 @@ function WorkSchedule() {
     }, []);
     async function fetchData(vetId) {
         try {
-            const response = await fetch(`https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`, {
+            const response = await fetch(`https://localhost:7206/api/appointment-management/vets/get-all`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -74,9 +74,10 @@ function WorkSchedule() {
                 throw new Error("Error fetching data");
             }
             const data = await response.json();
-            setAppointments(data);
+            const filteredData = data.filter(appointment => appointment.veterinarianId === vetId);
+            setAppointments(filteredData);
             setIsLoading(false);
-            console.log(data);
+            console.log(filteredData);
         } catch (error) {
             console.error(error.message);
         }
@@ -99,9 +100,9 @@ function WorkSchedule() {
         ).length;
     };
     const getBadgeColor = (count) => {
-        if (count > 0 && count < 4) return 'success';
-        if (count >= 4 && count < 7) return 'warning';
-        if (count >= 7) return 'danger';
+        if (count > 0 && count < 3) return 'success';
+        if (count >= 3 && count <= 5) return 'warning';
+        if (count == 6) return 'danger';
         return 'secondary';
     };
     const handleBadgeClick = (date, timeSlot) => {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     MDBCard,
     MDBCardBody,
@@ -251,7 +251,7 @@ function MedicalRecord() {
 
             <MDBCard style={{ minHeight: '60vw', maxWidth: '50vw', margin: 'auto', marginTop: '50px' }}>
                 <MDBCardHeader style={{ textAlign: 'center', fontSize: '3vw' }}>Medical Record</MDBCardHeader>
-                <MDBCardBody style={{ height: '5' }} scrollable>
+                <MDBCardBody style={{ height: '5' }} >
                     <MDBRow style={{ marginLeft: '15px', marginRight: '15px' }}>
                         <MDBCol sm='6'>
                             <MDBCard>
@@ -423,11 +423,19 @@ function MedicalRecord() {
                         </MDBCard>
                     </MDBRow>
                 </MDBCardBody>
+                <MDBRow className='justify-content-end'>
+                                <MDBCol style={{justifyContent:'end', display:'flex', marginRight:'25px'}} size='3'>
+                                    <Link to='/vet/WorkSchedule'>
+                                        <MDBBtn color='mute'>Back</MDBBtn>
+                                    </Link>
+                                </MDBCol>
+                            </MDBRow>
+                            <br></br>
             </MDBCard>
 
             <div>
                 <MDBModal open={assignServiceModal} onClose={() => setAssignModal(false)} tabIndex='-1'>
-                    <AssignServiceModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleAssignServiceOpen} />
+                    <AssignServiceModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} appointment={appointment} toggleOpen={toggleAssignServiceOpen} />
                 </MDBModal>
             </div>
             <div>
@@ -435,6 +443,7 @@ function MedicalRecord() {
                     <AssignCageModal mRecId={existingRecord.medicalRecordId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleAssignCageOpen} />
                 </MDBModal>
             </div>
+
         </div>
     );
 }

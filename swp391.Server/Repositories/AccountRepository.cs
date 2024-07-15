@@ -149,28 +149,25 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<IEnumerable<VetListDTO>> GetVetListToChoose(DateOnly date, int timeslotId)
         {
-            List<Appointment> appointments = await context.Appointments.Include("TimeSlot").Include("Account").ToListAsync();
-            List<Veterinarian> veterinarians = await context.Veterinarians.ToListAsync();
-            List<VetListDTO> vetListToChoose = new List<VetListDTO>();
-            foreach(Veterinarian vet in veterinarians)
+            var appointments = context.Appointments.Include("TimeSlot").AsNoTracking().ToList();
+            var veterinarians = await context.Veterinarians.Select(vet => new VetSelectForAppointmentDTO {
+                Department = vet.Department,
+                Experience = vet.Experience,
+                VetId = vet.AccountId,
+                VetName = vet.FullName
+            }).AsNoTracking().ToListAsync();
+            List<VetListDTO> vetListToChoose = veterinarians.Select(vet => 
             {
-                int currentCapacity = 0;
-                foreach(Appointment appointment in appointments)
-                {
-                    if(appointment.VeterinarianAccountId.Equals(vet.AccountId) && appointment.AppointmentDate.CompareTo(date) == 0 && appointment.TimeSlotId == timeslotId)
-                    {
-                        currentCapacity++;
-                    }
-                }
-                vetListToChoose.Add(new VetListDTO
+                int currentCapacity = appointments.Where(app => app.VeterinarianAccountId.Equals(vet.VetId) && app.AppointmentDate.CompareTo(date) == 0 && app.TimeSlotId == timeslotId).Count();
+                return new VetListDTO
                 {
                     Department = vet.Department,
                     Experience = vet.Experience,
-                    VetId = vet.AccountId,
-                    VetName = vet.FullName,
+                    VetId = vet.VetId,
+                    VetName = vet.VetName,
                     CurrentCapacity = currentCapacity + "/" + ProjectConstant.MAX_APP_PER_TIMESLOT
-                });
-            }
+                };
+            }).ToList();
             return vetListToChoose;
         }
 

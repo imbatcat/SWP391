@@ -54,10 +54,12 @@ namespace PetHealthcare.Server.Models
         public int RoleId { get; set; } = 1;
         public Role AccountRole { get; set; }
 
+        [InverseProperty(nameof(Appointment.Account))]
         public virtual ICollection<Appointment>? Appointments { get; set; }
 
         public virtual ICollection<Feedback>? Feedbacks { get; set; }
 
+        [InverseProperty(nameof(Pet.Account))]
         public virtual ICollection<Pet>? Pets { get; set; }
     }
 }

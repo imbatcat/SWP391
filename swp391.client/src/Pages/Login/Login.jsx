@@ -93,7 +93,6 @@ function Login() {
             if (!response.ok) {
                 throw new Error("Error fetching data");
             }
-
             const userData = await response.json();
             localStorage.setItem("user", JSON.stringify(userData));
             setUser(userData);

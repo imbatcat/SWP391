@@ -23,8 +23,8 @@ import {
 import { useEffect, useState, useRef } from 'react';
 import { toast } from 'react-toastify';
 import ReactToPrint from 'react-to-print';
-
-function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
+import QRCode from 'react-qr-code';
+function AssignServiceForm({ mRecId, petData, ownerData, vetData, appointment, toggleOpen }) {
     const [services, setServices] = useState([]);
     const [selectedServices, setSelectedServices] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
@@ -103,7 +103,7 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
         toast.promise(
             submitServices().catch(err => {
                 console.error(err)
-                throw new err;
+                throw new Error(err.message);
             }),
             {
                 pending: 'Submitting your request...',
@@ -147,7 +147,16 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, toggleOpen }) 
                 `}
             </style>
             <MDBCard className="print-container" style={{ minHeight: '60vw', minWidth: '100%', maxWidth: '100vw', margin: 'auto' }}>
-                <MDBCardHeader style={{ textAlign: 'center', fontSize: '3vw' }}>Medical Service</MDBCardHeader>
+                <MDBCardHeader style={{ textAlign: 'center', fontSize: '3vw' }}>
+                
+                    <MDBRow className='mb-2' style={{ alignItems: 'center' }}>
+                        <MDBCol size='8' style={{textAlign:'end', fontSize:'40px'}}>Medical Record</MDBCol>
+                        <MDBCol size='4' style={{justifyContent:'end', display:'flex'}}>
+                            <QRCode size={100} value={appointment.appointmentId}/>
+                        </MDBCol>
+                    </MDBRow>
+                
+                </MDBCardHeader>
                 <MDBCardBody style={{ height: '5' }} scrollable >
                     <MDBRow style={{ marginLeft: '15px', marginRight: '15px' }}>
                         <MDBCol sm='6'>

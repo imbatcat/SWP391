@@ -7,11 +7,15 @@ import './SideNavForStaff.css';
 import { IconContext } from 'react-icons';
 import { toast } from 'react-toastify';
 import { MDBCol, MDBContainer, MDBIcon } from 'mdb-react-ui-kit';
+import QRCodeScannerModal from '../QRCodeScanner/QRCodeScanner';
 
 function SideNavForStaff({ searchInput, handleSearchInputChange }) {
     const [sidebar, setSidebar] = useState(false);
+    const [scannerModal, setScannerModal] = useState(false);
     const showSidebar = () => setSidebar(!sidebar);
     const navigate = useNavigate();
+    const toggleOpen = () => setScannerModal(!scannerModal);
+    
     const logout = async () => {
         try {
             const response = await fetch(`https://localhost:7206/api/auth/logout`, {
@@ -32,6 +36,20 @@ function SideNavForStaff({ searchInput, handleSearchInputChange }) {
             console.error(error.message);
         }
     };
+
+    const handleScan = (data) => {
+        if (data) {
+            handleSearchInputChange({ target: { value: data.text } });
+            setScannerModal(false);
+        }
+    };
+
+    const handleError = (err) => {
+        console.error(err);
+        toast.error('Error scanning QR code!');
+    };
+
+
     return (
         <>
             <IconContext.Provider value={{ color: '#fff' }}>
@@ -53,7 +71,9 @@ function SideNavForStaff({ searchInput, handleSearchInputChange }) {
                             <MDBIcon icon='search' style={{ marginLeft: '-35px' }} />
                         </MDBContainer>
                     </MDBCol>
-
+                    <MDBCol style={{ justifyContent: 'center', display: 'flex' }} md='1'>
+                        <AiIcons.AiOutlineExpand size='45px' onClick={toggleOpen} />
+                    </MDBCol>
                 </div>
                 <nav className={sidebar ? 'nav-menu active' : 'nav-menu'}>
                     <ul className='nav-menu-items' onClick={showSidebar}>
@@ -79,8 +99,16 @@ function SideNavForStaff({ searchInput, handleSearchInputChange }) {
                         </li>
                     </ul>
                 </nav>
+
+                <QRCodeScannerModal
+                    scannerModal={scannerModal}
+                    toggleOpen={toggleOpen}
+                    handleScan={handleScan}
+                    handleError={handleError}
+                />
             </IconContext.Provider>
         </>
     );
 }
+
 export default SideNavForStaff;

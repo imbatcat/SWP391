@@ -7,12 +7,14 @@ namespace PetHealthcare.Server.Repositories.Interfaces
     {
         bool isInputtedVetIdValid(string id);
         Task<IEnumerable<Appointment>> GetAppointmentsOfWeek(DateOnly startWeekDate, DateOnly endWeekDate);
+        Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAppointments();
 
         Task<Account?> GetAccountById(string id);
 
         Task<IEnumerable<Appointment>> GetAllAppointmentListForVet(string vetId, DateOnly date);
         Task<IEnumerable<Appointment>> GetVetAppointmentList(string vetId);
 
+        Task CheckUpAppointment(string appointmentId);
         Task<IEnumerable<Appointment>> GetAllAppointmentForStaff(DateOnly date, int timeslot);
 
         Task<IEnumerable<RequestResAppListForCustomer>> GetAllCustomerAppointment();

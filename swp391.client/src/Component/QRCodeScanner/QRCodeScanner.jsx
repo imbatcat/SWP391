@@ -1,45 +1,32 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { MDBBtn, MDBModal, MDBModalBody, MDBModalContent, MDBModalDialog, MDBModalFooter, MDBModalHeader, MDBModalTitle } from 'mdb-react-ui-kit';
 import QrScanner from 'react-qr-scanner';
 
-const QRCodeScanner = (onScan) => {
-    const [scanResult, setScanResult] = useState('');
-
-    const handleScan = data => {
-        if (data) {
-            console.log(data);
-           
-            const realData = data.text;
-            
-            setScanResult(realData);
-            onScan(realData);           
-        }
-    };
-
-    const handleError = err => {
-        console.error(err);
-    };
-
-    const previewStyle = {
-        height: 240,
-        width: 320,
-    };
-
+const QRCodeScannerModal = ({ scannerModal, toggleOpen, handleScan, handleError }) => {
+    
     return (
-        <div>
-            <QrScanner
-                delay={300}
-                onError={handleError}
-                onScan={handleScan}
-                style={previewStyle}
-            />
-            {scanResult && (
-                <div>
-                    <h3>Scanned QR Code:</h3>
-                    <p>{scanResult}</p>
-                </div>
-            )}
-        </div>
+        <MDBModal staticBackdrop tabIndex='-1' open={scannerModal} >
+            <MDBModalDialog>
+                <MDBModalContent>
+                    <MDBModalHeader>
+                        <MDBModalTitle>Scan QR Code</MDBModalTitle>
+                        <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
+                    </MDBModalHeader>
+                    <MDBModalBody>
+                        <QrScanner
+                            delay={300}
+                            onError={handleError}
+                            onScan={handleScan}
+                            style={{ width: '100%' }}
+                        />
+                    </MDBModalBody>
+                    <MDBModalFooter>
+                        <MDBBtn color='secondary' onClick={toggleOpen}>Close Scanner</MDBBtn>
+                    </MDBModalFooter>
+                </MDBModalContent>
+            </MDBModalDialog>
+        </MDBModal>
     );
 };
 
-export default QRCodeScanner;
+export default QRCodeScannerModal;

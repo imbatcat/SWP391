@@ -1,61 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  MDBContainer,
+  MDBRow,
+  MDBCol,
+  MDBCard,
+  MDBCardBody,
+  MDBInput,
+  MDBBtn,
+} from 'mdb-react-ui-kit';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
 
 const useQuery = () => {
-    return new URLSearchParams(useLocation().search);
+  return new URLSearchParams(useLocation().search);
 };
 
 const resetPassword = async (navigate, userId, token, password1) => {
-    try {
-        const response = await fetch(`https://localhost:7206/api/auth/reset-password`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify(
-                {
-                    "UserId": userId,
-                    "Token": token,
-                    "NewPassword": password1
-                }
-            ),
-        });
-        if (response.ok) {
-            navigate('/');
+  try {
+    const response = await fetch(`https://localhost:7206/api/auth/reset-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify(
+        {
+          "UserId": userId,
+          "Token": token,
+          "NewPassword": password1
         }
-    } catch (error) {
-        console.error('Error resetting password:', error);
+      ),
+    });
+    if (response.ok) {
+      navigate('/');
     }
-
+  } catch (error) {
+    console.error('Error resetting password:', error);
+  }
 };
 
 const PasswordResetForm = () => {
-    const navigate = useNavigate();
-    const query = useQuery();
+  const navigate = useNavigate();
+  const query = useQuery();
 
-    const [userId, setUserId] = useState('');
-    const [token, setToken] = useState('');
-    const [password1, setPassword1] = useState('');
-    const [password2, setPassword2] = useState('');
-    const [message, setMessage] = useState('');
-    const [isButtonDisabled, setIsButtonDisabled] = useState(true);
-    const [pwdLength1, setPwdLength1] = useState('');
-    const [pwdLength2, setPwdLength2] = useState('');
+  const [userId, setUserId] = useState('');
+  const [token, setToken] = useState('');
+  const [password1, setPassword1] = useState('');
+  const [password2, setPassword2] = useState('');
+  const [message, setMessage] = useState('');
+  const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
-    useEffect(() => {
-        const _userId = query.get('userId');
-        const _token = query.get('token');
-        setUserId(_userId);
-        setToken(_token);
-    }, [query]);
+  useEffect(() => {
+    const _userId = query.get('userId');
+    const _token = query.get('token');
+    setUserId(_userId);
+    setToken(_token);
+  }, [query]);
 
+  useEffect(() => {
+    AOS.init();
+  }, []);
 
   useEffect(() => {
     const validate = () => {
-      setPwdLength1(pwdLength1);
-      setPwdLength2(pwdLength2);
-
       if (password1.length >= 6 && password2.length >= 6) {
         if (password1 === password2) {
           setIsButtonDisabled(false);
@@ -74,51 +82,62 @@ const PasswordResetForm = () => {
   }, [password1, password2]);
 
   return (
-    <div className="container-fluid bg-body-tertiary d-block">
-      <div className="row justify-content-center">
-        <div className="col-12 col-md-6 col-lg-4" style={{ minWidth: '500px' }}>
-          <div className="card bg-white mb-5 mt-5 border-0" style={{ boxShadow: '0 12px 15px rgba(0, 0, 0, 0.02)' }}>
-                      <div className="card-body p-5 text-center">
+    <MDBContainer className="bg-body-tertiary d-block" fluid>
+      <MDBRow className="justify-content-center">
+        <MDBCol md="6" lg="4" style={{ minWidth: '200px' }}>
+          <MDBCard 
+            className="bg-white mb-5 mt-5 border-0" 
+            style={{ boxShadow: '0 12px 15px rgba(0, 0, 0, 0.02)' }}
+            data-aos="fade-up"
+             data-aos-duration="2000"
+          >
+            <MDBCardBody className="p-5 text-center">
+              <form onSubmit={(e) => { e.preventDefault(); resetPassword(navigate, userId, token, password1) }}>
+                <h4 data-aos="fade-up"
+                    data-aos-duration="2000" >
+                    Reset your Password
+                </h4>
+                <MDBRow data-aos="fade-up" data-aos-duration="2000" style={{width:'20vw',minWidth:'250px', margin:'auto'}}>
+                  <MDBCol >
+                    <MDBInput
+                      wrapperClass="mb-3"
+                      id="password-1"
+                      type="password"
+                      label="Type your new password"
+                      value={password1}
+                      onChange={(e) => setPassword1(e.target.value)}
+                    />
 
-          <form onSubmit={(e) => { e.preventDefault(); resetPassword(navigate, userId, token, password1) }}>
-            <h4>Reset your Password</h4>
+                    <MDBInput
+                      wrapperClass="mb-2"
+                      id="password-2"
+                      type="password"
+                      label="Re-type your new password"
+                      value={password2}
+                      onChange={(e) => setPassword2(e.target.value)}
+                    />
+                  </MDBCol>
+                </MDBRow>
 
-            <div className="input-container mb-2">
-                  <input
-                    className="input-field"
-                    id="password-1"
-                    type="password"
-                    placeholder="Type your new password"
-                    name="password"
-                    value={password1}
-                    onChange={(e) => setPassword1(e.target.value)}
-                  />
-                </div> 
-
-                <div className="input-container">
-                  <input
-                    className="input-field"
-                    id="password-2"
-                    type="password"
-                    placeholder="Re-type your new password"
-                    name="confirmPassword"
-                    value={password2}
-                    onChange={(e) => setPassword2(e.target.value)}
-                  />
-                </div>
-                <div id="pwd-length-2">Minimum 6 characters</div>
+                <div data-aos="fade-up" data-aos-duration="2000" id="pwd-length-2">Minimum 6 characters</div>
                 <span id="message" style={{ color: password1 === password2 ? 'green' : 'red' }}>{message}</span>
                 <div>
-                    <button className="btn"
-                    id="formSubmit" type="submit" disabled={isButtonDisabled}
-                    style={{ backgroundColor: isButtonDisabled ? 'grey' : 'pink' }} >Submit</button>
+                  <MDBBtn
+                    id="formSubmit"
+                    type="submit"
+                    disabled={isButtonDisabled}
+                    color={isButtonDisabled ? 'muted' : 'danger'}
+                  >
+                    Submit
+                  </MDBBtn>
                 </div>
               </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </MDBCardBody>
+          </MDBCard>
+        </MDBCol>
+      </MDBRow>
+    </MDBContainer>
   );
 };
+
 export default PasswordResetForm;

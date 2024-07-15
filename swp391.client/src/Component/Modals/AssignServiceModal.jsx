@@ -8,7 +8,7 @@ import {
 } from 'mdb-react-ui-kit';
 import AssignServiceForm from './AssignServiceForm';
 
-function AssignServiceModal({ mRecId, petData, ownerData, vetData, toggleOpen }) {
+function AssignServiceModal({ mRecId, petData, ownerData, vetData, appointment, toggleOpen }) {
 
     return (
         <>
@@ -19,7 +19,7 @@ function AssignServiceModal({ mRecId, petData, ownerData, vetData, toggleOpen })
                         <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
                     </MDBModalHeader>
                     <MDBModalBody>
-                        <AssignServiceForm mRecId={mRecId} petData={petData} ownerData={ownerData} vetData={vetData} toggleOpen={toggleOpen} />
+                        <AssignServiceForm mRecId={mRecId} petData={petData} ownerData={ownerData} vetData={vetData} appointment={appointment} toggleOpen={toggleOpen} />
                     </MDBModalBody>
                 </MDBModalContent>
             </MDBModalDialog>

@@ -16,6 +16,8 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
+import CircularProgressWithLabel from '../CircularProgress/CircularProgressWithLabel';
+import LinearProgress from '@mui/material/LinearProgress';
 
 function AppointmentForm({ toggleOpen }) {
     const [user, setUser] = useUser();
@@ -23,6 +25,8 @@ function AppointmentForm({ toggleOpen }) {
     const [petList, setPetList] = useState([]);
     const [timeSlotList, setTimeSlotList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isVetListLoading, setIsVetListLoading] = useState(false);
+
     const [formData, setFormData] = useState({
         accountId: user.id,
         petId: '',
@@ -34,12 +38,10 @@ function AppointmentForm({ toggleOpen }) {
     });
     const [buffer, setBuffer] = useState([]);
     const [isProcessing, setIsProcessing] = useState(false);
-    
 
     const apis = [
         `https://localhost:7206/api/pet-management/accounts/${user.id}/pets`,
         `https://localhost:7206/api/time-slot-management/time-slots`,
-        `https://localhost:7206/api/account-management/roles/3/accounts`
     ];
 
     const getData = async () => {
@@ -51,16 +53,14 @@ function AppointmentForm({ toggleOpen }) {
                 },
                 credentials: 'include'
             }));
-            const [response1, response2, response3] = await Promise.all(promise);
-            if (!response1.ok || !response2.ok || !response3.ok) {
+            const [response1, response2] = await Promise.all(promise);
+            if (!response1.ok || !response2.ok) {
                 throw new Error("Error fetching data");
             }
-            var petData = await response1.json();
-            var timeslotData = await response2.json();
-            var vetData = await response3.json();
+            const petData = await response1.json();
+            const timeslotData = await response2.json();
             setPetList(petData);
             setTimeSlotList(timeslotData);
-            setVetList(vetData);
 
             console.log(timeslotData);
         } catch (error) {
@@ -74,6 +74,39 @@ function AppointmentForm({ toggleOpen }) {
     useEffect(() => {
         getData();
     }, []);
+
+    const getVetList = async () => {
+        setIsVetListLoading(true);
+        try {
+            const response = await fetch(`https://localhost:7206/api/account-management/date/${formData.appointmentDate}/time-slot/${formData.timeSlotId}/choose-vet`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            });
+            if (!response.ok && response.status !== 404) {
+                throw new Error('Error fetching data');
+            } else if (response.status === 404) {
+                setVetList(null);
+            } else {
+                const vetData = await response.json();
+                setVetList(vetData);
+                console.log(vetData);
+            }
+        } catch (error) {
+            toast.error(error.message);
+            console.error(error.message);
+        } finally {
+            setIsVetListLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (formData.appointmentDate && formData.timeSlotId) {
+            getVetList();
+        }
+    }, [formData.appointmentDate, formData.timeSlotId]);
 
     const addAppointment = async (data) => {
         console.log(data);
@@ -95,12 +128,12 @@ function AppointmentForm({ toggleOpen }) {
         toast.promise(
             makePayment().catch(err => {
                 if (buffer.length > 0) {
-                    var nextFormData = buffer.shift();
+                    const nextFormData = buffer.shift();
                     setBuffer([]);
                     addAppointment(nextFormData);
                 }
                 setIsProcessing(false);
-                throw err; 
+                throw err;
             }),
             {
                 pending: 'Processing... You will be directed to payment gateway shortly.',
@@ -111,7 +144,6 @@ function AppointmentForm({ toggleOpen }) {
         });
     }
 
-
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
@@ -120,9 +152,24 @@ function AppointmentForm({ toggleOpen }) {
         });
     };
 
+    const handleDateChange = (e) => {
+        const { name, value } = e.target;
+        if (isSunday(value)) {
+            toast.error('Appointments cannot be scheduled on Sundays. Please select another date.');
+            setFormData({
+                ...formData,
+                [name]: ''
+            });
+        } else {
+            setFormData({
+                ...formData,
+                [name]: value
+            });
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Check if all required fields are filled
         if (!formData.petId || !formData.timeSlotId || !formData.veterinarianAccountId || !formData.appointmentDate || !formData.appointmentType) {
             toast.error('Please fill in all required fields.');
             return;
@@ -142,30 +189,23 @@ function AppointmentForm({ toggleOpen }) {
     };
 
     const maxDate = new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().split('T')[0];
-    // Check if the selected date is a Sunday
     const isSunday = (dateString) => {
         const date = new Date(dateString);
         return date.getDay() === 0;
     };
 
-    const handleDateChange = (e) => {
-        const { name, value } = e.target;
-        if (isSunday(value)) {
-            toast.error('Appointments cannot be scheduled on Sundays. Please select another date.');
-            setFormData({
-                ...formData,
-                [name]: ''
-            });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value
-            });
-        }
-    };
-
     if (isLoading) {
-        return (<div>Loading...</div>);
+        return (
+            <>
+                <MDBModalHeader>
+                    <MDBModalTitle style={{ fontSize: '24px' }}>Appointment Information</MDBModalTitle>
+                    <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
+                </MDBModalHeader>
+                <MDBModalBody style={{ justifyContent: 'center', display: 'flex' }}>
+                    <CircularProgressWithLabel />
+                </MDBModalBody>
+            </>
+        );
     }
 
     return (
@@ -174,7 +214,7 @@ function AppointmentForm({ toggleOpen }) {
                 <MDBModalTitle style={{ fontSize: '24px' }}>Appointment Information</MDBModalTitle>
                 <MDBBtn className='btn-close' color='none' onClick={toggleOpen}></MDBBtn>
             </MDBModalHeader>
-            <MDBModalBody>
+            <MDBModalBody >
                 <form onSubmit={handleSubmit}>
                     <MDBRow className='mb-4'>
                         <MDBCol>
@@ -218,12 +258,6 @@ function AppointmentForm({ toggleOpen }) {
 
                     <MDBRow className='mb-4'>
                         <MDBCol>
-                            <VetSelectionTable vetList={vetList} formData={formData} handleChange={handleChange} />
-                        </MDBCol>
-                    </MDBRow>
-
-                    <MDBRow className='mb-4'>
-                        <MDBCol>
                             <FormControl fullWidth>
                                 <InputLabel id="timeslot-select-label">Choose your time</InputLabel>
                                 <Select
@@ -244,6 +278,13 @@ function AppointmentForm({ toggleOpen }) {
                                     ))}
                                 </Select>
                             </FormControl>
+                        </MDBCol>
+                    </MDBRow>
+
+                    <MDBRow className='mb-4'>
+                        <MDBCol>
+                            {isVetListLoading && <LinearProgress />}
+                            <VetSelectionTable vetList={vetList} formData={formData} handleChange={handleChange} />
                         </MDBCol>
                     </MDBRow>
 

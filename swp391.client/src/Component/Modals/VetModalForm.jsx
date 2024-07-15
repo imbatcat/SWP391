@@ -30,7 +30,7 @@ function VetModalForm() {
     const createStaffApi = async () => {
         const createStaff = async() => {
             console.log(formData);
-            const fetchPromise = await fetch('https://localhost:7206/api/account-management/accounts', {
+            const fetchPromise = await fetch('', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ function VetModalForm() {
         toast.promise(
             createStaff().catch(err => {
                 console.error(err.message);
-                throw new err
+                throw new Error(err.message); 
             }),
             {
                 pending: 'Submitting...',

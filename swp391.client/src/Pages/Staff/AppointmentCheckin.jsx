@@ -14,7 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
-import DatePicker from "react-datepicker";
 import { toast } from 'react-toastify';
 import "react-datepicker/dist/react-datepicker.css";
 import refreshPage from '../../Helpers/RefreshPage';
@@ -25,7 +24,6 @@ const columns = [
   { id: 'customerName', label: 'Owner Name', minWidth: 170 },
   { id: 'petName', label: 'Pet Name', minWidth: 170 },
   { id: 'vetName', label: 'Veterinarian', minWidth: 170 },
-  { id: 'status', label: 'Status', minWidth: 170 },
   { id: 'actions', label: 'Actions', minWidth: 170, align: 'center' },
 ];
 
@@ -33,56 +31,43 @@ export default function AppointmentCheckin() {
   const [appointmentList, setAppointmentList] = useState([]);
   const [filteredAppointmentList, setFilteredAppointmentList] = useState([]);
   const [searchInput, setSearchInput] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
-  const [convertedDate, setConvertedDate] = useState(() => {
-    const currentDate = new Date();
-    return {
-      year: currentDate.getFullYear(),
-      month: currentDate.getMonth() + 1,
-      day: currentDate.getDate(),
-    };
-  });
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [buffer, setBuffer] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    const date = `${convertedDate.year}-${convertedDate.month}-${convertedDate.day}`;
+    const now = new Date();
+    const today = now.getFullYear() + '-' +
+      ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+      ('0' + now.getDate()).slice(-2);
+
+    console.log(today);
     const fetchData = async () => {
-      const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${date}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
+      const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${today}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
         method: 'GET',
         credentials: 'include',
       });
       if (response.status !== 200) throw new Error() 
-      const data = await fetchData.json();
+      const data = await response.json();
+      console.log(data);
       setAppointmentList(data);
       setFilteredAppointmentList(data);
     }
 
-    try {
-      toast.promise(
-        fetchData(),
-        {
-          pending: 'Loading appointments...',
-          success: 'Appointments loaded successfully!',
-          error: 'Failed to load appointments.'
-        }
-      );
-    } catch (err) {
-      console.log(err);
-    }
-  }, [convertedDate]);
-
-  const handleDateChange = (date) => {
-    setStartDate(date);
-    const parsedDate = new Date(date);
-    setConvertedDate({
-      year: parsedDate.getFullYear(),
-      month: parsedDate.getMonth() + 1,
-      day: parsedDate.getDate()
-    });
-  };
+    toast.promise(
+      fetchData().catch(err => {
+        console.log(err);
+        throw new Error(err.message);
+      }),
+      {
+        pending: 'Loading appointments...',
+        success: 'Appointments loaded successfully!',
+        error: 'Failed to load appointments.'
+      }
+    );
+  }, []);
 
   const handleSearchInputChange = (e) => {
     const value = e.target.value.toLowerCase();
@@ -150,12 +135,9 @@ export default function AppointmentCheckin() {
   return (
     <>
       <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => handleDateChange(date)}
-      />
+
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-        <TableContainer sx={{ maxHeight: 440 }}>
+        <TableContainer sx={{ maxHeight: 540 }}>
           <Table stickyHeader aria-label="sticky table">
             <TableHead>
               <TableRow>

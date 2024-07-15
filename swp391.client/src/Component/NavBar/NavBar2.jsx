@@ -56,7 +56,7 @@ export default function NavBar2() {
     return (
         <div>
             <MDBNavbar expand='lg' light bgColor='light' fixed='top'>
-            <MDBContainer fluid>
+            <MDBContainer fluid style={{backgroundColor:'light'}}>
                 <Link to="/"><h1 style={{ minWidth: '15vw' }}>Pet-ternary</h1></Link>
                 <h2 style={{ minWidth: '10vw', fontSize: '100%', margin: 'auto', marginLeft: '1vw' }} >Purr-fectly Healthy, Woof-tastically Happy</h2>
                 <MDBNavbarToggler

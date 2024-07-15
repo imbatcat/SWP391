@@ -245,7 +245,7 @@ const router = createBrowserRouter([
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <GoogleOAuthProvider clientId="279261034420-76gqakprrgtiq9pc879d8e4ukhk9cour.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId={`${import.meta.env.VITE_GOOGLE_CLIENT_ID}`} >
         <UserProvider>
             <RouterProvider router={router} />
             <ToastContainer

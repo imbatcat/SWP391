@@ -8,6 +8,7 @@ using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
+using System.Net.Http.Headers;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
@@ -162,5 +163,54 @@ namespace PetHealthcare.Server.APIs.Controllers
             return NoContent();
         }
 
+        [HttpPost("img-upload")]
+        [Authorize(Roles = "Admin, Customer")]
+        public async Task<IActionResult> UploadImgUrl(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return NotFound("No file uploaded.");
+            }
+
+            using var client = new HttpClient();
+            var content = new MultipartFormDataContent();
+
+            var fileContent = new StreamContent(file.OpenReadStream());
+            fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+            {
+                Name = "file",
+                FileName = file.FileName
+            };
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+
+            content.Add(fileContent);
+
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri($"https://api.cloudflare.com/client/v4/accounts/{JsonReader.readJson("Cloudflare:account-id")}/images/v1"),
+                Headers =
+                {
+                    { "Authorization", $"Bearer {JsonReader.readJson("Cloudflare:api-token")}" },
+                },
+                Content = content
+            };
+
+            // Debugging: Print out the request content
+            var debugContent = await content.ReadAsStringAsync();
+            Console.WriteLine("Request Content: " + debugContent);
+
+            using var response = await client.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("Error Response: " + errorBody);
+                return StatusCode((int)response.StatusCode, errorBody);
+            }
+
+            var body = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Response Body: " + body);
+            return Ok(body);
+        }
     }
 }

@@ -4,17 +4,20 @@ import {
 } 
   from 'mdb-react-ui-kit';
 import SideNav from '../../Component/SideNav/SideNav';
+import { LinearProgress } from '@mui/material';
 
 
 function AppointmentManage() {
     const [appointments, setAppointment] = useState([]);
     const [searchInput, setSearchInput] = useState('');
     const [filteredAppointments, setFilteredApppointments] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         async function fetchData() {
+            setIsLoading(true);
           try {
-            const appResponse = await fetch('https://localhost:7206/api/Appointment', {
+            const appResponse = await fetch('https://localhost:7206/api/appointment-management/vets/get-all', {
               method: 'GET',
               credentials: 'include',
             });
@@ -23,7 +26,7 @@ function AppointmentManage() {
             }
             const appointmentData = await appResponse.json();
     
-            const accountResponse = await fetch('https://localhost:7206/api/Accounts', {
+            const accountResponse = await fetch('https://localhost:7206/api/account-management/accounts', {
               method: 'GET',
               credentials: 'include',
             });
@@ -46,6 +49,8 @@ function AppointmentManage() {
             setFilteredApppointments(mergedData);
           } catch (error) {
             console.error(error.message);
+          }finally{
+            setIsLoading(false);
           }
         }
     
@@ -82,6 +87,7 @@ function AppointmentManage() {
     return (
         <div>
             <SideNav searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
+            {isLoading && <LinearProgress/>}
             <MDBTable align='middle'>
                 <MDBTableHead>
                     <tr style={{textAlign:'center'}}>

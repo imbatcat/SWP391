@@ -135,6 +135,7 @@ namespace PetHealthcare.Server.Services
                 FollowUpAppointmentNotes = medicalRecord.FollowUpAppointmentNotes,
                 PetWeight = medicalRecord.PetWeight,
             };
+            await appointmentService.CheckUpAppointment(medicalRecord.AppointmentId);
             await medRecService.Update(medicalRec);
         }
     }

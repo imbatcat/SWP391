@@ -6,16 +6,11 @@ import {
     MDBCardBody,
     MDBRow,
     MDBCol,
-    MDBModal,
-    MDBModalBody,
-    MDBModalContent,
-    MDBModalDialog,
-    MDBModalHeader,
-    MDBModalTitle
+    MDBModal
 } from 'mdb-react-ui-kit';
 import img from '../../assets/images/dogandcatlogin.png'
 import { useState, useEffect } from 'react';
-import AppointmentForm from '../Modals/AppointmentModalForm';
+
 import SelectModal from '../Modals/SelectModal';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
@@ -43,13 +38,13 @@ function HomeContent() {
             </div>
 
             <MDBRow className='g-0'>
-                <MDBCol col='6' data-aos="fade-right">
+                <MDBCol col='6' data-aos="fade-up">
                     <MDBRipple>
                         <img src={img} className='d-block w-100 img-fit ' alt='...' />
                     </MDBRipple>
                 </MDBCol>
 
-                <MDBCol col='6' data-aos="fade-left">
+                <MDBCol col='6' data-aos="fade-up">
                     <MDBCardBody style={{ maxHeight: '38vw' }} className='d-flex flex-column'>
                         <h5 className="fw-bold my-5" style={{ letterSpacing: '1px', textAlign: 'center', fontSize: '4vw' }}>What's Next </h5>
                         <div className="WN-Content">1. Call us or schedule an appointment online.</div>
