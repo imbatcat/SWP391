@@ -17,6 +17,8 @@ using QRCoder;
 using System.Net.Mime;
 using System.Net;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using PetHealthcare.Server.Models;
+using PetHealthcare.Server.Core.Constant;
 
 namespace PetHealthcare.Server.Services
 {
@@ -88,6 +90,40 @@ namespace PetHealthcare.Server.Services
                     userEmail,
                     "Confirm Your Email Address",
                     $"<p>Please confirm your email address by clicking <a href='{confirmationLink}'>here</a>. 100% reliable no scam.</p>");
+            }
+            catch (Exception ex)
+            {
+                throw new BadHttpRequestException(ex.Message);
+            }
+        }
+        public async Task SendReminderEmailTest(string email, string customerName, string petName, DateOnly? dischargeDate)
+        {
+            
+            string subject = "Reminder: Upcoming Pet Discharge Date";
+            string messageBody = $@"
+        <html style='color: black !important;'>
+        <body style='font-family: Arial, sans-serif; color: black;'>
+            <div style='width: 80%; margin: 0 auto; padding: 20px; border: 1px solid #ccc; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); color: black !important;'>
+                <div style='font-size: 24px; font-weight: bold; margin-bottom: 20px; color: black !important;'>
+                    Dear <strong style='color: black !important;'>{customerName}</strong>,
+                </div>
+                <div style='font-size: 18px; color: black !important;'>
+                    <p>This is a friendly reminder that your pet, <strong style='color: black !important;'>{petName}</strong>, is scheduled to be discharged in <strong style='color: black !important;'>{ProjectConstant.DischargeRemindPeriod}</strong> days on <strong style='color: black !important;'>{dischargeDate}</strong>.</p>
+                    <p>Please make the necessary arrangements to pick up <strong style='color: black !important;'>{petName}</strong> on the scheduled date.</p>
+                    <p>If you have any questions or need to reschedule, feel free to contact us.</p>
+                    <p>Thank you for choosing our services.</p>
+                </div>
+                <div style='margin-top: 20px; font-size: 14px; color: black !important;'>
+                    <p>Best regards,</p>
+                    <p>Your Pet Care Team</p>
+                </div>
+            </div>
+        </body>
+        </html>";
+
+            try
+            {
+                await _emailService.SendEmailAsync(email, subject, messageBody);
             }
             catch (Exception ex)
             {

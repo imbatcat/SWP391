@@ -68,6 +68,7 @@ namespace PetHealthcare.Server.Repositories
                     VeterinarianId = a.Veterinarian.AccountId,
                     VeterinarianName = a.Veterinarian.FullName,
                     TimeSlot = $"{a.TimeSlot.StartTime:H\\:mm} - {a.TimeSlot.EndTime:H\\:mm}",
+                    TimeSlotId = a.TimeSlot.TimeSlotId,
                     BookingPrice = a.BookingPrice,
                     IsCancel = a.IsCancel,
                     IsCheckIn = a.IsCheckIn,

@@ -61,7 +61,7 @@ namespace PetHealthcare.Server.Services
         }
         public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointment()
         {
-            var appList = await _appointmentRepository.GetAppointments();
+            IEnumerable<GetAllAppointmentForAdminDTO> appList = await _appointmentRepository.GetAppointments();
             var CAList = appList.AsParallel().Select(app => new GetAllAppointmentForAdminDTO
             {
                 AppointmentId = app.AppointmentId,
@@ -72,6 +72,7 @@ namespace PetHealthcare.Server.Services
                 BookingPrice = app.BookingPrice,
                 AppointmentType = app.AppointmentType,
                 TimeSlot = app.TimeSlot,
+                TimeSlotId = app.TimeSlotId,
                 IsCancel = app.IsCancel,
                 IsCheckIn = app.IsCheckIn,
                 IsCheckUp = app.IsCheckUp,
@@ -81,10 +82,12 @@ namespace PetHealthcare.Server.Services
                 AccountId = app.AccountId,
                 PetId = app.PetId,
                 VeterinarianId = app.VeterinarianId
+                
             }).ToList();
             return CAList;
         }
 
+        
         public async Task<Appointment?> GetAppointmentByCondition(Expression<Func<Appointment, bool>> expression)
         {
             return await _appointmentRepository.GetByCondition(expression);

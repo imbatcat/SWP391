@@ -8,12 +8,13 @@ using PetHealthcare.Server.Repositories.DbContext;
 using PetHealthcare.Server.Repositories.Interfaces;
 using PetHealthcare.Server.Services;
 using PetHealthcare.Server.Services.AuthInterfaces;
+using PetHealthcare.Server.Services.BackgroundServices;
 using PetHealthcare.Server.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var config = builder.Configuration;
-const string DataSrc = "MIB\\MINHLUONG", Password = "12345";
+const string DataSrc = "LAPTOP-8QVR89KA\\SQLEXPRESS02", Password = "12345";
 
 
 // Add services to the container.
@@ -67,6 +68,8 @@ builder.Services.AddScoped<IServiceOrderDetailService, ServiceOrderDetailService
 // Auth services
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+// Background services
+builder.Services.AddHostedService<DischargeEmailReminderService>();
 #endregion
 
 #region Cors
