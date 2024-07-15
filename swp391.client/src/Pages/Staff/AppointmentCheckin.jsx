@@ -59,7 +59,7 @@ export default function AppointmentCheckin() {
     toast.promise(
       fetchData().catch(err => {
         console.log(err);
-        throw new err;
+        throw new Error(err.message);
       }),
       {
         pending: 'Loading appointments...',

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using PetHealthcare.Server.Core.Helpers;
+using Newtonsoft.Json;
 using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Repositories;
 using PetHealthcare.Server.Repositories.DbContext;
@@ -9,23 +10,21 @@ using PetHealthcare.Server.Repositories.Interfaces;
 using PetHealthcare.Server.Services;
 using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
+using JsonReader = PetHealthcare.Server.Core.Helpers.JsonReader;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var config = builder.Configuration;
-const string DataSrc = "MIB\\MINHLUONG", Password = "12345";
+const string DataSrc = "MEOMATLON\\SQLEXPRESS", Password = "MukuroHoshimiya";
 
 
 // Add services to the container.
 #region DBcontext
 builder.Services.AddDbContext<PetHealthcareDbContext>(
-option => option.UseSqlServer(
-        $"Data Source={DataSrc}; User = sa; Password ={Password};Initial Catalog=PetHealthCareSystem;Integrated Security=True;Connect Timeout=10;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False"));
+option => option.UseSqlServer(JsonReader.readJson("Connection:sql-app-connection")));
 builder.Services.AddDbContext<ApplicationDbContext>(
-option => option.UseSqlServer(
-        $"Data Source={DataSrc}; User = sa; Password ={Password};Initial Catalog=PetHealthCareSystemAuth;Integrated Security=True;Connect Timeout=10;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False"));
+option => option.UseSqlServer(JsonReader.readJson("Connection:sql-auth-connection")));
 #endregion
-
 
 
 #region Repositories

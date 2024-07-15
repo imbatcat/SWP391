@@ -38,7 +38,7 @@ function ForgotPassForm() {
         toast.promise(
             sendResetPasswordEmail().catch(err => {
                 console.error(err);
-                throw new err
+                throw new Error(err.message); 
             }),
             {
                 pending: 'Sending reset password email...',

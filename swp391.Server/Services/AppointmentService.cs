@@ -358,19 +358,19 @@ namespace PetHealthcare.Server.Services
             {
                 return false;
             }
-            if (toCheckInAppointment.TimeSlot.EndTime < TimeOnly.FromDateTime(DateTime.Now))
-            {
-                int newTimeSlot = await getNearestFreeTimeSlot(toCheckInAppointment.VeterinarianAccountId, DateOnly.FromDateTime(DateTime.Today), toCheckInAppointment.TimeSlotId);
-                if (newTimeSlot == 0)
-                {
-                    throw new Exception("There is an error with getting nearest free timeslot");
-                }
-                else
-                {
-                    toCheckInAppointment.TimeSlotId = newTimeSlot;
-                    await _appointmentRepository.SaveChanges();
-                }   
-            }
+            //if (toCheckInAppointment.TimeSlot.EndTime <TimeOnly.FromDateTime(DateTime.Now))
+            //{
+            //    int newTimeSlot = await getNearestFreeTimeSlot(toCheckInAppointment.VeterinarianAccountId, DateOnly.FromDateTime(DateTime.Today), toCheckInAppointment.TimeSlotId);
+            //    if (newTimeSlot == 0)
+            //    {
+            //        throw new Exception("There is an error with getting nearest free timeslot");
+            //    }
+            //    else
+            //    {
+            //        toCheckInAppointment.TimeSlotId = newTimeSlot;
+            //        await _appointmentRepository.SaveChanges();
+            //    }   
+            //}
             if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
             {
                 toCheckInAppointment.IsCheckIn = true;

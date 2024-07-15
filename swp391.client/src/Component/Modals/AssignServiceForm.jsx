@@ -103,7 +103,7 @@ function AssignServiceForm({ mRecId, petData, ownerData, vetData, appointment, t
         toast.promise(
             submitServices().catch(err => {
                 console.error(err)
-                throw new err;
+                throw new Error(err.message);
             }),
             {
                 pending: 'Submitting your request...',

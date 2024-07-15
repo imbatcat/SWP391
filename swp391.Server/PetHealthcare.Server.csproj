@@ -13,6 +13,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="secrets.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\swp391.client\pethealthcare.client.esproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>

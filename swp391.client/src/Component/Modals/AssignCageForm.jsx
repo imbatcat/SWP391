@@ -29,6 +29,15 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
     const [selectedCage, setSelectedCage] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [sortOrder, setSortOrder] = useState('asc'); // State to track sorting order
+    const [admissionForm, setAdmissionForm] = useState({
+        'dischargeDate': new Date(),
+        'petCurrentCondition': '',
+        'isDischarged': false,
+        'petId': '',
+        'cageId': '',
+        'medicalRecordId': '',
+        'veterinarianId': ''
+    })
 
     const toggleModal = () => setModalOpen(!modalOpen);
     const componentRef = useRef();
@@ -98,6 +107,15 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
                 credentials: 'include',
                 body: JSON.stringify(reqBody)
             });
+            const createAdmission = await fetch(`https://localhost:7206/api/admission-record-management/admission-records`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include',
+                body: JSON.stringify(admissionForm)
+               
+            })
             if (fetchPromise.status !== 200) throw new Error("There's something wrong");
         }
         
