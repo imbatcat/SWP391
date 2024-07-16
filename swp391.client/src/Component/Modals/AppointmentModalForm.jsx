@@ -191,7 +191,7 @@ function AppointmentForm({ toggleOpen }) {
     };
     const tomorrowDate = () => {
         const today = new Date();
-        today.setDate(today.getDate() + 1); // Increment the date by one day
+        today.setDate(today.getDate()); // Increment the date by one day
         const yyyy = today.getFullYear();
         const mm = String(today.getMonth() + 1).padStart(2, '0');
         const dd = String(today.getDate()).padStart(2, '0');

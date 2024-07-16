@@ -300,7 +300,7 @@ function SignUp() {
                 </MDBRow>
             </MDBContainer>
             </MainLayout>
-        </div >
+        </div>
     );
 }
 

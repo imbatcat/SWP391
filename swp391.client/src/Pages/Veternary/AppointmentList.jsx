@@ -87,14 +87,13 @@ function AppointmentList() {
         console.log(today); // Outputs: YYYY-MM-DD
         filteredList = appointments.filter(app => app.appointmentDate === today && app.veterinarianId === user.id);
       } else {
-        filteredList = appointments.filter(app => app.veterinarianId === user.id);
+        filteredList = appointments.filter(app.veterinarianId === user.id);
       }
       setFilteredAppointments(filteredList);
     } else {
-      setTimeout(()=>{
+      setTimeout(() => {
         filterAppointments();
       }, 5000);
-      
     }
   };
 
@@ -127,13 +126,18 @@ function AppointmentList() {
     }
   }
 
-  const handleRequestSort = (event, property) => {
+  const handleRequestSort = (event, property, accordionType) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const sortComparator = (a, b, orderBy) => {
+  const sortComparator = (a, b, orderBy, accordionType) => {
+    if (accordionType === 'waiting' && orderBy === 'checkinTime') {
+      const timeA = new Date(`1970-01-01T${a.checkinTime}Z`);
+      const timeB = new Date(`1970-01-01T${b.checkinTime}Z`);
+      return timeA - timeB;
+    }
     if (orderBy === 'appointmentDate') {
       const dateA = new Date(`${a.appointmentDate} `);
       const dateB = new Date(`${b.appointmentDate}`);
@@ -142,10 +146,12 @@ function AppointmentList() {
     return a[orderBy].localeCompare(b[orderBy]);
   };
 
-  const sortedAppointments = filteredAppointments.slice().sort((a, b) => {
+  const sortedAppointments = (accordionType) => {
     const orderModifier = order === 'asc' ? 1 : -1;
-    return orderModifier * sortComparator(a, b, orderBy);
-  });
+    return filteredAppointments.slice().sort((a, b) => {
+      return orderModifier * sortComparator(a, b, orderBy, accordionType);
+    });
+  }
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -186,7 +192,7 @@ function AppointmentList() {
                 <Typography>Waiting (Check-in Appointments)</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                {renderTable()}
+                {renderTable('waiting')}
               </AccordionDetails>
             </Accordion>
             <Accordion expanded={expandedAccordion === 'today'} onChange={handleAccordionChange('today')}>
@@ -220,7 +226,7 @@ function AppointmentList() {
     </div>
   );
 
-  function renderTable() {
+  function renderTable(accordionType) {
     return (
       <>
         <TableContainer sx={{ maxHeight: 350 }}>
@@ -240,6 +246,17 @@ function AppointmentList() {
                   </TableSortLabel>
                 </TableCell>
                 <TableCell>Veterinarian</TableCell>
+                {accordionType === 'waiting' && (
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'checkinTime'}
+                      direction={orderBy === 'checkinTime' ? order : 'asc'}
+                      onClick={(event) => handleRequestSort(event, 'checkinTime', accordionType)}
+                    >
+                      CheckIn Time
+                    </TableSortLabel>
+                  </TableCell>
+                )}
                 <TableCell>Status</TableCell>
                 <TableCell>Booking Price</TableCell>
                 <TableCell>Note</TableCell>
@@ -247,7 +264,7 @@ function AppointmentList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedAppointments.slice((page - 1) * rowsPerPage, page * rowsPerPage).map((app, index) => (
+              {sortedAppointments(accordionType).slice((page - 1) * rowsPerPage, page * rowsPerPage).map((app, index) => (
                 <TableRow hover role="checkbox" tabIndex={-1} key={app.appointmentId}>
                   <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
                   <TableCell>
@@ -274,6 +291,11 @@ function AppointmentList() {
                   <TableCell>
                     <p className='fw-normal mb-1'>{app.veterinarianName}</p>
                   </TableCell>
+                  {accordionType === 'waiting' && (
+                    <TableCell>
+                      <p className='fw-normal mb-1'>{app.checkinTime}</p>
+                    </TableCell>
+                  )}
                   <TableCell>
                     <MDBBadge color={getBadgeColor(app)} pill>
                       {app.isCancel ? "Cancelled" : app.isCheckUp ? "Checked Up" : app.isCheckIn ? "Checked In" : "Active"}
@@ -287,7 +309,7 @@ function AppointmentList() {
                     <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
                   </TableCell>
                   <TableCell>
-                  {!app.isCancel && !app.isCheckUp && !app.isCheckIn ? (
+                    {!app.isCancel && !app.isCheckUp && !app.isCheckIn ? (
                       <MDBBtn color='danger' disabled>View Detail</MDBBtn>
                     ) : (
                       <Link to='/vet/MedicalRecord' state={app}>
