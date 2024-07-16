@@ -1,6 +1,7 @@
 .pageSignUp {
     background-image: url(../../assets/images/dogpaw.png);
-    min-height: 93vh;
+    height: 100%;
+    object-fit: fill;
     justify-content: center;
 
   }

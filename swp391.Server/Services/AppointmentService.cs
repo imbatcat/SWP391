@@ -169,7 +169,7 @@ namespace PetHealthcare.Server.Services
                     }
                     else 
                     {
-                        if (appointment.AppointmentDate.CompareTo(currentDate) >= 0)
+                        if ( appointment.AppointmentDate.CompareTo(currentDate) >= 0)
                         {
                             return new ResAppListForCustomer
                             {

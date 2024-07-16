@@ -25,7 +25,7 @@ export default function ServiceBills() {
         } else {
             setFilteredBillList(billList.filter(acc =>
                 (acc.orderId && acc.orderId.toLowerCase().includes(value)) ||
-                (acc.customerName && acc.customerName.toLowerCase().includes(value))
+                (acc.appointmentId && acc.appointmentId.toLowerCase().includes(value))
             ));
         }
     };
@@ -104,6 +104,7 @@ export default function ServiceBills() {
             // Convert the grouped services object to an array
             let arr = Object.keys(groupedServices).map(orderId => ({
                 orderId,
+                appointmentId: groupedServices[orderId][0].appointmentId,
                 services: groupedServices[orderId]
             }));
             setGroupedBillList(arr);
@@ -121,21 +122,25 @@ export default function ServiceBills() {
         <>
             <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
             <MDBAccordion initialActive={1}>
-                {groupedBillList.map((bill, index) => (
-                    <MDBAccordionItem
-                        key={bill.orderId}
-                        collapseId={`collapseId-${index}`}
-                        headerTitle={`Order ID: ${bill.orderId}`}
-                    >
-                        {bill.services.map((service, serviceIndex) => (
-                            <div key={serviceIndex}>
-                                <p className='fw-bold mb-1'>{service.serviceName}</p>
-                                <p className='text-muted mb-0'>${service.price}</p>
-                            </div>
-                        ))}
-                        <MDBBtn onClick={() => handleOnPaidClick(bill.orderId)}>Paid</MDBBtn>
-                    </MDBAccordionItem>
-                ))}
+                {groupedBillList.map((bill, index) => {
+                    const totalPrice = bill.services.reduce((sum, service) => sum + service.price, 0);
+                    return (
+                        <MDBAccordionItem
+                            key={bill.appointmentId}
+                            collapseId={`collapseId-${index}`}
+                            headerTitle={`Appointment Id: ${bill.appointmentId}`}
+                        >
+                            {bill.services.map((service, serviceIndex) => (
+                                <div key={serviceIndex}>
+                                    <p className='fw-bold mb-1'>{service.serviceName}</p>
+                                    <p className='text-muted mb-0'>${service.price.toFixed(2)}</p>
+                                </div>
+                            ))}
+                            <div className='fw-bold mt-2'>Total: ${totalPrice.toFixed(2)}</div>
+                            <MDBBtn onClick={() => handleOnPaidClick(bill.orderId)}>Paid</MDBBtn>
+                        </MDBAccordionItem>
+                    );
+                })}
             </MDBAccordion>
         </>
     );
