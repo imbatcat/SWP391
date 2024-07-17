@@ -84,14 +84,16 @@ function AppointmentList() {
           ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
           ('0' + now.getDate()).slice(-2);
 
-          console.log(today); // Outputs: YYYY-MM-DD
+        console.log(today); // Outputs: YYYY-MM-DD
         filteredList = appointments.filter(app => app.appointmentDate === today && app.veterinarianId === user.id);
       } else {
         filteredList = appointments.filter(app => app.veterinarianId === user.id);
       }
       setFilteredAppointments(filteredList);
     } else {
-      filterAppointments();
+      setTimeout(()=>{
+        filterAppointments();
+      }, 5000);
       
     }
   };
@@ -154,16 +156,13 @@ function AppointmentList() {
     setExpandedAccordion(false);
   };
 
-  
-
   const pageCount = Math.ceil(filteredAppointments.length / rowsPerPage);
-
 
   return (
     <div>
       <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-      {isLoading && <LinearProgress/>}
-      <Paper sx={{ width: '100%', height:'87vh' }}>
+      {isLoading && <LinearProgress />}
+      <Paper sx={{ width: '100%', height: '87vh' }}>
         <Box sx={{ width: '100%' }}>
           <Tabs
             value={tabValue}
@@ -288,9 +287,13 @@ function AppointmentList() {
                     <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
                   </TableCell>
                   <TableCell>
-                    <Link to='/vet/MedicalRecord' state={app}>
-                      <MDBBtn color='danger'>View Detail</MDBBtn>
-                    </Link>
+                  {!app.isCancel && !app.isCheckUp && !app.isCheckIn ? (
+                      <MDBBtn color='danger' disabled>View Detail</MDBBtn>
+                    ) : (
+                      <Link to='/vet/MedicalRecord' state={app}>
+                        <MDBBtn color='danger'>View Detail</MDBBtn>
+                      </Link>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -306,7 +309,7 @@ function AppointmentList() {
             color="secondary"
           />
         </Box>
-        <br/>
+        <br />
       </>
     );
   }

@@ -9,6 +9,7 @@ using PetHealthcare.Server.Repositories.DbContext;
 using PetHealthcare.Server.Repositories.Interfaces;
 using PetHealthcare.Server.Services;
 using PetHealthcare.Server.Services.AuthInterfaces;
+using PetHealthcare.Server.Services.BackgroundServices;
 using PetHealthcare.Server.Services.Interfaces;
 using JsonReader = PetHealthcare.Server.Core.Helpers.JsonReader;
 
@@ -66,6 +67,9 @@ builder.Services.AddScoped<IServiceOrderDetailService, ServiceOrderDetailService
 // Auth services
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+// Background services
+builder.Services.AddHostedService<DischargeEmailReminderService>();
+
 #endregion
 
 #region Cors

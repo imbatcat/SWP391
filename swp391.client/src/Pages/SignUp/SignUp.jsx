@@ -13,6 +13,8 @@ import './SignUp.css';
 import { toast } from 'react-toastify';
 import { Tooltip } from 'react-tooltip';
 import { useState, useEffect } from 'react';
+import NavBar2 from '../../Component/NavBar/NavBar2';
+import MainLayout from '../../Layouts/MainLayout';
 
 function SignUp() {
     const [formData, setFormData] = useState({
@@ -137,7 +139,9 @@ function SignUp() {
     };
 
     return (
+        
         <div className='pageSignUp'>
+        <MainLayout>
             <MDBContainer fluid className='page-container'>
                 <MDBRow className='justify-content-center align-items-center m-5'>
                     <MDBCard className='card'>
@@ -295,6 +299,7 @@ function SignUp() {
                     </MDBCard>
                 </MDBRow>
             </MDBContainer>
+            </MainLayout>
         </div >
     );
 }

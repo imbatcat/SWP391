@@ -1,25 +1,31 @@
 import { useState, useEffect } from 'react';
-import { MDBBadge, MDBBtn, MDBTable, MDBTableBody, MDBTableHead, MDBModal, MDBModalBody, MDBModalHeader, MDBModalFooter, MDBInput, MDBModalDialog, MDBModalContent, MDBModalTitle, MDBCol, MDBRow, MDBCheckbox } from 'mdb-react-ui-kit';
+import {
+    MDBBadge, MDBBtn, MDBModal, MDBModalBody, MDBModalHeader, MDBModalFooter, MDBInput, MDBModalDialog,
+    MDBModalContent, MDBModalTitle, MDBCol, MDBRow, MDBCheckbox
+} from 'mdb-react-ui-kit';
 import SideNav from '../../Component/SideNav/SideNav';
 import AdminLayout from '../../Layouts/AdminLayout';
+import {
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, TablePagination
+} from '@mui/material';
+import { toast } from 'react-toastify';
 
-function StaffAccount() {
+function VetAccount() {
     const [accounts, setAccounts] = useState([]);
     const [selectedAccount, setSelectedAccount] = useState(null);
     const [basicModal, setBasicModal] = useState(false);
     const [basicModalNew, setBasicModalNew] = useState(false);
     const [searchInput, setSearchInput] = useState('');
     const [filteredAccounts, setFilteredAccounts] = useState([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const response = await fetch('https://localhost:7206/api/Accounts', {
+                const response = await fetch('https://localhost:7206/api/account-management/roles/4/accounts', {
                     method: 'GET',
                     credentials: 'include',
-                    headers: {
-                        // 'Content-Type': 'application/x-www-form-urlencoded',
-                    }
                 });
                 if (!response.ok) {
                     throw new Error("Error fetching data");
@@ -40,6 +46,7 @@ function StaffAccount() {
         setSelectedAccount(account);
         setBasicModal(!basicModal);
     };
+
     const toggleOpenNew = () => setBasicModalNew(!basicModalNew);
 
     const handleInputChange = (e) => {
@@ -49,13 +56,14 @@ function StaffAccount() {
             [name]: value
         }));
     };
+
     const handleSearchInputChange = (e) => {
         const value = e.target.value.toLowerCase();
         setSearchInput(value);
         if (value === '') {
             setFilteredAccounts(accounts);
         } else {
-            setFilteredAccounts(filteredAccounts.filter(acc =>
+            setFilteredAccounts(accounts.filter(acc =>
                 acc.fullName.toLowerCase().includes(value) ||
                 acc.phoneNumber.toLowerCase().includes(value) ||
                 acc.email.toLowerCase().includes(value) ||
@@ -65,88 +73,109 @@ function StaffAccount() {
     };
 
     const handleSaveChanges = async () => {
-        console.log(selectedAccount);
+        const requestBody = {
+            fullName: selectedAccount.fullName,
+            username: selectedAccount.username,
+            email: selectedAccount.email,
+            phoneNumber: selectedAccount.phoneNumber,
+            isMale: selectedAccount.isMale
+        };
         try {
-            //const response = await fetch(`https://localhost:7206/api/Accounts/${selectedAccount.id}`, {
-            //    method: 'PUT',
-            //    credentials: 'include',
-            //    headers: {
-            //        'Content-Type': 'application/json',
-            //    },
-            //    body: JSON.stringify(selectedAccount),
-            //});
+            const response = await fetch(`https://localhost:7206/api/account-management/accounts/${selectedAccount.id}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
 
-            //if (!response.ok) {
-            //    throw new Error('Error updating data');
-            //}
+            if (!response.ok) {
+                throw new Error('Error updating data');
+            }
 
-            //const updatedAccount = await response.json();
-            //setFilteredAccounts(prevAccounts => prevAccounts.map(acc => (acc.id === updatedAccount.id ? updatedAccount : acc)));
-            //toggleOpen();
+            const updatedAccount = await response.json();
+            setFilteredAccounts(prevAccounts => prevAccounts.map(acc => (acc.id === updatedAccount.id ? updatedAccount : acc)));
+            toast.info("Account updated");
+            toggleOpen();
         } catch (error) {
             console.error(error.message);
         }
+    };
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
     };
 
     return (
         <AdminLayout>
             <div>
                 <SideNav searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-                <MDBTable align='middle'>
-                    <MDBTableHead>
-                        <tr>
-                            <th scope='col'>Name</th>
-                            <th scope='col'>Email</th>
-                            <th scope='col'>Phone Number</th>
-                            <th scope='col'>Gender</th>
-                            <th scope='col'>Status</th>
-                            <th scope='col'>Actions</th>
-                        </tr>
-                    </MDBTableHead>
-                    <MDBTableBody>
-                        {filteredAccounts.filter(acc => acc.roleId === 4).map((acc, index) => (
-                            <tr key={index}>
-                                <td>
-                                    <div className='d-flex align-items-center'>
-                                        <img
-                                            src='https://mdbootstrap.com/img/new/avatars/8.jpg'
-                                            alt=''
-                                            style={{ width: '45px', height: '45px' }}
-                                            className='rounded-circle'
-                                        />
-                                        <div className='ms-3'>
-                                            <p className='fw-bold mb-1'>{acc.fullName}</p>
-                                            <p className='text-muted mb-0'>{acc.username}</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <p className='fw-normal mb-1'>{acc.email}</p>
-                                </td>
-                                <td>
-                                    <p className='fw-normal mb-1'>{acc.phoneNumber}</p>
-                                </td>
-                                <td>
-                                    <p className='fw-normal mb-1'>{acc.isMale ? "Male" : "Female"}</p>
-                                </td>
-                                <td>
-                                    <MDBBadge color={acc.isDisabled ? 'danger' : 'success'} pill>
-                                        {acc.isDisabled ? "Disabled" : "Active"}
-                                    </MDBBadge>
-                                </td>
-                                <td>
-                                    <MDBBtn color='link' rounded size='sm' onClick={() => toggleOpen(acc)}>
-                                        Edit
-                                    </MDBBtn>
-                                    <MDBBtn color='danger' style={{ color: 'black' }} rounded size='sm' onClick={() => toggleOpen(acc)}>
-                                        X
-                                    </MDBBtn>
-                                </td>
-                            </tr>
-                        ))}
-                    </MDBTableBody>
-                </MDBTable>
-
+                <Paper sx={{ width: '100%', overflow: 'hidden' }}>
+                    <TableContainer sx={{ maxHeight: 540 }}>
+                        <Table stickyHeader aria-label="sticky table">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Name</TableCell>
+                                    <TableCell>Email</TableCell>
+                                    <TableCell>Phone Number</TableCell>
+                                    <TableCell>Date of Birth</TableCell>
+                                    <TableCell>Gender</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell>Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {filteredAccounts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((acc) => (
+                                    <TableRow hover role="checkbox" tabIndex={-1} key={acc.id}>
+                                        <TableCell>
+                                            <div className='d-flex align-items-center'>
+                                                <img
+                                                    src='https://mdbootstrap.com/img/new/avatars/8.jpg'
+                                                    alt=''
+                                                    style={{ width: '45px', height: '45px' }}
+                                                    className='rounded-circle'
+                                                />
+                                                <div className='ms-3'>
+                                                    <p className='fw-bold mb-1'>{acc.fullName}</p>
+                                                    <p className='text-muted mb-0'>{acc.username}</p>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>{acc.email}</TableCell>
+                                        <TableCell>{acc.phoneNumber}</TableCell>
+                                        <TableCell>{acc.dateOfBirth}</TableCell>
+                                        <TableCell>{acc.isMale ? "Male" : "Female"}</TableCell>
+                                        <TableCell>
+                                            <MDBBadge color={acc.isDisabled ? 'danger' : 'success'} pill>
+                                                {acc.isDisabled ? "Disabled" : "Active"}
+                                            </MDBBadge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <MDBBtn color='danger' style={{ color: 'black' }} rounded size='sm' onClick={() => toggleOpen(acc)}>
+                                                X
+                                            </MDBBtn>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[10, 25, 100]}
+                        component="div"
+                        count={filteredAccounts.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </Paper>
 
                 {selectedAccount && (
                     <MDBModal open={basicModal} onClose={() => setBasicModal(false)} tabIndex='-1'>
@@ -185,9 +214,7 @@ function StaffAccount() {
                                                     onChange={handleInputChange}
                                                 />
                                             </MDBCol>
-
                                         </MDBRow>
-
                                         <MDBRow className='mb-4'>
                                             <MDBCol>
                                                 <MDBInput
@@ -198,9 +225,16 @@ function StaffAccount() {
                                                 />
                                             </MDBCol>
                                             <MDBCol>
-                                                <MDBCheckbox label="Is male"></MDBCheckbox>
+                                                <MDBCheckbox
+                                                    label="Is male"
+                                                    name="isMale"
+                                                    checked={selectedAccount.isMale}
+                                                    onChange={(e) => setSelectedAccount(prevState => ({
+                                                        ...prevState,
+                                                        isMale: e.target.checked
+                                                    }))}
+                                                />
                                             </MDBCol>
-
                                         </MDBRow>
                                     </form>
                                 </MDBModalBody>
@@ -212,11 +246,9 @@ function StaffAccount() {
                         </MDBModalDialog>
                     </MDBModal>
                 )}
-
             </div>
-
         </AdminLayout>
     );
 }
 
-export default StaffAccount;
+export default VetAccount;

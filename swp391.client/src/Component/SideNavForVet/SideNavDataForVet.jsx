@@ -22,10 +22,10 @@ export const SideNavData = [
         icon: <IoIcons.IoIosPaper />,
         cName: 'nav-text'
     },
-    {
-        title: 'Hospitalization Management',
-        path: '/vet/hospitalizationManagement',
-        icon: <FaIcons.FaHospital />,
-        cName: 'nav-text'
-    }
+    // {
+    //     title: 'Hospitalization Management',
+    //     path: '/vet/hospitalizationManagement',
+    //     icon: <FaIcons.FaHospital />,
+    //     cName: 'nav-text'
+    // }
 ];
