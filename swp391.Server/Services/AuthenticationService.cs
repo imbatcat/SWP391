@@ -110,7 +110,7 @@ namespace PetHealthcare.Server.Services
                 <li style='color: #000000;'><strong>Pet name:</strong> {appointmentInfor.PetName}</li>
                 <li style='color: #000000;'><strong>Time Slot:</strong> {appointmentInfor.AppointmentTime}</li>
             </ul>
-            <p style='color: #000000;'>Pleas go to profile --> Appoinment --> Click on an appointment to get your check in QrCode or show this email to staff to check in</p>
+            <p style='color: #000000;'>Please go to profile --> Appoinment --> Click on an appointment to get your check in QrCode or show this email to staff to check in</p>
             <p style='color: #000000;'>Best regards,</p>
             <p style='color: #000000;'>Your Veterinary Hospital Team</p>";
             try
