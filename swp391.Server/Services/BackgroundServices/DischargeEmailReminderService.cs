@@ -31,7 +31,7 @@ namespace PetHealthcare.Server.Services.BackgroundServices
                     IEnumerable<AdmissionRecord> toSendEmailAdmissionRecord = await admissionRecordService.GetAdmissionToRemind();
                     foreach(AdmissionRecord admissionToSend in toSendEmailAdmissionRecord)
                     {
-                        await authenticationService.SendReminderEmailTest(admissionToSend.CustomerEmail, admissionToSend.CustomerName, admissionToSend.petName, admissionToSend.DischargeDate);
+                        await authenticationService.SendReminderEmail(admissionToSend.CustomerEmail, admissionToSend.CustomerName, admissionToSend.petName, admissionToSend.DischargeDate);
                     }
                     await admissionRecordService.SetAdmissionIsRemindStatus(toSendEmailAdmissionRecord);
                     Debug.WriteLine("Reminder email sent successfully.");

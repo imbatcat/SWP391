@@ -19,6 +19,6 @@ namespace PetHealthcare.Server.Services.AuthInterfaces
         Task<RegisterErrorDTO?> ValidateUniqueFields(AccountDTO accountDTO);
         Task SendUpdateDischargeDateEmail(AdmissionRecordEmailDTO adr);
         Task SendAppointmentEmail(AppointmentEmailDTO appointmentInfor);
-        Task SendReminderEmailTest(string email, string customerName, string petName, DateOnly? dischargeDate);
+        Task SendReminderEmail(string email, string customerName, string petName, DateOnly? dischargeDate);
     }
 }

@@ -110,7 +110,7 @@ namespace PetHealthcare.Server.Services
                 existingRecord.IsDischarged = entity.IsDischarged;
                 if(existingRecord.DischargeDate <= DateOnly.FromDateTime(DateTime.Today).AddDays(ProjectConstant.DischargeRemindPeriod))
                 {
-                    await _authenticationService.SendReminderEmailTest(adr.Email, adr.CustomerName, adr.PetName, adr.NewDischargeDate);
+                    await _authenticationService.SendReminderEmail(adr.Email, adr.CustomerName, adr.PetName, adr.NewDischargeDate);
                 }
             }
             

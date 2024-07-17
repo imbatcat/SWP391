@@ -96,7 +96,7 @@ namespace PetHealthcare.Server.Services
                 throw new BadHttpRequestException(ex.Message);
             }
         }
-        public async Task SendReminderEmailTest(string email, string customerName, string petName, DateOnly? dischargeDate)
+        public async Task SendReminderEmail(string email, string customerName, string petName, DateOnly? dischargeDate)
         {
             
             string subject = "Reminder: Upcoming Pet Discharge Date";
