@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs, Tab, Box, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { MDBBadge, MDBIcon } from 'mdb-react-ui-kit';
 
 const TabPanel = (props) => {
     const { children, value, index, ...other } = props;
@@ -12,6 +13,7 @@ const TabPanel = (props) => {
             id={`vertical-tabpanel-${index}`}
             aria-labelledby={`vertical-tab-${index}`}
             {...other}
+            style={{ height: '400px', overflowY: 'auto' }} // Set a height and make it scrollable
         >
             {value === index && (
                 <Box p={3}>
@@ -22,9 +24,39 @@ const TabPanel = (props) => {
     );
 };
 
+const fetchPetData = async (petId) => {
+    try {
+        const [petStatusResponse, medicalRecordsResponse] = await Promise.all([
+            fetch(`https://localhost:7206/api/admission-record-management/pets/${petId}/admission-records`, {
+                method: 'GET',
+                credentials: 'include',
+            }),
+            fetch(`https://localhost:7206/api/medical-record-management/pets/${petId}/medical-records`, {
+                method: 'GET',
+                credentials: 'include',
+            }),
+        ]);
+
+        if (!petStatusResponse.ok) {
+            throw new Error('Error fetching pet status');
+        }
+        if (!medicalRecordsResponse.ok) {
+            throw new Error('Error fetching medical records');
+        }
+
+        const petStatus = await petStatusResponse.json();
+        const medicalRecords = await medicalRecordsResponse.json();
+
+        return { petStatus, medicalRecords };
+    } catch (error) {
+        console.error(error.message);
+        return { petStatus: [], medicalRecords: [] };
+    }
+};
+
 const UserPetForm = ({ selectedPet }) => {
     const [value, setValue] = useState(0);
-    const [petStatus, setPetStatus] = useState(null);
+    const [petStatus, setPetStatus] = useState([]);
     const [medicalRecords, setMedicalRecords] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -32,45 +64,20 @@ const UserPetForm = ({ selectedPet }) => {
         setValue(newValue);
     };
 
-    console.log(selectedPet.petId)
-
     useEffect(() => {
-        const fetchPetStatus = async () => {
-            try {
-                const response = await fetch(`https://localhost:7206/api/admission-record-management/pets/${selectedPet.petId}/admission-records`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setPetStatus(data);
-            } catch (error) {
-                console.error('Error fetching pet status:', error);
-                setPetStatus(null);
-            } finally {
-                setIsLoading(false);
-            }
+        const fetchData = async () => {
+            setIsLoading(true);
+            const { petStatus, medicalRecords } = await fetchPetData(selectedPet.petId);
+            setPetStatus(petStatus);
+            setMedicalRecords(medicalRecords);
+            setIsLoading(false);
         };
 
-        const fetchMedicalRecords = async () => {
-            try {
-                const response = await fetch(`https://localhost:7206/api/medical-record-management/pets/${selectedPet.petId}/medical-records`);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                const data = await response.json();
-                setMedicalRecords(data);
-                console.log(data);
-            } catch (error) {
-                console.error('Error fetching medical records:', error);
-            }
-        };
-
-        fetchPetStatus();
-        fetchMedicalRecords();
+        fetchData();
     }, [selectedPet.petId]);
 
     return (
-        <Box sx={{ flexGrow: 1, display: 'flex' }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', height: '100%' }}>
             <Tabs
                 orientation="vertical"
                 variant="scrollable"
@@ -92,13 +99,49 @@ const UserPetForm = ({ selectedPet }) => {
             <TabPanel value={value} index={1}>
                 {isLoading ? (
                     <p>Loading...</p>
-                ) : petStatus ? (
-                    <>
-                        <p className='Pet-status'>Admission Date: {petStatus.admissionDate}</p>
-                        <p className='Pet-status'>Condition: {petStatus.petCurrentCondition}</p>
-                        <p className='Pet-status'>Discharge Date: {petStatus.dischargeDate || 'N/A'}</p>
-                        {/* Add more pet status details as needed */}
-                    </>
+                ) : petStatus.length > 0 ? (
+                    petStatus.map((status, index) => (
+                        <Accordion sx={{minWidth:500}} key={status.admissionId}>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls={`panel${index}-content`}
+                                id={`panel${index}-header`}
+                            >
+                                <Typography>Admission Date: {status.admissionDate}
+                                <MDBBadge color={status.petCurrentCondition ? 'danger' : status.petCurrentCondition ? 'success' : status.petCurrentCondition ? 'warning' : 'secondary'} pill>
+                                                    {
+                                                     status.petCurrentCondition == "Finished Dinner" ? ( 
+                                                        <>
+                                                        Finished Dinner <MDBIcon fas icon="utensils" /> 
+                                                        </>
+                                                     ) :
+                                                     status.petCurrentCondition == "Finished Lunch" ? ( 
+                                                        <>
+                                                        Finished Lunch <MDBIcon fas icon="utensils" /> 
+                                                        </>
+                                                     ) :
+                                                     status.petCurrentCondition == "Sleeping" ? ( 
+                                                        <>
+                                                        Sleeping <MDBIcon fas icon="bed" /> 
+                                                        </>
+                                                     ) :
+                                                     status.petCurrentCondition == "Is discharged" ? ( 
+                                                        <>
+                                                        Đã Khỏe <MDBIcon fas icon="paw" /> 
+                                                        </>
+                                                     ) : 
+                                                     status.petCurrentCondition}
+                                </MDBBadge>
+                                </Typography>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <Typography>Admission ID: {status.admissionId}</Typography>
+                                <Typography>Condition: {status.petCurrentCondition}</Typography>
+                                <Typography>Discharge Date: {status.dischargeDate || 'N/A'}</Typography>
+                                {/* Add more details as needed */}
+                            </AccordionDetails>
+                        </Accordion>
+                    ))
                 ) : (
                     <p>The pet is not hospitalized</p>
                 )}
@@ -106,7 +149,7 @@ const UserPetForm = ({ selectedPet }) => {
             <TabPanel value={value} index={2}>
                 {medicalRecords.length > 0 ? (
                     medicalRecords.map((record, index) => (
-                        <Accordion key={record.medicalRecordId}>
+                        <Accordion sx={{minWidth:500}} key={record.medicalRecordId}>
                             <AccordionSummary
                                 expandIcon={<ExpandMoreIcon />}
                                 aria-controls={`panel${index}-content`}
