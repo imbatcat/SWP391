@@ -13,6 +13,8 @@
         public string PetName { get; set; }
         public string VeterinarianName { get; set; }
         public string TimeSlot { get; set; }
+        public int TimeSlotId {  get; set; }
+        
         public bool IsCancel { get; set; }
         public bool IsCheckIn { get; set; }
         public bool IsCheckUp { get; set; }

@@ -1,4 +1,5 @@
 ﻿using PetHealthcare.Server.Core.Constant;
+using PetHealthcare.Server.Core.DTOS.AppointmentDTOs;
 using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Repositories;
 using PetHealthcare.Server.Repositories.Interfaces;
@@ -11,12 +12,12 @@ namespace PetHealthcare.Server.Core.Helpers
     {
         public static async Task<bool> isMaxTimeslotReached(IAppointmentService _appointmentService,string vetId, DateOnly appDate, int timeslotId, bool isCreate)
         {
-            IEnumerable<Appointment> appointmentList = await _appointmentService.GetAll();
+            IEnumerable<GetAllAppointmentForAdminDTO> appointmentList = await _appointmentService.GetAllAppointment();
            
             int checker = 0;
-            foreach (Appointment app in appointmentList)
+            foreach (GetAllAppointmentForAdminDTO app in appointmentList)
             {
-                if (app.VeterinarianAccountId.Equals(vetId)
+                if (app.VeterinarianId.Equals(vetId)
                     && app.AppointmentDate.Equals(appDate)
                     && app.TimeSlotId == timeslotId)
                 {

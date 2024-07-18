@@ -268,4 +268,4 @@ function PetModalForm() {
   );
 }
 
-export default PetModalForm
+export default PetModalForm;

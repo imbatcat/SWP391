@@ -27,12 +27,46 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<IEnumerable<AdmissionRecord>> GetAll()
         {
-            return await _context.AdmissionRecords.OrderBy(x => x.AdmissionId).ToListAsync();
+            return await _context.AdmissionRecords.Include("Pet.Account")
+                .Select(ad => new AdmissionRecord
+                {
+                    AdmissionDate = ad.AdmissionDate,
+                    AdmissionId = ad.AdmissionId,
+                    CageId = ad.CageId,
+                    VeterinarianAccountId = ad.VeterinarianAccountId,
+                    PetId = ad.PetId,
+                    CustomerEmail = ad.Pet.Account.Email,
+                    CustomerName = ad.Pet.Account.FullName,
+                    DischargeDate = ad.DischargeDate,
+                    IsDischarged = ad.IsDischarged,
+                    MedicalRecordId = ad.MedicalRecordId,
+                    PetCurrentCondition = ad.PetCurrentCondition,
+                    IsRemind = ad.IsRemind,
+                    petName = ad.Pet.PetName
+                })
+                .OrderBy(x => x.AdmissionId).ToListAsync();
         }
 
         public async Task<AdmissionRecord?> GetByCondition(Expression<Func<AdmissionRecord, bool>> expression)
         {
-            return await _context.AdmissionRecords.Include("Pet.Account").FirstOrDefaultAsync(expression);
+            return await _context.AdmissionRecords.Include("Pet.Account")
+                .Select(ad => new AdmissionRecord
+                {
+                    AdmissionDate = ad.AdmissionDate,
+                    AdmissionId = ad.AdmissionId,
+                    CageId = ad.CageId,
+                    VeterinarianAccountId = ad.VeterinarianAccountId,
+                    PetId = ad.PetId,
+                    CustomerEmail = ad.Pet.Account.Email,
+                    CustomerName = ad.Pet.Account.FullName,
+                    DischargeDate = ad.DischargeDate,
+                    IsDischarged = ad.IsDischarged,
+                    MedicalRecordId = ad.MedicalRecordId,
+                    PetCurrentCondition = ad.PetCurrentCondition,
+                    IsRemind = ad.IsRemind,
+                    petName = ad.Pet.PetName
+                })
+                .FirstOrDefaultAsync(expression);
         }
 
         public async Task SaveChanges()
@@ -49,6 +83,7 @@ namespace PetHealthcare.Server.Repositories
                 toUpdateAdmission.PetCurrentCondition = entity.PetCurrentCondition;
                 toUpdateAdmission.DischargeDate = entity.DischargeDate;
                 toUpdateAdmission.IsDischarged = entity.IsDischarged;
+                toUpdateAdmission.IsRemind = entity.IsRemind;
                 await SaveChanges();
             }
         }
