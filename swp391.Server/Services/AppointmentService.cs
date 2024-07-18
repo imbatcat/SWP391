@@ -51,24 +51,24 @@ namespace PetHealthcare.Server.Services
         }
         public async Task CreateAppointment(CreateAppointmentDTO appointment, string id)
         {
-                string CheckinQRCode = QRCodeGeneratorHelper.GenerateQRCode(id);
-                Appointment toCreateAppointment = new Appointment
-                {
-                    AppointmentType = appointment.AppointmentType,
-                    AppointmentDate = appointment.AppointmentDate,
-                    AppointmentNotes = appointment.AppointmentNotes,
-                    BookingPrice = ProjectConstant.DEPOSIT_COST,
-                    PetId = appointment.PetId,
-                    VeterinarianAccountId = appointment.VeterinarianAccountId,
-                    AppointmentId = id,
-                    AccountId = appointment.AccountId,
-                    TimeSlotId = appointment.TimeSlotId,
-                    IsCancel = false,
-                    IsCheckIn = false,
-                    IsCheckUp = false,
-                    QRCodeImageUrl = CheckinQRCode
-                };
-                await _appointmentRepository.Create(toCreateAppointment);
+            string CheckinQRCode = await QRCodeGeneratorHelper.GenerateQRCode(id);
+            Appointment toCreateAppointment = new Appointment
+            {
+                AppointmentType = appointment.AppointmentType,
+                AppointmentDate = appointment.AppointmentDate,
+                AppointmentNotes = appointment.AppointmentNotes,
+                BookingPrice = ProjectConstant.DEPOSIT_COST,
+                PetId = appointment.PetId,
+                VeterinarianAccountId = appointment.VeterinarianAccountId,
+                AppointmentId = id,
+                AccountId = appointment.AccountId,
+                TimeSlotId = appointment.TimeSlotId,
+                IsCancel = false,
+                IsCheckIn = false,
+                IsCheckUp = false,
+                QRCodeImageUrl = CheckinQRCode
+            };
+            await _appointmentRepository.Create(toCreateAppointment);
         }
 
         public void DeleteAppointment(Appointment appointment)

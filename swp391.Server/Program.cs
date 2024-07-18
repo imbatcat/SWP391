@@ -16,7 +16,6 @@ using JsonReader = PetHealthcare.Server.Core.Helpers.JsonReader;
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var config = builder.Configuration;
-const string DataSrc = "LAPTOP-8QVR89KA\\SQLEXPRESS02", Password = "12345";
 
 
 // Add services to the container.
@@ -133,8 +132,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 
 var app = builder.Build();
 
-//Role seeding
-DataSeeder.SeedRoles(DataSrc, Password);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
