@@ -81,7 +81,7 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<Appointment?> GetByCondition(Expression<Func<Appointment, bool>> expression)
         {
-            return await context.Appointments.Include(a => a.TimeSlot).Include(a => a.Pet).Include(a => a.Veterinarian).Include(a => a.Account).FirstOrDefaultAsync(expression);
+            return await context.Appointments.Include(a => a.TimeSlot).Include(a => a.Account).Include(a => a.Pet).Include(a => a.Veterinarian).AsNoTracking().FirstOrDefaultAsync(expression);
         }
 
         public async Task SaveChanges()

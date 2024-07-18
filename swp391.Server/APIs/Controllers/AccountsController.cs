@@ -172,35 +172,7 @@ namespace PetHealthcare.Server.APIs.Controllers
                 return NotFound("No file uploaded.");
             }
 
-            using var client = new HttpClient();
-            var content = new MultipartFormDataContent();
-
-            var fileContent = new StreamContent(file.OpenReadStream());
-            fileContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
-            {
-                Name = "file",
-                FileName = file.FileName
-            };
-            fileContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-
-            content.Add(fileContent);
-
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri($"https://api.cloudflare.com/client/v4/accounts/{JsonReader.readJson("Cloudflare:account-id")}/images/v1"),
-                Headers =
-                {
-                    { "Authorization", $"Bearer {JsonReader.readJson("Cloudflare:api-token")}" },
-                },
-                Content = content
-            };
-
-            // Debugging: Print out the request content
-            var debugContent = await content.ReadAsStringAsync();
-            Console.WriteLine("Request Content: " + debugContent);
-
-            using var response = await client.SendAsync(request);
+            using var response = await ImageUpload.uploadImage(file);
             if (!response.IsSuccessStatusCode)
             {
                 var errorBody = await response.Content.ReadAsStringAsync();

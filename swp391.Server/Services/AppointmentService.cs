@@ -35,7 +35,7 @@ namespace PetHealthcare.Server.Services
         
         public async Task CreateAppointment(CreateAppointmentDTO appointment, string id)
         {
-            string CheckinQRCode = QRCodeGeneratorHelper.GenerateQRCode(id);
+            string CheckinQRCode = await QRCodeGeneratorHelper.GenerateQRCode(id);
             Appointment toCreateAppointment = new Appointment
             {
                 AppointmentType = appointment.AppointmentType,
