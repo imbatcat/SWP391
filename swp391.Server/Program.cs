@@ -69,6 +69,7 @@ builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 // Background services
 builder.Services.AddHostedService<DischargeEmailReminderService>();
+builder.Services.AddHostedService<CancelOverdueAppointmentService>();
 
 #endregion
 

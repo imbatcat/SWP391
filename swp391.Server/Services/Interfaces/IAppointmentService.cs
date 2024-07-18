@@ -37,5 +37,7 @@ namespace PetHealthcare.Server.Services.Interfaces
 
         Task<IEnumerable<AppointmentForStaffDTO>> GetAllAppointmentsForStaff();
         Task<AppointmentEmailDTO> CreateAppointmentEmail(string appointmentId);
+        Task<bool> IsPetAppointmentExist(string PetId, string AccountId);
+        public Task CancelOverdueAppointment();
     }
 }
