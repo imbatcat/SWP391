@@ -90,13 +90,19 @@ namespace PetHealthcare.Server.Services
                 await _emailService.SendEmailAsync(
                     userEmail,
                     "Confirm Your Email Address",
-                    $"<p>Please confirm your email address by clicking <a href='{confirmationLink}'>here</a>. 100% reliable no scam.</p>");
+                    $"<p>Hello,</p>" +
+                    $"<p>Thank you for registering with us. Please confirm your email address by clicking the link below:</p>" +
+                    $"<p><a href='{confirmationLink}'>Confirm Email Address</a></p>" +
+                    $"<p>If you did not create an account, please ignore this email or contact support if you have questions.</p>" +
+                    $"<p>Thank you,</p>" +
+                    $"<p>Your Veterinary Hospital Team</p>");
             }
             catch (Exception ex)
             {
                 throw new BadHttpRequestException(ex.Message);
             }
         }
+
         public async Task SendReminderEmail(string email, string customerName, string petName, DateOnly? dischargeDate)
         {
             
@@ -116,7 +122,7 @@ namespace PetHealthcare.Server.Services
                 </div>
                 <div style='margin-top: 20px; font-size: 14px; color: black !important;'>
                     <p>Best regards,</p>
-                    <p>Your Pet Care Team</p>
+                    <p>Your Veterinary Hospital Team</p>
                 </div>
             </div>
         </body>
@@ -149,7 +155,6 @@ namespace PetHealthcare.Server.Services
             </ul>
             <p>Appointment's qrcode</p>
             <img src={appointmentInfor.CheckinQr} />
-            <p style='color: #000000;'>Please go to profile --> Appointment --> Click on an appointment to get your check in QrCode or show this email to staff to check in</p>
             <p style='color: #000000;'>Best regards,</p>
             <p style='color: #000000;'>Your Veterinary Hospital Team</p>";
             try
@@ -194,7 +199,6 @@ namespace PetHealthcare.Server.Services
             }
         }
 
-
         public async Task SendForgotPasswordEmail(ApplicationUser user, string userEmail)
         {
             if (await _userManager.GetEmailAsync(user) != userEmail)
@@ -208,15 +212,20 @@ namespace PetHealthcare.Server.Services
             {
                 await _emailService.SendEmailAsync(
                     userEmail,
-                    "Password reset",
-                    $"<p>Reset your password by clicking <a href='{confirmationLink}'>here</a>. 100% reliable no scam.</p>");
+                    "Password Reset Request",
+                    $"<p>Hello,</p>" +
+                    $"<p>We received a request to reset your password. Please click the link below to reset your password:</p>" +
+                    $"<p><a href='{confirmationLink}'>Reset Password</a></p>" +
+                    $"<p>If you did not request a password reset, please ignore this email or contact support if you have questions.</p>" +
+                    $"<p>Thank you,</p>" +
+                    $"<p>Your Veterinary Hospital Team</p>");
             }
             catch (Exception ex)
             {
                 throw new BadHttpRequestException(ex.Message);
             }
-
         }
+
 
         public async Task<ResponseUserDTO> SignInGoogle(GoogleLoginModel model)
         {
