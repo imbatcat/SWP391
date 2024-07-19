@@ -91,7 +91,7 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task Update(Appointment entity)
         {
-            var appointment = await GetByCondition(a => a.AppointmentId == entity.AppointmentId);
+            var appointment = await context.Appointments.FirstOrDefaultAsync(app => entity.AppointmentId == app.AppointmentId);
             if (appointment != null)
             {
                 // this line ensures efcore to update the table.
@@ -101,6 +101,7 @@ namespace PetHealthcare.Server.Repositories
                 appointment.AppointmentNotes = entity.AppointmentNotes;
                 appointment.VeterinarianAccountId = entity.VeterinarianAccountId;
                 appointment.TimeSlotId = entity.TimeSlotId;
+                appointment.IsCancel = entity.IsCancel;
                 await SaveChanges();
             }
         }

@@ -9,6 +9,6 @@
                 .AddJsonFile("secrets.json", true, true)
                 .Build();
             return config[configPath];
-        } 
+        }
     }
 }

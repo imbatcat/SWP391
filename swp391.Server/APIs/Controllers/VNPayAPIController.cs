@@ -38,7 +38,10 @@ namespace PetHealthcare.Server.APIs.Controllers
         {
             CreateAppointmentDTO appointmentDTO = model;
             //string vetId, DateOnly appDate, int timeslotId, bool isCreate
-
+            if(await _appointmentService.IsPetAppointmentExist(model.PetId, model.AccountId))
+            {
+                return BadRequest("The customer already book an appointment for this pet");
+            }
             if(model.AppointmentDate < DateOnly.FromDateTime(DateTime.Today).AddDays(1))
             {
                 return BadRequest("The customer can only book an appointment at least one day in advance from the current date.");
