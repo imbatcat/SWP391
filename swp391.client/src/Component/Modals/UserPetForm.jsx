@@ -7,9 +7,26 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Stepper,
+  Step,
+  StepLabel,
+  StepContent,
+  Paper,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { MDBBadge, MDBIcon } from 'mdb-react-ui-kit';
+import { MDBCol, MDBRow } from 'mdb-react-ui-kit';
+
+const steps = [
+  { label: 'Finished Breakfast' },
+  { label: 'Use Medicine 1' },
+  { label: 'Finished Lunch' },
+  { label: 'Use Medicine 2' },
+  { label: 'Sleeping' },
+  { label: 'Finished Dinner' },
+  { label: 'Use Medicine 3' },
+  { label: 'Sleeping Again' },
+  { label: 'Home' },
+];
 
 const TabPanel = (props) => {
   const { children, value, index, ...other } = props;
@@ -64,6 +81,31 @@ const UserPetForm = ({ selectedPet, admissionRecords }) => {
     }
   };
 
+  const getCurrentStep = (condition) => {
+    switch (condition) {
+      case 'Finished Breakfast':
+        return 0;
+      case 'Use Medicine 1':
+        return 1;
+      case 'Finished Lunch':
+        return 2;
+      case 'Use Medicine 2':
+        return 3;
+      case 'Sleeping':
+        return 4;
+      case 'Finished Dinner':
+        return 5;
+      case 'Use Medicine 3':
+        return 6;
+      case 'Sleeping Again':
+        return 7;
+      case 'Is discharged':
+        return 8;
+      default:
+        return -1;
+    }
+  };
+
   useEffect(() => {
     fetchMedicalRecords(selectedPet.petId);
   }, [selectedPet.petId]);
@@ -94,58 +136,46 @@ const UserPetForm = ({ selectedPet, admissionRecords }) => {
       </TabPanel>
       <TabPanel value={value} index={1}>
         {admissionRecords.length > 0 ? (
-          admissionRecords.map((status, index) => (
+          admissionRecords.map((status) => (
             <Accordion sx={{ minWidth: 500 }} key={status.admissionId}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel${index}-content`}
-                id={`panel${index}-header`}
+                aria-controls={`panel-${status.admissionId}-content`}
+                id={`panel-${status.admissionId}-header`}
               >
-                <Typography>
-                  Admission Date: {status.admissionDate}
-                  <MDBBadge
-                    color={
-                      status.petCurrentCondition === 'Finished Dinner'
-                        ? 'warning'
-                        : status.petCurrentCondition === 'Finished Lunch'
-                        ? 'warning'
-                        : status.petCurrentCondition === 'Sleeping'
-                        ? 'primary'
-                        : status.petCurrentCondition === 'Is discharged'
-                        ? 'success'
-                        : 'secondary'
-                    }
-                    pill
-                  >
-                    {status.petCurrentCondition === 'Finished Dinner' ? (
-                      <>
-                        Finished Dinner <MDBIcon fas icon="utensils" />
-                      </>
-                    ) : status.petCurrentCondition === 'Finished Lunch' ? (
-                      <>
-                        Finished Lunch <MDBIcon fas icon="utensils" />
-                      </>
-                    ) : status.petCurrentCondition === 'Sleeping' ? (
-                      <>
-                        Sleeping <MDBIcon fas icon="bed" />
-                      </>
-                    ) : status.petCurrentCondition === 'Is discharged' ? (
-                      <>
-                        Đã Khỏe <MDBIcon fas icon="paw" />
-                      </>
-                    ) : (
-                      status.petCurrentCondition
-                    )}
-                  </MDBBadge>
-                </Typography>
+                <Typography>Admission Date: {status.admissionDate}</Typography>
               </AccordionSummary>
               <AccordionDetails>
-                <Typography>Admission ID: {status.admissionId}</Typography>
-                <Typography>Condition: {status.petCurrentCondition}</Typography>
-                <Typography>
-                  Discharge Date: {status.dischargeDate || 'N/A'}
-                </Typography>
-                {/* Add more details as needed */}
+                <MDBRow>
+                  <MDBCol size="6">
+                    <Typography>Admission ID: {status.admissionId}</Typography>
+                    <Typography>
+                      Condition: {status.petCurrentCondition}
+                    </Typography>
+                    <Typography>
+                      Discharge Date: {status.dischargeDate || 'N/A'}
+                    </Typography>
+                  </MDBCol>
+                  <MDBCol size="6">
+                    <Stepper
+                      activeStep={getCurrentStep(status.petCurrentCondition)}
+                      orientation="vertical"
+                    >
+                      {steps.map((step, index) => (
+                        <Step key={step.label}>
+                          <StepLabel>{step.label}</StepLabel>
+                          {index === steps.length - 1 && (
+                            <StepContent>
+                              <Typography variant="caption">
+                                Thank You for using out Service
+                              </Typography>
+                            </StepContent>
+                          )}
+                        </Step>
+                      ))}
+                    </Stepper>
+                  </MDBCol>
+                </MDBRow>
               </AccordionDetails>
             </Accordion>
           ))
@@ -157,12 +187,12 @@ const UserPetForm = ({ selectedPet, admissionRecords }) => {
         {isLoading ? (
           <p>Loading...</p>
         ) : medicalRecords.length > 0 ? (
-          medicalRecords.map((record, index) => (
+          medicalRecords.map((record) => (
             <Accordion sx={{ minWidth: 500 }} key={record.medicalRecordId}>
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
-                aria-controls={`panel${index}-content`}
-                id={`panel${index}-header`}
+                aria-controls={`panel-${record.medicalRecordId}-content`}
+                id={`panel-${record.medicalRecordId}-header`}
               >
                 <Typography>Date Created: {record.dateCreated}</Typography>
               </AccordionSummary>
@@ -172,7 +202,6 @@ const UserPetForm = ({ selectedPet, admissionRecords }) => {
                 </Typography>
                 <Typography>Pet Weight: {record.petWeight}</Typography>
                 <Typography>Appointment ID: {record.appointmentId}</Typography>
-                {/* Add more details as needed */}
               </AccordionDetails>
             </Accordion>
           ))
