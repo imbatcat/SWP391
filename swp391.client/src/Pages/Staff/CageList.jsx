@@ -31,6 +31,12 @@ const columns = [
   { id: 'petBreed', label: 'Breed', minWidth: 170 },
   { id: 'petAge', label: 'Date of Birth', minWidth: 170 },
   { id: 'isOccupied', label: 'Status', minWidth: 170, align: 'center' },
+  {
+    id: 'petCurrentCondition',
+    label: 'Current Condition',
+    minWidth: 170,
+    align: 'center',
+  },
   { id: 'actions', label: 'Actions', minWidth: 170, align: 'center' },
 ];
 
@@ -55,11 +61,17 @@ function CageList() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const handleSetPetCurrentCondition = (event, value) => {
+    if (!value) {
+      toast.error('Current Condition is required');
+    }
     setPetCurrentCondition(value);
   };
 
   const toggleOpen = (cage = null) => {
     setSelectedCage(cage);
+    if (cage) {
+      setPetCurrentCondition(cage.petCurrentCondition);
+    }
     setIsModalOpen(!isModalOpen);
   };
 
@@ -137,6 +149,11 @@ function CageList() {
   }
 
   async function updatePet(e, cage) {
+    if (!petCurrentCondition) {
+      toast.error('Current Condition is required');
+      return;
+    }
+
     const obj = {
       petCurrentCondition: petCurrentCondition,
     };
@@ -239,6 +256,9 @@ function CageList() {
                           </Typography>
                         </TableCell>
                         <TableCell align="center">
+                          <Typography>{cage.petCurrentCondition}</Typography>
+                        </TableCell>
+                        <TableCell align="center">
                           <Grid container justifyContent="center" spacing={2}>
                             <Grid item>
                               <Button
@@ -292,6 +312,7 @@ function CageList() {
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
                     <Autocomplete
+                      required
                       fullWidth
                       options={conditionOptions}
                       value={petCurrentCondition}
