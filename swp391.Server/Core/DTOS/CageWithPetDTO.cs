@@ -10,5 +10,7 @@
         public DateOnly? PetAge { get; set; }
         public string? PetId {  get; set; }
 
+        public string PetCurrentCondition {  get; set; }
+
     }
 }
