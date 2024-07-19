@@ -119,7 +119,7 @@ function AppointmentForm({ toggleOpen }) {
     const makePayment = async () => {
       if (isProcessing) return;
 
-      setIsProcessing(false);
+      setIsProcessing(true);
       setBuffer((prevBuffer) => [...prevBuffer, data]);
       const fetchPromise = await fetch(
         'https://localhost:7206/api/vn-pay-api-management/make-payment',

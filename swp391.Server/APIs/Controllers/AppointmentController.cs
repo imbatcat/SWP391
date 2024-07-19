@@ -124,7 +124,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(appointmentList);
         }
 
-        [HttpGet("QRCode")]
+        [HttpGet("qr-code/{appointmentId}")]
         public string getQRCodeByAppointmentId(string appointmentId)
         {
             return _appointment.GetQRCodeByAppointmentId(appointmentId);
