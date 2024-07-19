@@ -37,12 +37,15 @@ function AppointmentList() {
 
   async function fetchData() {
     try {
-      const response = await fetch(`https://localhost:7206/api/appointment-management/vets/get-all`, {
-        method: 'GET',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `https://localhost:7206/api/appointment-management/vets/get-all`,
+        {
+          method: 'GET',
+          credentials: 'include',
+        }
+      );
       if (!response.ok) {
-        throw new Error("Error fetching data");
+        throw new Error('Error fetching data');
       }
       const data = await response.json();
       setAppointments(data);
@@ -66,7 +69,9 @@ function AppointmentList() {
 
   const filterAppointments = () => {
     if (tabValue === 'myAppointments') {
-      setFilteredAppointments(appointments.filter(app => app.veterinarianId === user.id));
+      setFilteredAppointments(
+        appointments.filter((app) => app.veterinarianId === user.id)
+      );
     } else {
       setFilteredAppointments(appointments);
     }
@@ -77,24 +82,35 @@ function AppointmentList() {
     if (isExpanded) {
       let filteredList = appointments;
       if (panel === 'waiting') {
-        filteredList = appointments.filter(app => app.isCheckIn && !app.isCheckUp && app.veterinarianId === user.id);
+        filteredList = appointments.filter(
+          (app) =>
+            app.isCheckIn &&
+            !app.isCheckUp &&
+            !app.isCancel &&
+            app.veterinarianId === user.id
+        );
       } else if (panel === 'today') {
         const now = new Date();
-        const today = now.getFullYear() + '-' +
-          ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+        const today =
+          now.getFullYear() +
+          '-' +
+          ('0' + (now.getMonth() + 1)).slice(-2) +
+          '-' +
           ('0' + now.getDate()).slice(-2);
 
         console.log(today); // Outputs: YYYY-MM-DD
-        filteredList = appointments.filter(app => app.appointmentDate === today && app.veterinarianId === user.id);
+        filteredList = appointments.filter(
+          (app) =>
+            app.appointmentDate === today && app.veterinarianId === user.id
+        );
       } else {
-        filteredList = appointments.filter(app => app.veterinarianId === user.id);
+        filteredList = appointments.filter(
+          (app) => app.veterinarianId === user.id
+        );
       }
       setFilteredAppointments(filteredList);
-    } else {
-      setTimeout(()=>{
-        filterAppointments();
-      }, 5000);
-      
+    } else if (panel === 'showAll') {
+      filterAppointments();
     }
   };
 
@@ -109,7 +125,7 @@ function AppointmentList() {
       return 'warning'; // yellow
     }
     return 'secondary'; // default color
-  }
+  };
 
   const handleSearchInputChange = (e) => {
     const value = e.target.value.toLowerCase();
@@ -117,15 +133,21 @@ function AppointmentList() {
     if (value === '') {
       filterAppointments();
     } else {
-      setFilteredAppointments(filteredAppointments.filter(app =>
-        (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
-        (app.ownerNumber && app.ownerNumber.toLowerCase().includes(value)) ||
-        (app.appointmentDate && app.appointmentDate.toLowerCase().includes(value)) ||
-        (app.timeSlot && app.timeSlot.toLowerCase().includes(value)) ||
-        (app.appointmentId && app.appointmentId.toLowerCase().includes(value))
-      ));
+      setFilteredAppointments(
+        filteredAppointments.filter(
+          (app) =>
+            (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
+            (app.phoneNumber &&
+              app.phoneNumber.toLowerCase().includes(value)) ||
+            (app.appointmentDate &&
+              app.appointmentDate.toLowerCase().includes(value)) ||
+            (app.timeSlot && app.timeSlot.toLowerCase().includes(value)) ||
+            (app.appointmentId &&
+              app.appointmentId.toLowerCase().includes(value))
+        )
+      );
     }
-  }
+  };
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -160,7 +182,10 @@ function AppointmentList() {
 
   return (
     <div>
-      <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
+      <SideNavForVet
+        searchInput={searchInput}
+        handleSearchInputChange={handleSearchInputChange}
+      />
       {isLoading && <LinearProgress />}
       <Paper sx={{ width: '100%', height: '87vh' }}>
         <Box sx={{ width: '100%' }}>
@@ -177,7 +202,10 @@ function AppointmentList() {
         </Box>
         {tabValue === 'myAppointments' && (
           <Box>
-            <Accordion expanded={expandedAccordion === 'waiting'} onChange={handleAccordionChange('waiting')}>
+            <Accordion
+              expanded={expandedAccordion === 'waiting'}
+              onChange={handleAccordionChange('waiting')}
+            >
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="waiting-content"
@@ -185,11 +213,12 @@ function AppointmentList() {
               >
                 <Typography>Waiting (Check-in Appointments)</Typography>
               </AccordionSummary>
-              <AccordionDetails>
-                {renderTable()}
-              </AccordionDetails>
+              <AccordionDetails>{renderTable()}</AccordionDetails>
             </Accordion>
-            <Accordion expanded={expandedAccordion === 'today'} onChange={handleAccordionChange('today')}>
+            <Accordion
+              expanded={expandedAccordion === 'today'}
+              onChange={handleAccordionChange('today')}
+            >
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="today-content"
@@ -197,11 +226,12 @@ function AppointmentList() {
               >
                 <Typography>Today (Active Appointments for Today)</Typography>
               </AccordionSummary>
-              <AccordionDetails>
-                {renderTable()}
-              </AccordionDetails>
+              <AccordionDetails>{renderTable()}</AccordionDetails>
             </Accordion>
-            <Accordion expanded={expandedAccordion === 'showAll'} onChange={handleAccordionChange('showAll')}>
+            <Accordion
+              expanded={expandedAccordion === 'showAll'}
+              onChange={handleAccordionChange('showAll')}
+            >
               <AccordionSummary
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="showAll-content"
@@ -209,9 +239,7 @@ function AppointmentList() {
               >
                 <Typography>Show All</Typography>
               </AccordionSummary>
-              <AccordionDetails>
-                {renderTable()}
-              </AccordionDetails>
+              <AccordionDetails>{renderTable()}</AccordionDetails>
             </Accordion>
           </Box>
         )}
@@ -221,6 +249,13 @@ function AppointmentList() {
   );
 
   function renderTable() {
+    if (!sortedAppointments || sortedAppointments.length === 0) {
+      return (
+        <Typography variant="h6" align="center" sx={{ mt: 4 }}>
+          No Appointment
+        </Typography>
+      );
+    }
     return (
       <>
         <TableContainer sx={{ maxHeight: 350 }}>
@@ -234,7 +269,9 @@ function AppointmentList() {
                   <TableSortLabel
                     active={orderBy === 'appointmentDate'}
                     direction={orderBy === 'appointmentDate' ? order : 'asc'}
-                    onClick={(event) => handleRequestSort(event, 'appointmentDate')}
+                    onClick={(event) =>
+                      handleRequestSort(event, 'appointmentDate')
+                    }
                   >
                     Date & Timeslot
                   </TableSortLabel>
@@ -247,56 +284,73 @@ function AppointmentList() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedAppointments.slice((page - 1) * rowsPerPage, page * rowsPerPage).map((app, index) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={app.appointmentId}>
-                  <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
-                  <TableCell>
-                    <div className='d-flex align-items-center'>
-                      <img
-                        src='https://mdbootstrap.com/img/new/avatars/8.jpg'
-                        alt=''
-                        style={{ width: '45px', height: '45px' }}
-                        className='rounded-circle'
-                      />
-                      <div className='ms-3'>
-                        <p className='fw-bold mb-1'>{app.ownerName}</p>
-                        <p className='text-muted mb-0'>{app.ownerNumber}</p>
+              {sortedAppointments
+                .slice((page - 1) * rowsPerPage, page * rowsPerPage)
+                .map((app, index) => (
+                  <TableRow
+                    hover
+                    role="checkbox"
+                    tabIndex={-1}
+                    key={app.appointmentId}
+                  >
+                    <TableCell>
+                      {(page - 1) * rowsPerPage + index + 1}
+                    </TableCell>
+                    <TableCell>
+                      <div className="d-flex align-items-center">
+                        <img
+                          src="https://mdbootstrap.com/img/new/avatars/8.jpg"
+                          alt=""
+                          style={{ width: '45px', height: '45px' }}
+                          className="rounded-circle"
+                        />
+                        <div className="ms-3">
+                          <p className="fw-bold mb-1">{app.ownerName}</p>
+                          <p className="text-muted mb-0">{app.phoneNumber}</p>
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-normal mb-1'>{app.petName}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-bold mb-1'>{app.appointmentDate}</p>
-                    <p className='text-muted mb-0'>{app.timeSlot}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-normal mb-1'>{app.veterinarianName}</p>
-                  </TableCell>
-                  <TableCell>
-                    <MDBBadge color={getBadgeColor(app)} pill>
-                      {app.isCancel ? "Cancelled" : app.isCheckUp ? "Checked Up" : app.isCheckIn ? "Checked In" : "Active"}
-                    </MDBBadge>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-bold mb-1'>{app.bookingPrice}</p>
-                    <p className='text-muted mb-0'>{app.appointmentType}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
-                  </TableCell>
-                  <TableCell>
-                  {!app.isCancel && !app.isCheckUp && !app.isCheckIn ? (
-                      <MDBBtn color='danger' disabled>View Detail</MDBBtn>
-                    ) : (
-                      <Link to='/vet/MedicalRecord' state={app}>
-                        <MDBBtn color='danger'>View Detail</MDBBtn>
-                      </Link>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.petName}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-bold mb-1">{app.appointmentDate}</p>
+                      <p className="text-muted mb-0">{app.timeSlot}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.veterinarianName}</p>
+                    </TableCell>
+                    <TableCell>
+                      <MDBBadge color={getBadgeColor(app)} pill>
+                        {app.isCancel
+                          ? 'Cancelled'
+                          : app.isCheckUp
+                          ? 'Checked Up'
+                          : app.isCheckIn
+                          ? 'Checked In'
+                          : 'Not Checkin'}
+                      </MDBBadge>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-bold mb-1">{app.bookingPrice}</p>
+                      <p className="text-muted mb-0">{app.appointmentType}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.appointmentNotes}</p>
+                    </TableCell>
+                    <TableCell>
+                      {app.isCancel && !app.isCheckUp && !app.isCheckIn ? (
+                        <MDBBtn color="danger" disabled>
+                          View Detail
+                        </MDBBtn>
+                      ) : (
+                        <Link to="/vet/MedicalRecord" state={app}>
+                          <MDBBtn color="danger">View Detail</MDBBtn>
+                        </Link>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>

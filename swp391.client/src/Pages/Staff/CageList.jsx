@@ -18,6 +18,7 @@ import {
   Avatar,
   CircularProgress,
   Typography,
+  Autocomplete,
 } from '@mui/material';
 import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
 import refreshPage from '../../Helpers/RefreshPage';
@@ -33,6 +34,15 @@ const columns = [
   { id: 'actions', label: 'Actions', minWidth: 170, align: 'center' },
 ];
 
+const conditionOptions = [
+  'Finished Breakfast',
+  'Use Medicine 1',
+  'Finished Lunch',
+  'Use Medicine 2',
+  'Finished Dinner',
+  'Use Medicine 3',
+];
+
 function CageList() {
   const [cageList, setCageList] = useState([]);
   const [filteredCageList, setFilteredCageList] = useState([]);
@@ -44,8 +54,8 @@ function CageList() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const handleSetPetCurrentCondition = (e) => {
-    setPetCurrentCondition(e.target.value);
+  const handleSetPetCurrentCondition = (event, value) => {
+    setPetCurrentCondition(value);
   };
 
   const toggleOpen = (cage = null) => {
@@ -235,6 +245,7 @@ function CageList() {
                                 variant="contained"
                                 color="primary"
                                 onClick={(e) => dischargePet(e, cage)}
+                                disabled={!cage.isOccupied}
                               >
                                 Discharge
                               </Button>
@@ -244,8 +255,9 @@ function CageList() {
                                 variant="contained"
                                 color="secondary"
                                 onClick={() => toggleOpen(cage)}
+                                disabled={!cage.isOccupied}
                               >
-                                Update pet
+                                Update pet status
                               </Button>
                             </Grid>
                           </Grid>
@@ -279,11 +291,18 @@ function CageList() {
               <form>
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <TextField
+                    <Autocomplete
                       fullWidth
-                      label="Current pet condition"
+                      options={conditionOptions}
                       value={petCurrentCondition}
                       onChange={handleSetPetCurrentCondition}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Current pet condition"
+                          variant="outlined"
+                        />
+                      )}
                     />
                   </Grid>
                 </Grid>

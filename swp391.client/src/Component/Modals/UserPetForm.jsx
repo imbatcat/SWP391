@@ -21,10 +21,8 @@ const steps = [
   { label: 'Use Medicine 1' },
   { label: 'Finished Lunch' },
   { label: 'Use Medicine 2' },
-  { label: 'Sleeping' },
   { label: 'Finished Dinner' },
   { label: 'Use Medicine 3' },
-  { label: 'Sleeping Again' },
   { label: 'Home' },
 ];
 
@@ -91,16 +89,12 @@ const UserPetForm = ({ selectedPet, admissionRecords }) => {
         return 2;
       case 'Use Medicine 2':
         return 3;
-      case 'Sleeping':
-        return 4;
       case 'Finished Dinner':
-        return 5;
+        return 4;
       case 'Use Medicine 3':
-        return 6;
-      case 'Sleeping Again':
-        return 7;
+        return 5;
       case 'Is discharged':
-        return 8;
+        return 6;
       default:
         return -1;
     }
