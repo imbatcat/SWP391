@@ -64,11 +64,12 @@ namespace PetHealthcare.Server.Services
                         {
                             CageId = item.CageId,
                             IsOccupied = true,
-                            ImgUrl=pet.ImgUrl,
-                            PetName=pet.PetName,
-                            PetAge=pet.PetAge,
+                            ImgUrl = pet.ImgUrl,
+                            PetName = pet.PetName,
+                            PetAge = pet.PetAge,
                             PetBreed = pet.PetBreed,
-                            PetId=pet.PetId,
+                            PetId = pet.PetId,
+                            PetCurrentCondition = cageHasPet.PetCurrentCondition
                         });
                     }
                     else

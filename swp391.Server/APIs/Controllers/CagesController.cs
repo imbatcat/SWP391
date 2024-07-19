@@ -39,7 +39,6 @@ namespace PetHealthcare.Server.APIs.Controllers
             {
                 return NotFound();
             }
-
             return cage;
         }
 
