@@ -158,53 +158,25 @@ namespace PetHealthcare.Server.Services
                 DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
                 if (listType.Equals("history", StringComparison.OrdinalIgnoreCase))
                 {
-                    return appointment.AccountId.Equals(id) && appointment.AppointmentDate.CompareTo(currentDate) < 0;
+                    return appointment.AccountId.Equals(id) && (appointment.IsCheckUp == true || appointment.IsCancel == true);
                 }
                 else 
                 {
-                    return appointment.AccountId.Equals(id) && appointment.AppointmentDate.CompareTo(currentDate) >= 0;
+                    return appointment.AccountId.Equals(id) && appointment.AppointmentDate.CompareTo(currentDate) >= 0 && appointment.IsCheckUp == false && appointment.IsCancel == false;
                 }
             });
             var resAppListForCustomers = appointmentsList.Select(appointment =>
             {
-                DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
-                if (appointment.AccountId.Equals(id))
+                return new ResAppListForCustomer
                 {
-                    if (listType.Equals("history", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (appointment.AppointmentDate.CompareTo(currentDate) < 0)
-                        {
-                            return new ResAppListForCustomer
-                            {
-                                AppointmentId = appointment.AppointmentId,
-                                AppointmentDate = appointment.AppointmentDate,
-                                BookingPrice = appointment.BookingPrice,
-                                PetName = appointment.PetName,
-                                VeterinarianName = appointment.VeterinarianName,
-                                TimeSlot = appointment.TimeSlot,
-                                AppointmentStatus = GetAppointmentStatus(appointment)
-                            };
-                        }
-                    }
-                    else 
-                    {
-                        if ( appointment.AppointmentDate.CompareTo(currentDate) >= 0)
-                        {
-                            return new ResAppListForCustomer
-                            {
-                                AppointmentId = appointment.AppointmentId,
-                                AppointmentDate = appointment.AppointmentDate,
-                                BookingPrice = appointment.BookingPrice,
-                                PetName = appointment.PetName,
-                                VeterinarianName = appointment.VeterinarianName,
-                                TimeSlot = appointment.TimeSlot,
-                                AppointmentStatus = GetAppointmentStatus(appointment)
-                            };
-                        }
-                    }
-                }
-                //this line exists for preventing compile error
-                return null; 
+                    AppointmentId = appointment.AppointmentId,
+                    AppointmentDate = appointment.AppointmentDate,
+                    BookingPrice = appointment.BookingPrice,
+                    PetName = appointment.PetName,
+                    VeterinarianName = appointment.VeterinarianName,
+                    TimeSlot = appointment.TimeSlot,
+                    AppointmentStatus = GetAppointmentStatus(appointment)
+                };
             }).OrderBy(a => a.AppointmentStatus).ToList();
             return resAppListForCustomers;
         }
