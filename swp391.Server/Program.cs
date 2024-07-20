@@ -125,6 +125,7 @@ builder.Services.Configure<SecurityStampValidatorOptions>(options =>
 {
     options.ValidationInterval = TimeSpan.Zero;
 });
+
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     // this sets the lifespan for generated tokens like email and reset password
