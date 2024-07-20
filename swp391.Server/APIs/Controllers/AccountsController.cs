@@ -20,15 +20,19 @@ namespace PetHealthcare.Server.APIs.Controllers
         private readonly IAccountService _context;
         private readonly IPetService _contextPet;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAuthenticationService _authService;
 
-        public AccountsController(IAccountService context, IPetService contextPet, UserManager<ApplicationUser> userManager, IAuthenticationService authService)
+        public AccountsController(IAccountService context, IPetService contextPet, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAuthenticationService authService)
         {
             _context = context;
             _contextPet = contextPet;
             _userManager = userManager;
+            _signInManager = signInManager;
             _authService = authService;
         }
+
+
 
         // GET: api/Accounts
         //<summary>
@@ -148,7 +152,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE: change the status of the account to true, not show it to the customer
-        [HttpDelete("accounts/{id}")]
+        [HttpPatch("accounts/lock-account/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
@@ -159,7 +163,6 @@ namespace PetHealthcare.Server.APIs.Controllers
             }
 
             await _context.DeleteAccount(account);
-
             return NoContent();
         }
 

@@ -11,12 +11,16 @@ namespace PetHealthcare.Server.Services
         private readonly IServiceOrderDetailRepository _repository;
         private readonly IServiceOrderService _serviceOrderService;
         private readonly IMedicalRecordService _medicalRecordService;
+        private readonly IAccountService _accountService;
+        private readonly IAppointmentService _appointmentService;
 
-        public ServiceOrderDetailService(IServiceOrderDetailRepository repository, IServiceOrderService serviceOrderService, IMedicalRecordService medicalRecordService)
+        public ServiceOrderDetailService(IServiceOrderDetailRepository repository, IServiceOrderService serviceOrderService, IMedicalRecordService medicalRecordService, IAccountService accountService, IAppointmentService appointmentService)
         {
             _repository = repository;
             _serviceOrderService = serviceOrderService;
             _medicalRecordService = medicalRecordService;
+            _accountService = accountService;
+            _appointmentService = appointmentService;
         }
 
         public async Task<IEnumerable<ServiceOrderDetailDTO>> getAllServieOrderDetail()
@@ -33,17 +37,21 @@ namespace PetHealthcare.Server.Services
                     var serviceOrder = await _serviceOrderService.GetServiceOrderById(id);
                     if (medRec.ServiceOrders != null)
                     {
-
-                    if (medRec.ServiceOrders.First().ServiceOrderId.Equals(detail.ServiceOrderId) && serviceOrder.OrderStatus == "Pending" && serviceOrder.OrderDate.CompareTo(currentDate) == 0)
-                    {
-                        serviceOrderDetailList.Add(new ServiceOrderDetailDTO
+                        if (medRec.ServiceOrders.First().ServiceOrderId.Equals(detail.ServiceOrderId) && serviceOrder.OrderStatus == "Pending" && serviceOrder.OrderDate.CompareTo(currentDate) == 0)
                         {
-                            OrderId = detail.ServiceOrderId,
-                            ServiceName = detail.Service.ServiceName,
-                            Price = detail.Service.ServicePrice,
-                            AppointmentId = medRec.AppointmentId
-                        });
-                    }
+                            var appointment = await _appointmentService.GetAppointmentByCondition(
+                                app => app.AppointmentId.Equals(medRec.AppointmentId));
+                            serviceOrderDetailList.Add(new ServiceOrderDetailDTO
+                            {
+                                OrderId = detail.ServiceOrderId,
+                                ServiceName = detail.Service.ServiceName,
+                                Price = detail.Service.ServicePrice,
+                                AppointmentId = appointment.AppointmentId,
+                                PhoneNumber = appointment.Account.PhoneNumber,
+                                PetName = appointment.Pet.PetName,  
+                                OwnerName = appointment.Account.FullName
+                            });
+                        }
                     }
                 }
             }

@@ -14,6 +14,7 @@ namespace PetHealthcare.Server.Services
     {
         private readonly IAccountRepository _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public AccountService(IAccountRepository accountService, UserManager<ApplicationUser> userManager)
         {
@@ -55,11 +56,7 @@ namespace PetHealthcare.Server.Services
         public async Task DeleteAccount(Account Account)
         {
             var user = await _userManager.FindByEmailAsync(Account.Email);
-            user.LockoutEnabled = !user.LockoutEnabled;
-            if (user.LockoutEnabled)
-            {
-                user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
-            }
+            user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
             await _userManager.UpdateAsync(user);
             var _account = new Account
             {
@@ -67,6 +64,7 @@ namespace PetHealthcare.Server.Services
                 IsDisabled = true
             };
             await _accountService.DeleteAccount(_account);
+            await _userManager.UpdateSecurityStampAsync(user);
         }
 
         public async Task<Account?> GetAccountByCondition(Expression<Func<Account, bool>> expression)
@@ -223,6 +221,7 @@ namespace PetHealthcare.Server.Services
                 if (account != null)
                 {
                     var user = await _userManager.FindByEmailAsync(account.Email);
+                    user.LockoutEnd = null;
                     await _userManager.UpdateAsync(user);
                     await _accountService.UnlockAccount(accountId);
                 }

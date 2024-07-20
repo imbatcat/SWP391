@@ -29,7 +29,10 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<IEnumerable<ServiceOrderDetails>> getAllServieOrderDetail()
         {
-            return await context.ServiceOrderDetails.Include("Service").Include("ServiceOrder").ToListAsync();
+            return await context.ServiceOrderDetails
+                .Include("Service")
+                .Include("ServiceOrder")
+                .AsNoTracking().ToListAsync();
         }
 
         public Task<ServiceOrderDetails?> GetByCondition(Expression<Func<ServiceOrderDetails, bool>> expression)

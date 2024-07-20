@@ -323,5 +323,10 @@ namespace PetHealthcare.Server.Services
 
             return flag ? dto : null;
         }
+
+        public bool ValidateUserStatus(ApplicationUser user)
+        {
+            return user.LockoutEnd != null;
+        }
     }
 }
