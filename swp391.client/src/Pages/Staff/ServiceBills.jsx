@@ -31,7 +31,7 @@ export default function ServiceBills() {
             (acc.orderId && acc.orderId.toLowerCase().includes(value)) ||
             (acc.appointmentId &&
               acc.appointmentId.toLowerCase().includes(value)) ||
-            acc.phoneNumber ||
+            acc.phoneNumber.includes(value) ||
             (acc.ownerName && acc.ownerName.toLowerCase().includes(value)) ||
             (acc.petName && acc.petName.toLowerCase().includes(value))
         )
