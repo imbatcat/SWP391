@@ -115,7 +115,6 @@ namespace PetHealthcare.Server.Services
             }
             
             await _admissionRecordService.Update(existingRecord);
-            
         }
 
         private string GenerateId()
@@ -125,5 +124,19 @@ namespace PetHealthcare.Server.Services
             string id = Nanoid.Generate(size: 8);
             return born + id;
         }
+
+        public async Task<IEnumerable<AdmissionRecordForDoctorDTO>> GetAllAdmissionRecordForVet(string vetId)
+        {
+            List<AdmissionRecordForDoctorDTO> admissionRecordList = new List<AdmissionRecordForDoctorDTO>();
+            IEnumerable<AdmissionRecordForDoctorDTO> admissionRecordForDoctorsList = await _admissionRecordService.GetAllAdmissionRecordForVet();
+            foreach(AdmissionRecordForDoctorDTO admission in  admissionRecordForDoctorsList)
+            {
+                if(admission.VetId == vetId)
+                {
+                    admissionRecordList.Add(admission);
+                }
+            }
+            return admissionRecordList;
+        } 
     }
 }

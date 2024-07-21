@@ -117,5 +117,25 @@ namespace PetHealthcare.Server.Repositories
                 }
             }
         }
+
+        public async Task<IEnumerable<AdmissionRecordForDoctorDTO>> GetAllAdmissionRecordForVet()
+        {
+            return await _context.AdmissionRecords
+                .Include(a => a.Cage)
+                .Include(a => a.Pet)
+                .Include(a => a.Veterinarian)
+                .Select(a => new AdmissionRecordForDoctorDTO
+            {
+                AdmissionDate = a.AdmissionDate,
+                AdmissionId = a.AdmissionId,
+                cageId = a.Cage.CageId,
+                DischargeDate = a.DischargeDate,
+                IsDischarged = a.IsDischarged,
+                petId = a.Pet.PetId,
+                petName = a.Pet.PetName,
+                VeterinarianName = a.Veterinarian.FullName,
+                VetId = a.VeterinarianAccountId,
+            }).ToListAsync();
+        }
     }
 }
