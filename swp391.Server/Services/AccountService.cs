@@ -92,18 +92,14 @@ namespace PetHealthcare.Server.Services
             return await _accountService.GetAccountsByRole(roleId);
         }
 
-        public async Task UpdateAccount(string id, AccountUpdateDTO Account)
+        public async Task UpdateAccount(string id, StaffUpdateDTO Account)
         {
-            //    var _account = new Account
-            //    {
-            //        AccountId = id,
-            //        FullName = Account.FullName,
-
-            //        Email = Account.Email,
-            //        PhoneNumber = Account.PhoneNumber,
-            //        IsMale = Account.IsMale,
-            //    };
-            //await _accountService.Update(_account);
+            var _account = new Account
+            {
+                AccountId = id,
+                PhoneNumber = Account.PhoneNumber,
+            };
+            await _accountService.Update(_account);
         }
         public async Task UpdateVetAccount(string id, AccountUpdateDTO VetAccount)
         {
@@ -112,6 +108,9 @@ namespace PetHealthcare.Server.Services
             {
                 AccountId = id,
                 RoleId = 3,
+                Experience = VetAccount.Experience,
+                Description = VetAccount.Description,
+                PhoneNumber = VetAccount.PhoneNumber,
                 Position = VetAccount.Position,
                 Department = VetAccount.Department,
             };

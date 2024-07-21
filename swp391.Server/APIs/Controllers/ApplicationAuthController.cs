@@ -100,10 +100,10 @@ public class ApplicationAuthController : ControllerBase
             {
                 user = await _userManager.FindByNameAsync(loginAccount.Email_Username);
             }
+            await _userManager.UpdateSecurityStampAsync(user);
             var result = await _signInManager.PasswordSignInAsync(username, loginAccount.Password, loginAccount.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
-                await _userManager.UpdateSecurityStampAsync(user);
                 return Ok(new ResponseUserDTO
                 {
                     id = (await _accountService.GetAccountByCondition(x => x.Username == username)).AccountId,
