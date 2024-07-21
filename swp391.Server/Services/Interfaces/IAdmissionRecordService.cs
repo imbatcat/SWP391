@@ -15,7 +15,6 @@ namespace PetHealthcare.Server.Services.Interfaces
         Task SetAdmissionIsRemindStatus(IEnumerable<AdmissionRecord> ToUpdateAdmissionRecordList);
 
         Task<IEnumerable<AdmissionRecordForDoctorDTO>> GetAllAdmissionRecordForVet(string vetId);
-        Task UpdateDischargeDate(string admissionId);
         //Task<bool> ConfirmAdmissionRecordIdentity(string Id, AdmissionRecordDTO newPet);
     }
 }
