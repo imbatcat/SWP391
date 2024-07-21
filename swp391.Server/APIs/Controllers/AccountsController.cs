@@ -187,7 +187,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         [HttpPost("img-upload")]
-        [Authorize(Roles = "Admin, Customer")]
+        [Authorize(Roles = "Admin, Customer, Vet")]
         public async Task<IActionResult> UploadImgUrl(IFormFile file)
         {
             if (file == null || file.Length == 0)
