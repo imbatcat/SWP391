@@ -65,6 +65,7 @@ function VetAccount() {
   }, []);
 
   const toggleOpen = (account = null) => {
+    console.log(account);
     setSelectedAccount(account);
     setBasicModal(!basicModal);
   };
@@ -138,15 +139,16 @@ function VetAccount() {
 
   const handleSaveChanges = async () => {
     const requestBody = {
-      fullName: selectedAccount.fullName,
-      username: selectedAccount.username,
-      email: selectedAccount.email,
       phoneNumber: selectedAccount.phoneNumber,
-      isMale: selectedAccount.isMale,
+      position: selectedAccount.position,
+      experience: selectedAccount.experience,
+      department: selectedAccount.department,
+      description: selectedAccount.description,
     };
     try {
+      console.log(requestBody);
       const response = await fetch(
-        `https://localhost:7206/api/account-management/accounts/${selectedAccount.id}`,
+        `https://localhost:7206/api/account-management/accounts/vets/${selectedAccount.accountId}`,
         {
           method: 'PUT',
           credentials: 'include',
@@ -161,12 +163,13 @@ function VetAccount() {
         throw new Error('Error updating data');
       }
 
-      const updatedAccount = await response.json();
-      setFilteredAccounts((prevAccounts) =>
-        prevAccounts.map((acc) =>
-          acc.id === updatedAccount.id ? updatedAccount : acc
-        )
-      );
+      // const updatedAccount = await response.json();
+      // setFilteredAccounts((prevAccounts) =>
+      //   prevAccounts.map((acc) =>
+      //     acc.id === updatedAccount.id ? updatedAccount : acc
+      //   )
+      // );
+      refreshPage();
       toast.info('Account updated');
       toggleOpen();
     } catch (error) {
@@ -236,6 +239,15 @@ function VetAccount() {
                         </MDBBadge>
                       </TableCell>
                       <TableCell>
+                        <MDBBtn
+                          color="success"
+                          style={{ color: 'black' }}
+                          rounded
+                          size="sm"
+                          onClick={() => toggleOpen(acc)}
+                        >
+                          Edit
+                        </MDBBtn>
                         {acc.isDisabled ? (
                           <MDBBtn
                             color="success"
@@ -277,7 +289,7 @@ function VetAccount() {
         {selectedAccount && (
           <MDBModal
             open={basicModal}
-            onClose={() => setBasicModal(false)}
+            onClose={() => toggleOpen()}
             tabIndex="-1"
           >
             <MDBModalDialog centered>
@@ -295,51 +307,47 @@ function VetAccount() {
                     <MDBRow className="mb-4">
                       <MDBCol>
                         <MDBInput
-                          label="Full Name"
-                          name="fullName"
-                          value={selectedAccount.fullName}
-                          onChange={handleInputChange}
-                        />
-                      </MDBCol>
-                      <MDBCol>
-                        <MDBInput
-                          label="Username"
-                          name="username"
-                          value={selectedAccount.username}
-                          onChange={handleInputChange}
-                        />
-                      </MDBCol>
-                    </MDBRow>
-                    <MDBRow className="mb-4">
-                      <MDBCol>
-                        <MDBInput
-                          label="Email"
-                          name="email"
-                          value={selectedAccount.email}
-                          onChange={handleInputChange}
-                        />
-                      </MDBCol>
-                    </MDBRow>
-                    <MDBRow className="mb-4">
-                      <MDBCol>
-                        <MDBInput
                           label="Phone Number"
                           name="phoneNumber"
                           value={selectedAccount.phoneNumber}
                           onChange={handleInputChange}
                         />
                       </MDBCol>
+                    </MDBRow>
+                    <MDBRow className="mb-4">
                       <MDBCol>
-                        <MDBCheckbox
-                          label="Is male"
-                          name="isMale"
-                          checked={selectedAccount.isMale}
-                          onChange={(e) =>
-                            setSelectedAccount((prevState) => ({
-                              ...prevState,
-                              isMale: e.target.checked,
-                            }))
-                          }
+                        <MDBInput
+                          label="Position"
+                          name="position"
+                          value={selectedAccount.position}
+                          onChange={handleInputChange}
+                        />
+                      </MDBCol>
+                      <MDBCol>
+                        <MDBInput
+                          type="number"
+                          label="Experience"
+                          name="experience"
+                          value={selectedAccount.experience}
+                          onChange={handleInputChange}
+                        />
+                      </MDBCol>
+                      <MDBCol>
+                        <MDBInput
+                          label="Department"
+                          name="department"
+                          value={selectedAccount.department}
+                          onChange={handleInputChange}
+                        />
+                      </MDBCol>
+                    </MDBRow>
+                    <MDBRow className="mb-4">
+                      <MDBCol>
+                        <MDBInput
+                          label="Description"
+                          name="description"
+                          value={selectedAccount.description}
+                          onChange={handleInputChange}
                         />
                       </MDBCol>
                     </MDBRow>
@@ -352,7 +360,7 @@ function VetAccount() {
                   <MDBBtn
                     color="success"
                     style={{ color: 'black' }}
-                    onClick={handleSaveChanges}
+                    onClick={() => handleSaveChanges()}
                   >
                     Save changes
                   </MDBBtn>

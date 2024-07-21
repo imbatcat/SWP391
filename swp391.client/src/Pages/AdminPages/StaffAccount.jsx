@@ -29,7 +29,7 @@ import {
 import { toast } from 'react-toastify';
 import refreshPage from '../../Helpers/RefreshPage';
 
-function VetAccount() {
+function StaffAccount() {
   const [accounts, setAccounts] = useState([]);
   const [selectedAccount, setSelectedAccount] = useState(null);
   const [basicModal, setBasicModal] = useState(false);
@@ -136,15 +136,11 @@ function VetAccount() {
 
   const handleSaveChanges = async () => {
     const requestBody = {
-      fullName: selectedAccount.fullName,
-      username: selectedAccount.username,
-      email: selectedAccount.email,
       phoneNumber: selectedAccount.phoneNumber,
-      isMale: selectedAccount.isMale,
     };
     try {
       const response = await fetch(
-        `https://localhost:7206/api/account-management/accounts/${selectedAccount.id}`,
+        `https://localhost:7206/api/account-management/accounts/staffs/${selectedAccount.accountId}`,
         {
           method: 'PUT',
           credentials: 'include',
@@ -159,13 +155,8 @@ function VetAccount() {
         throw new Error('Error updating data');
       }
 
-      const updatedAccount = await response.json();
-      setFilteredAccounts((prevAccounts) =>
-        prevAccounts.map((acc) =>
-          acc.id === updatedAccount.id ? updatedAccount : acc
-        )
-      );
       toast.info('Account updated');
+      refreshPage();
       toggleOpen();
     } catch (error) {
       console.error(error.message);
@@ -234,6 +225,15 @@ function VetAccount() {
                         </MDBBadge>
                       </TableCell>
                       <TableCell>
+                        <MDBBtn
+                          color="success"
+                          style={{ color: 'black' }}
+                          rounded
+                          size="sm"
+                          onClick={() => toggleOpen(acc)}
+                        >
+                          Edit
+                        </MDBBtn>
                         {acc.isDisabled ? (
                           <MDBBtn
                             color="success"
@@ -293,51 +293,10 @@ function VetAccount() {
                     <MDBRow className="mb-4">
                       <MDBCol>
                         <MDBInput
-                          label="Full Name"
-                          name="fullName"
-                          value={selectedAccount.fullName}
-                          onChange={handleInputChange}
-                        />
-                      </MDBCol>
-                      <MDBCol>
-                        <MDBInput
-                          label="Username"
-                          name="username"
-                          value={selectedAccount.username}
-                          onChange={handleInputChange}
-                        />
-                      </MDBCol>
-                    </MDBRow>
-                    <MDBRow className="mb-4">
-                      <MDBCol>
-                        <MDBInput
-                          label="Email"
-                          name="email"
-                          value={selectedAccount.email}
-                          onChange={handleInputChange}
-                        />
-                      </MDBCol>
-                    </MDBRow>
-                    <MDBRow className="mb-4">
-                      <MDBCol>
-                        <MDBInput
                           label="Phone Number"
                           name="phoneNumber"
                           value={selectedAccount.phoneNumber}
                           onChange={handleInputChange}
-                        />
-                      </MDBCol>
-                      <MDBCol>
-                        <MDBCheckbox
-                          label="Is male"
-                          name="isMale"
-                          checked={selectedAccount.isMale}
-                          onChange={(e) =>
-                            setSelectedAccount((prevState) => ({
-                              ...prevState,
-                              isMale: e.target.checked,
-                            }))
-                          }
                         />
                       </MDBCol>
                     </MDBRow>
@@ -364,4 +323,4 @@ function VetAccount() {
   );
 }
 
-export default VetAccount;
+export default StaffAccount;

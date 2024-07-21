@@ -52,16 +52,14 @@ namespace PetHealthcare.Server.Repositories
         {
             return await context.Accounts.FirstOrDefaultAsync(expression);
         }
-
+        
         public async Task Update(Account entity)
         {
             var account = await GetByCondition(e => e.AccountId == entity.AccountId);
             if (account != null)
             {
                 context.Entry(account).State = EntityState.Modified;
-                account.FullName = entity.FullName;
-                account.Username = entity.Username;
-                account.Password = entity.Password;
+                account.PhoneNumber = entity.PhoneNumber;
                 await SaveChanges();
             }
         }
@@ -71,6 +69,9 @@ namespace PetHealthcare.Server.Repositories
             if (account != null)
             {
                 context.Entry(account).State = EntityState.Modified;
+                account.Experience = veterinarian.Experience;
+                account.Description = veterinarian.Description;
+                account.PhoneNumber = veterinarian.PhoneNumber;
                 account.Position = veterinarian.Position;
                 account.Department = veterinarian.Department;
                 await SaveChanges();
