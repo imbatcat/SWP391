@@ -37,7 +37,7 @@ namespace PetHealthcare.Server.Services
                     var serviceOrder = await _serviceOrderService.GetServiceOrderById(id);
                     if (medRec.ServiceOrders != null)
                     {
-                        if (medRec.ServiceOrders.First().ServiceOrderId.Equals(detail.ServiceOrderId) && serviceOrder.OrderStatus == "Pending" && serviceOrder.OrderDate.CompareTo(currentDate) == 0)
+                        if (medRec.ServiceOrders.Where(a => a.ServiceOrderId.Equals(detail.ServiceOrderId)) != null && serviceOrder.OrderStatus == "Pending" && serviceOrder.OrderDate.CompareTo(currentDate) == 0)
                         {
                             var appointment = await _appointmentService.GetAppointmentByCondition(
                                 app => app.AppointmentId.Equals(medRec.AppointmentId));
