@@ -101,6 +101,19 @@ namespace PetHealthcare.Server.Services
             };
             await _accountService.Update(_account);
         }
+
+        public async Task UpdateCustomerAccount(string id, CustomerUpdateDTO CustomerAccount)
+        {
+
+            var _customerAccount = new Account
+            {
+                AccountId = id,
+                PhoneNumber = CustomerAccount.PhoneNumber,
+                FullName = CustomerAccount.FullName,
+                DateOfBirth = CustomerAccount.DateOfBirth
+            };
+            await _accountService.UpdateCustomerAccount(_customerAccount);
+        }
         public async Task UpdateVetAccount(string id, AccountUpdateDTO VetAccount)
         {
 
