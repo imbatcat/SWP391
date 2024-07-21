@@ -62,7 +62,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         [HttpPut("admission-records/{id}")]
-        [Authorize(Roles = "Staff, Admin")]
+        [Authorize(Roles = "Admin, Vet")]
         public async Task<IActionResult> UpdateAdmissionRecord([FromRoute] string id, [FromBody] AdmissionRecordDTO toUpdate)
         {
             var service = await _context.GetAdmissionRecordByPetName(p => p.AdmissionId.Equals(id));

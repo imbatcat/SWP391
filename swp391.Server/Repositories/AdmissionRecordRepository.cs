@@ -80,9 +80,7 @@ namespace PetHealthcare.Server.Repositories
             if (toUpdateAdmission != null)
             {
                 _context.Entry(toUpdateAdmission).State = EntityState.Modified;
-                toUpdateAdmission.PetCurrentCondition = entity.PetCurrentCondition;
                 toUpdateAdmission.DischargeDate = entity.DischargeDate;
-                toUpdateAdmission.IsDischarged = entity.IsDischarged;
                 toUpdateAdmission.IsRemind = entity.IsRemind;
                 await SaveChanges();
             }

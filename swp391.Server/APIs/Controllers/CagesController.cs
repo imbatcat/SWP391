@@ -78,13 +78,6 @@ namespace PetHealthcare.Server.APIs.Controllers
             return Ok(CaGe);
         }
 
-        // DELETE api/<CagesController>/5
-        [HttpDelete("cages{id}")]
-        public void Delete(int id)
-        {
-
-        }
-
         //DELETE: change isDischarge = true.
         [HttpDelete("cages/pets/{petId}/discharge-pet")]
         public async Task DischargePet(string petId)
