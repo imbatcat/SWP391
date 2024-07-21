@@ -48,7 +48,7 @@ function UserProfile() {
       if (!response.ok) {
         throw new Error('Error fetching data');
       }
-      var userData = await response.json();
+      const userData = await response.json();
       setUserDetails(userData);
     } catch (error) {
       toast.error('Error getting user details!');
@@ -76,7 +76,7 @@ function UserProfile() {
   const handleUpdateProfile = async () => {
     try {
       const response = await fetch(
-        `https://localhost:7206/api/account-management/accounts/${user.id}`,
+        `https://localhost:7206/api/account-management/accounts/customers/${user.id}`,
         {
           method: 'PUT',
           headers: {
@@ -231,13 +231,6 @@ function UserProfile() {
                 label="Full Name"
                 name="fullName"
                 value={editDetails.fullName || userDetails.fullName}
-                onChange={handleEditChange}
-              />
-              <br />
-              <MDBInput
-                label="Username"
-                name="username"
-                value={editDetails.username || userDetails.username}
                 onChange={handleEditChange}
               />
               <br />
