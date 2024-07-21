@@ -199,7 +199,7 @@ function HospitalizationManagement() {
                         tabIndex={-1}
                         key={cage.petId}
                       >
-                        <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                        <TableCell>{cage.cageId}</TableCell>
                         <TableCell>
                           <Grid container alignItems="center">
                             <Grid item>
