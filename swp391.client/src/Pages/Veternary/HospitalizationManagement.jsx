@@ -27,7 +27,7 @@ import { useUser } from '../../Context/UserContext';
 import { MDBInput } from 'mdb-react-ui-kit';
 
 const columns = [
-  { id: 'no', label: 'No', minWidth: 50 },
+  { id: 'cageId', label: 'Cage number', minWidth: 50 },
   { id: 'petId', label: 'Pet ID', minWidth: 170 },
   { id: 'petName', label: 'Pet Name', minWidth: 170 },
   { id: 'dischargeDate', label: 'Discharge date', minWidth: 170 },
