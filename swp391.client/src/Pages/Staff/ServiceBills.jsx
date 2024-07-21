@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { MDBBtn, MDBAccordion, MDBAccordionItem } from 'mdb-react-ui-kit';
+import {
+  MDBBtn,
+  MDBAccordion,
+  MDBAccordionItem,
+  MDBRow,
+  MDBCol,
+} from 'mdb-react-ui-kit';
 import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
 import { toast } from 'react-toastify';
 import refreshPage from '../../Helpers/RefreshPage';
@@ -146,9 +152,22 @@ export default function ServiceBills() {
           );
           return (
             <MDBAccordionItem
+              style={{ width: '50%' }}
               key={bill.appointmentId}
               collapseId={`collapseId-${index}`}
-              headerTitle={`Appointment Id: ${bill.appointmentId}  Pet name: ${bill.petName} Owner name: ${bill.ownerName} Phone number: ${bill.phoneNumber}`}
+              headerTitle={
+                <MDBRow>
+                  <MDBCol>
+                    <strong>Pet name:</strong> {bill.petName}
+                  </MDBCol>
+                  <MDBCol>
+                    <strong>Owner name:</strong> {bill.ownerName}
+                  </MDBCol>
+                  <MDBCol>
+                    <strong>Phone number:</strong> {bill.phoneNumber}
+                  </MDBCol>
+                </MDBRow>
+              }
             >
               {bill.services.map((service, serviceIndex) => (
                 <div key={serviceIndex}>
