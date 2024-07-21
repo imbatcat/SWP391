@@ -18,6 +18,7 @@ function UserProfile() {
   const [userDetails, setUserDetails] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [alertModal, setAlertModal] = useState();
 
   const getUserDetails = async (user) => {
     try {
