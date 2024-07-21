@@ -159,7 +159,8 @@ namespace PetHealthcare.Server.Repositories
             }).AsNoTracking().ToListAsync();
             List<VetListDTO> vetListToChoose = veterinarians.Select(vet => 
             {
-                int currentCapacity = appointments.Where(app => app.VeterinarianAccountId.Equals(vet.VetId) && app.AppointmentDate.CompareTo(date) == 0 && app.TimeSlotId == timeslotId).Count();
+                int currentCapacity = appointments.Where(app => app.VeterinarianAccountId.Equals(vet.VetId) && app.AppointmentDate.CompareTo(date) == 0 && app.TimeSlotId == timeslotId  
+                && app.IsCancel==false).Count();
                 return new VetListDTO
                 {
                     Department = vet.Department,

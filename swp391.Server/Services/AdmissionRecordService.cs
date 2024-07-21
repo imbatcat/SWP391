@@ -129,7 +129,7 @@ namespace PetHealthcare.Server.Services
             IEnumerable<AdmissionRecordForDoctorDTO> admissionRecordForDoctorsList = await _admissionRecordService.GetAllAdmissionRecordForVet();
             foreach(AdmissionRecordForDoctorDTO admission in  admissionRecordForDoctorsList)
             {
-                if(admission.VetId == vetId)
+                if(admission.VetId == vetId && admission.IsDischarged == false)
                 {
                     admissionRecordList.Add(admission);
                 }

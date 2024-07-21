@@ -168,7 +168,6 @@ namespace PetHealthcare.Server.APIs.Controllers
                 return BadRequest(ex);
             }
             return BadRequest(ModelState);
-
         }
 
         // DELETE: change the status of the account to true, not show it to the customer
