@@ -11,5 +11,7 @@ namespace PetHealthcare.Server.Repositories.Interfaces
         Task<bool> UpdateServiceOrderStatus(string serviceOrderId);
         Task<IEnumerable<GetAllServiceOrderForStaff>> getAllServiceOrderForStaff();
         Task<ServiceOrderInfor> getServiceOrderInforByServiceId(string serviceOrderid);
+
+        Task<Service> GetServiceByName(string name);
     }
 }

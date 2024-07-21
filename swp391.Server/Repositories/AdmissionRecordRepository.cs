@@ -90,7 +90,14 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task DischargePet(string petId)
         {
-            var admissionRecord = await GetByCondition(ad => ad.PetId == petId);
+            var existingRecord = _context.AdmissionRecords.Local
+            .FirstOrDefault(ad => ad.PetId == petId && ad.IsDischarged == false);
+            if (existingRecord != null)
+            {
+                _context.Entry(existingRecord).State = EntityState.Detached;
+            }
+
+            var admissionRecord = await GetByCondition(ad => ad.PetId == petId && ad.IsDischarged == false);
             if (admissionRecord != null)
             {
                 if (admissionRecord.IsDischarged == false)
@@ -135,6 +142,7 @@ namespace PetHealthcare.Server.Repositories
                 petName = a.Pet.PetName,
                 VeterinarianName = a.Veterinarian.FullName,
                 VetId = a.VeterinarianAccountId,
+                petImg = a.Pet.ImgUrl,
             }).ToListAsync();
         }
     }

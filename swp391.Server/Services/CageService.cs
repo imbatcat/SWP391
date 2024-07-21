@@ -1,4 +1,6 @@
-﻿using PetHealthcare.Server.Core.DTOS;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using PetHealthcare.Server.Core.DTOS;
+using PetHealthcare.Server.Core.DTOS.ServiceOrderDTOs;
 using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Repositories.Interfaces;
 using PetHealthcare.Server.Services.Interfaces;
@@ -11,11 +13,13 @@ namespace PetHealthcare.Server.Services
         private readonly ICageRepository _cageService;
         private readonly IAdmissionRecordRepository _admissionRecordRepository;
         private readonly IPetRepository _petRepository;
-        public CageService(ICageRepository cageService, IAdmissionRecordRepository admissionRecordRepository, IPetRepository petRepository)
+        private readonly IServiceOrderRepository _serviceOrderRepository;
+        public CageService(ICageRepository cageService, IAdmissionRecordRepository admissionRecordRepository, IPetRepository petRepository, IServiceOrderRepository serviceOrderRepository)
         {
             _cageService = cageService;
             _admissionRecordRepository = admissionRecordRepository;
             _petRepository = petRepository;
+            _serviceOrderRepository = serviceOrderRepository;
         }
 
         public async Task CreateCage(CageDTO Cage)
@@ -104,7 +108,23 @@ namespace PetHealthcare.Server.Services
         }    
         public async Task DischargePet(string petId)
         {
+            
+            IEnumerable<AdmissionRecord> admissionRecordsList = await _admissionRecordRepository.GetAll();
+            //---------------Calculate hospital fee-----------
+            ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
+            foreach(AdmissionRecord admissionRecord in admissionRecordsList)
+            {
+                if(admissionRecord.PetId == petId && admissionRecord.IsDischarged == false)
+                {
+                    serviceOrderDTO.MedicalRecordId = admissionRecord.MedicalRecordId;
+                    Service hospitalService = await _serviceOrderRepository.GetServiceByName("Hospital fees");
+                    serviceOrderDTO.ServiceId.Add(hospitalService.ServiceId);
+                    await _serviceOrderRepository.CreateServiceOrder(serviceOrderDTO);
+                    break;
+                }
+            }
             await _admissionRecordRepository.DischargePet(petId);
+            //------------------------
             await _cageService.DischargePet(petId);
         }
         public async Task UpdateCondition(string petId, UpdatePetConditionDTO updatePetConditionDTO)

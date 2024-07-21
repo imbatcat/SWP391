@@ -17,5 +17,7 @@ namespace PetHealthcare.Server.Core.DTOS
         public string VeterinarianName {  get; set; }
         public string VetId {  get; set; }
         public int cageId {  get; set; }
+
+        public string? petImg {  get; set; }
     }
 }
