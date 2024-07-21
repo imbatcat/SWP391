@@ -36,6 +36,7 @@ import ServiceBills from './Pages/Staff/ServiceBills';
 import AppointmentQRCode from './Pages/Appointment/AppointmentQRCode';
 
 import StaffAccount from './Pages/AdminPages/StaffAccount';
+import HospitalizationManagement from './Pages/Veternary/HospitalizationManagement';
 
 const router = createBrowserRouter([
   {
@@ -205,6 +206,15 @@ const router = createBrowserRouter([
     element: (
       <CheckAuth allowedRoles={['Vet']}>
         <MedicalRecord />
+      </CheckAuth>
+    ),
+    errorElement: <div>404 Not Found</div>,
+  },
+  {
+    path: '/vet/HospitalizationManagement',
+    element: (
+      <CheckAuth allowedRoles={['Vet']}>
+        <HospitalizationManagement />
       </CheckAuth>
     ),
     errorElement: <div>404 Not Found</div>,

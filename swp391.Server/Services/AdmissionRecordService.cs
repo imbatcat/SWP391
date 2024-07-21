@@ -106,8 +106,6 @@ namespace PetHealthcare.Server.Services
                 //
 
                 existingRecord.DischargeDate = entity.DischargeDate;
-                existingRecord.PetCurrentCondition = entity.PetCurrentCondition;
-                existingRecord.IsDischarged = entity.IsDischarged;
                 if(existingRecord.DischargeDate <= DateOnly.FromDateTime(DateTime.Today).AddDays(ProjectConstant.DischargeRemindPeriod))
                 {
                     await _authenticationService.SendReminderEmail(adr.Email, adr.CustomerName, adr.PetName, adr.NewDischargeDate);
@@ -137,6 +135,6 @@ namespace PetHealthcare.Server.Services
                 }
             }
             return admissionRecordList;
-        } 
+        }
     }
 }
