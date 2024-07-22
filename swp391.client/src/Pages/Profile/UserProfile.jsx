@@ -70,10 +70,35 @@ function UserProfile() {
       ...prevDetails,
       [name]: value,
     }));
-    console.log(editDetails);
   };
 
   const handleUpdateProfile = async () => {
+    // Merge editDetails with userDetails to ensure all fields are included
+    const updatedDetails = {
+      fullName: editDetails.fullName || userDetails.fullName,
+      dateOfBirth: editDetails.dateOfBirth || userDetails.dateOfBirth,
+      phoneNumber: editDetails.phoneNumber || userDetails.phoneNumber,
+    };
+
+    // Validation
+    const { fullName, dateOfBirth, phoneNumber } = updatedDetails;
+    if (!fullName) {
+      toast.error('Full Name is required');
+      return;
+    }
+    if (!dateOfBirth) {
+      toast.error('Date of Birth is required');
+      return;
+    }
+    if (new Date(dateOfBirth) >= new Date()) {
+      toast.error('Date of Birth must be in the past');
+      return;
+    }
+    if (!phoneNumber) {
+      toast.error('Phone Number is required');
+      return;
+    }
+
     try {
       const response = await fetch(
         `https://localhost:7206/api/account-management/accounts/customers/${user.id}`,
@@ -83,7 +108,7 @@ function UserProfile() {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-          body: JSON.stringify(editDetails),
+          body: JSON.stringify(updatedDetails),
         }
       );
       if (!response.ok) {
