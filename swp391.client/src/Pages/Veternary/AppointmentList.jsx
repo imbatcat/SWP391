@@ -149,18 +149,13 @@ function AppointmentList() {
     }
   };
 
-  const handleRequestSort = (event, property, accordionType) => {
+  const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
-  const sortComparator = (a, b, orderBy, accordionType) => {
-    if (accordionType === 'waiting' && orderBy === 'checkinTime') {
-      const timeA = new Date(`1970-01-01T${a.checkinTime}Z`);
-      const timeB = new Date(`1970-01-01T${b.checkinTime}Z`);
-      return timeA - timeB;
-    }
+  const sortComparator = (a, b, orderBy) => {
     if (orderBy === 'appointmentDate') {
       const dateA = new Date(`${a.appointmentDate}T${a.timeSlot}`);
       const dateB = new Date(`${b.appointmentDate}T${b.timeSlot}`);
@@ -174,14 +169,14 @@ function AppointmentList() {
     return a[orderBy].localeCompare(b[orderBy]);
   };
 
-  const sortedAppointments = (accordionType) => {
+  const sortedAppointments = filteredAppointments.slice().sort((a, b) => {
     const orderModifier = order === 'asc' ? 1 : -1;
     return (
       orderModifier *
       (sortComparator(a, b, 'appointmentDate') ||
         sortComparator(a, b, 'checkinTime'))
     );
-  };
+  });
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -304,19 +299,6 @@ function AppointmentList() {
                   </TableCell>
                 )}
                 <TableCell>Veterinarian</TableCell>
-                {accordionType === 'waiting' && (
-                  <TableCell>
-                    <TableSortLabel
-                      active={orderBy === 'checkinTime'}
-                      direction={orderBy === 'checkinTime' ? order : 'asc'}
-                      onClick={(event) =>
-                        handleRequestSort(event, 'checkinTime', accordionType)
-                      }
-                    >
-                      CheckIn Time
-                    </TableSortLabel>
-                  </TableCell>
-                )}
                 <TableCell>Status</TableCell>
                 <TableCell>Booking Price</TableCell>
                 <TableCell>Note</TableCell>

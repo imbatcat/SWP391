@@ -138,6 +138,7 @@ function CageList() {
           credentials: 'include',
         }
       );
+      // var data = reponse.json();
       if (!appResponse.ok) {
         throw new Error("There's something wrong");
       }

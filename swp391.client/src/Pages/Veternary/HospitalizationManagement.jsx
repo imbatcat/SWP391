@@ -28,7 +28,7 @@ import { MDBInput } from 'mdb-react-ui-kit';
 import SideNavForVet from '../../Component/SideNavForVet/SideNavForVet';
 
 const columns = [
-  { id: 'no', label: 'No', minWidth: 50 },
+  { id: 'cageId', label: 'Cage number', minWidth: 50 },
   { id: 'petId', label: 'Pet ID', minWidth: 170 },
   { id: 'petName', label: 'Pet Name', minWidth: 170 },
   { id: 'dischargeDate', label: 'Discharge date', minWidth: 170 },
@@ -200,7 +200,7 @@ function HospitalizationManagement() {
                         tabIndex={-1}
                         key={cage.petId}
                       >
-                        <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                        <TableCell>{cage.cageId}</TableCell>
                         <TableCell>
                           <Grid container alignItems="center">
                             <Grid item>
