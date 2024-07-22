@@ -130,6 +130,8 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
           body: JSON.stringify(reqBodyAdmission),
         }),
       ]);
+      const data = await admissionResponse.json();
+      if (admissionResponse.status === 400) throw new Error(data.message);
     };
 
     toast.promise(
@@ -140,7 +142,12 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
       {
         pending: 'Submitting your request...',
         success: 'Request submitted successfully!',
-        error: "There's someting wrong",
+        error: {
+          render({ data }) {
+            // data.message contains the error message thrown
+            return data.message || 'Error registering appointment';
+          },
+        },
       }
     );
   };

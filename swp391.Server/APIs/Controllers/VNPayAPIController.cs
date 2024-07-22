@@ -40,7 +40,7 @@ namespace PetHealthcare.Server.APIs.Controllers
             //string vetId, DateOnly appDate, int timeslotId, bool isCreate
             if(await _appointmentService.IsPetAppointmentExist(model.PetId, model.AccountId))
             {
-                return BadRequest("The customer already book an appointment for this pet");
+                return BadRequest(new { message = "The customer already book an appointment for this pet" });
             }
             if(model.AppointmentDate < DateOnly.FromDateTime(DateTime.Today).AddDays(1))
             {
