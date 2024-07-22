@@ -12,6 +12,12 @@ import {
   MDBBadge,
   MDBInputGroup,
   MDBModal,
+  MDBModalDialog,
+  MDBModalContent,
+  MDBModalHeader,
+  MDBModalTitle,
+  MDBModalBody,
+  MDBModalFooter,
 } from 'mdb-react-ui-kit';
 import { toast } from 'react-toastify';
 import AssignServiceModal from '../../Component/Modals/AssignServiceModal';
@@ -63,6 +69,8 @@ function MedicalRecord() {
   const [medRecloading, setMedRecLoading] = useState(true);
   const [error, setError] = useState(null);
   const [existingRecord, setExistingRecord] = useState(null);
+  const [showBackModal, setShowBackModal] = useState(false);
+
   useEffect(() => {
     async function getMedicalRecord() {
       console.log(appointment);
@@ -261,6 +269,19 @@ function MedicalRecord() {
       const nextForm = buffer.shift();
       await handleSubmit({ preventDefault: () => {} }, nextForm);
     }
+  };
+
+  const handleBackClick = () => {
+    setShowBackModal(true);
+  };
+
+  const handleCloseBackModal = () => {
+    setShowBackModal(false);
+  };
+
+  const handleConfirmBack = () => {
+    setShowBackModal(false);
+    navigate('/vet/WorkSchedule');
   };
 
   let today = new Date();
@@ -590,9 +611,9 @@ function MedicalRecord() {
             }}
             size="3"
           >
-            <Link to="/vet/WorkSchedule">
-              <MDBBtn color="mute">Back</MDBBtn>
-            </Link>
+            <MDBBtn color="mute" onClick={handleBackClick}>
+              Back
+            </MDBBtn>
           </MDBCol>
         </MDBRow>
         <br></br>
@@ -629,6 +650,37 @@ function MedicalRecord() {
           />
         </MDBModal>
       </div>
+
+      <MDBModal
+        tabIndex="-1"
+        open={showBackModal}
+        onClose={() => setShowBackModal(false)}
+      >
+        <MDBModalDialog>
+          <MDBModalContent>
+            <MDBModalHeader>
+              <MDBModalTitle>Unsaved Changes</MDBModalTitle>
+              <MDBBtn
+                className="btn-close"
+                color="none"
+                onClick={handleCloseBackModal}
+              ></MDBBtn>
+            </MDBModalHeader>
+            <MDBModalBody>
+              You have unsaved changes. Do you want to submit the medical record
+              before leaving?
+            </MDBModalBody>
+            <MDBModalFooter>
+              <MDBBtn color="primary" onClick={handleSubmit}>
+                Submit and Leave
+              </MDBBtn>
+              <MDBBtn color="danger" onClick={handleConfirmBack}>
+                Leave without Submitting
+              </MDBBtn>
+            </MDBModalFooter>
+          </MDBModalContent>
+        </MDBModalDialog>
+      </MDBModal>
     </div>
   );
 }
