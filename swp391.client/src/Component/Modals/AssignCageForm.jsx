@@ -112,26 +112,32 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
       console.log(vetData);
       reqBodyAdmission.cageId = selectedCage.cageId;
       console.log(reqBodyAdmission);
-      const [cageResponse, admissionResponse] = await Promise.all([
-        fetch(urls[0], {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(reqBody),
-        }),
-        fetch(urls[1], {
+      const admissionResponse = await fetch(
+        `https://localhost:7206/api/admission-record-management/admission-records`,
+        {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
           body: JSON.stringify(reqBodyAdmission),
-        }),
-      ]);
+        }
+      );
       const data = await admissionResponse.json();
       if (admissionResponse.status === 400) throw new Error(data.message);
+      const cageResponse = await fetch(
+        `https://localhost:7206/api/cage-management/cages/${selectedCage.cageId}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify(reqBody),
+        }
+      );
+      const data1 = await cageResponse.json();
+      if (cageResponse.status === 400) throw new Error(data1.message);
     };
 
     toast.promise(

@@ -28,12 +28,11 @@ export default function ServiceBills() {
       setFilteredBillList(
         billList.filter(
           (acc) =>
-            (acc.orderId && acc.orderId.toLowerCase().includes(value)) ||
-            (acc.appointmentId &&
-              acc.appointmentId.toLowerCase().includes(value)) ||
+            acc.orderId.toLowerCase().includes(value) ||
+            acc.appointmentId.toLowerCase().includes(value) ||
             acc.phoneNumber.includes(value) ||
-            (acc.ownerName && acc.ownerName.toLowerCase().includes(value)) ||
-            (acc.petName && acc.petName.toLowerCase().includes(value))
+            acc.ownerName.toLowerCase().includes(value) ||
+            acc.petName.toLowerCase().includes(value)
         )
       );
     }
@@ -105,7 +104,16 @@ export default function ServiceBills() {
         toast.error(error);
       }
     }
-    fetchData();
+    toast.promise(
+      fetchData().catch((err) => {
+        console.error(err);
+        throw new Error(err.message);
+      }),
+      {
+        pending: 'Getting service orders...',
+        error: 'Failed to get service orders!',
+      }
+    );
   }, []);
 
   useEffect(() => {
@@ -121,7 +129,6 @@ export default function ServiceBills() {
       // Convert the grouped services object to an array
       let arr = Object.keys(groupedServices).map((orderId) => ({
         orderId,
-        appointmentId: groupedServices[orderId][0].appointmentId,
         petName: groupedServices[orderId][0].petName,
         ownerName: groupedServices[orderId][0].ownerName,
         phoneNumber: groupedServices[orderId][0].phoneNumber,

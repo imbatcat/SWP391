@@ -13,8 +13,8 @@ namespace PetHealthcare.Server.Services.BackgroundServices
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await CancelOverdueAppointment();
-            await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+            //await CancelOverdueAppointment();
+            //await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
         }
 
         private async Task CancelOverdueAppointment()

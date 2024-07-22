@@ -108,7 +108,12 @@ namespace PetHealthcare.Server.Services
         }    
         public async Task DischargePet(string petId)
         {
-            
+            //var adR = await _admissionRecordRepository.GetByCondition(a => a.PetId.Equals(petId));
+            //var currentDate = DateOnly.FromDateTime(new DateTime());
+            //if (currentDate.CompareTo(adR.DischargeDate) < 0)
+            //{
+            //    throw new BadHttpRequestException("Pet cannot be discharged until " + currentDate.ToString());
+            //}
             IEnumerable<AdmissionRecord> admissionRecordsList = await _admissionRecordRepository.GetAll();
             //---------------Calculate hospital fee-----------
             ServiceOrderDTO serviceOrderDTO = new ServiceOrderDTO();
