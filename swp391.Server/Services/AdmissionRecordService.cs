@@ -25,11 +25,11 @@ namespace PetHealthcare.Server.Services
 
         public async Task CreateAdmissionRecord(AdmissionRecordRegisterDTO entity)
         {
-            var pet = _admissionRecordService.GetByCondition(a => a.PetId.Equals(entity.PetId));
-            if (pet != null)
+            var admission = await _admissionRecordService.GetByCondition(a => a.PetId.Equals(entity.PetId));
+            if (admission != null)
             {
                 throw new BadHttpRequestException("Pet has already been hospitalized");
-            } 
+            }
             var obj = new AdmissionRecord()
             {
                 AdmissionId = GenerateId(),

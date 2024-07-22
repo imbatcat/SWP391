@@ -80,9 +80,16 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         //DELETE: change isDischarge = true.
         [HttpDelete("cages/pets/{petId}/discharge-pet")]
-        public async Task DischargePet(string petId)
+        public async Task<ActionResult> DischargePet(string petId)
         {
+            //try
+            //{
             await _context.DischargePet(petId);
+            //} catch (BadHttpRequestException ex)
+            //{
+            //    return BadRequest(new { message = ex.Message });
+            //}
+            return Ok();
         }
     }
 }

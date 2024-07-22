@@ -45,7 +45,7 @@ namespace PetHealthcare.Server.Services
                             {
                                 OrderId = detail.ServiceOrderId,
                                 ServiceName = detail.Service.ServiceName,
-                                Price = detail.Service.ServicePrice,
+                                Price = serviceOrder.Price,
                                 AppointmentId = appointment.AppointmentId,
                                 PhoneNumber = appointment.Account.PhoneNumber,
                                 PetName = appointment.Pet.PetName,  
