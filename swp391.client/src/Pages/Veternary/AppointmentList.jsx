@@ -157,16 +157,25 @@ function AppointmentList() {
 
   const sortComparator = (a, b, orderBy) => {
     if (orderBy === 'appointmentDate') {
-      const dateA = new Date(`${a.appointmentDate} `);
-      const dateB = new Date(`${b.appointmentDate}`);
+      const dateA = new Date(`${a.appointmentDate}T${a.timeSlot}`);
+      const dateB = new Date(`${b.appointmentDate}T${b.timeSlot}`);
       return dateA - dateB;
+    }
+    if (orderBy === 'checkinTime') {
+      const timeA = new Date(`${a.appointmentDate}T${a.checkinTime}`);
+      const timeB = new Date(`${b.appointmentDate}T${b.checkinTime}`);
+      return timeA - timeB;
     }
     return a[orderBy].localeCompare(b[orderBy]);
   };
 
   const sortedAppointments = filteredAppointments.slice().sort((a, b) => {
     const orderModifier = order === 'asc' ? 1 : -1;
-    return orderModifier * sortComparator(a, b, orderBy);
+    return (
+      orderModifier *
+      (sortComparator(a, b, 'appointmentDate') ||
+        sortComparator(a, b, 'checkinTime'))
+    );
   });
 
   const handleChangePage = (event, newPage) => {
@@ -213,7 +222,7 @@ function AppointmentList() {
               >
                 <Typography>Waiting (Check-in Appointments)</Typography>
               </AccordionSummary>
-              <AccordionDetails>{renderTable()}</AccordionDetails>
+              <AccordionDetails>{renderTable('waiting')}</AccordionDetails>
             </Accordion>
             <Accordion
               expanded={expandedAccordion === 'today'}
@@ -248,7 +257,7 @@ function AppointmentList() {
     </div>
   );
 
-  function renderTable() {
+  function renderTable(type = '') {
     if (!sortedAppointments || sortedAppointments.length === 0) {
       return (
         <Typography variant="h6" align="center" sx={{ mt: 4 }}>
@@ -276,6 +285,19 @@ function AppointmentList() {
                     Date & Timeslot
                   </TableSortLabel>
                 </TableCell>
+                {type === 'waiting' && (
+                  <TableCell>
+                    <TableSortLabel
+                      active={orderBy === 'checkinTime'}
+                      direction={orderBy === 'checkinTime' ? order : 'asc'}
+                      onClick={(event) =>
+                        handleRequestSort(event, 'checkinTime')
+                      }
+                    >
+                      Check-in Time
+                    </TableSortLabel>
+                  </TableCell>
+                )}
                 <TableCell>Veterinarian</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Booking Price</TableCell>
@@ -317,6 +339,11 @@ function AppointmentList() {
                       <p className="fw-bold mb-1">{app.appointmentDate}</p>
                       <p className="text-muted mb-0">{app.timeSlot}</p>
                     </TableCell>
+                    {type === 'waiting' && (
+                      <TableCell>
+                        <p className="fw-bold mb-1">{app.checkinTime}</p>
+                      </TableCell>
+                    )}
                     <TableCell>
                       <p className="fw-normal mb-1">{app.veterinarianName}</p>
                     </TableCell>
