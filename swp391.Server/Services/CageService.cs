@@ -90,9 +90,9 @@ namespace PetHealthcare.Server.Services
                     cageWithPetDTOs.Add(new CageWithPetDTO
                     {
                         CageId = item.CageId,
-                        IsOccupied = false,
+                        IsOccupied = false, 
                     });
-                }
+                } 
             }
             return cageWithPetDTOs;
         }

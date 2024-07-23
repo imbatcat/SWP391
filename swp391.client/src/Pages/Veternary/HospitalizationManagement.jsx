@@ -25,6 +25,7 @@ import refreshPage from '../../Helpers/RefreshPage';
 import { toast } from 'react-toastify';
 import { useUser } from '../../Context/UserContext';
 import { MDBInput } from 'mdb-react-ui-kit';
+import SideNavForVet from '../../Component/SideNavForVet/SideNavForVet';
 
 const columns = [
   { id: 'no', label: 'No', minWidth: 50 },
@@ -166,7 +167,7 @@ function HospitalizationManagement() {
   return (
     <div>
       <div>
-        <SideNavForStaff
+        <SideNavForVet
           searchInput={searchInput}
           handleSearchInputChange={handleSearchInputChange}
         />

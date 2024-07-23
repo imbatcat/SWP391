@@ -82,11 +82,13 @@ function CageList() {
       setFilteredCageList(cageList);
     } else {
       setFilteredCageList(
-        cageList.filter(
-          (cage) =>
-            cage.petId.toLowerCase().includes(value) ||
-            cage.petName.toLowerCase().includes(value)
-        )
+        cageList.filter((cage) => {
+          if (!cage.petId && !cage.petName) return false;
+          return (
+            (cage.petId && cage.petId.toLowerCase().includes(value)) ||
+            (cage.petName && cage.petName.toLowerCase().includes(value))
+          );
+        })
       );
     }
   };
