@@ -14,7 +14,6 @@ import {
   Typography,
 } from '@mui/material';
 import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
-import DatePicker from "react-datepicker";
 import { toast } from 'react-toastify';
 import "react-datepicker/dist/react-datepicker.css";
 import refreshPage from '../../Helpers/RefreshPage';
@@ -33,56 +32,41 @@ export default function AppointmentCheckin() {
   const [appointmentList, setAppointmentList] = useState([]);
   const [filteredAppointmentList, setFilteredAppointmentList] = useState([]);
   const [searchInput, setSearchInput] = useState('');
-  const [startDate, setStartDate] = useState(new Date());
-  const [convertedDate, setConvertedDate] = useState(() => {
-    const currentDate = new Date();
-    return {
-      year: currentDate.getFullYear(),
-      month: currentDate.getMonth() + 1,
-      day: currentDate.getDate(),
-    };
-  });
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [buffer, setBuffer] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    const date = `${convertedDate.year}-${convertedDate.month}-${convertedDate.day}`;
+    const today = new Date()
+    const date = today.toISOString().split('T')[0];
+
+    console.log(date);
     const fetchData = async () => {
       const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${date}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
         method: 'GET',
         credentials: 'include',
       });
       if (response.status !== 200) throw new Error() 
-      const data = await fetchData.json();
+      const data = await response.json();
+      console.log(data);
       setAppointmentList(data);
       setFilteredAppointmentList(data);
     }
 
-    try {
-      toast.promise(
-        fetchData(),
-        {
-          pending: 'Loading appointments...',
-          success: 'Appointments loaded successfully!',
-          error: 'Failed to load appointments.'
-        }
-      );
-    } catch (err) {
-      console.log(err);
-    }
-  }, [convertedDate]);
-
-  const handleDateChange = (date) => {
-    setStartDate(date);
-    const parsedDate = new Date(date);
-    setConvertedDate({
-      year: parsedDate.getFullYear(),
-      month: parsedDate.getMonth() + 1,
-      day: parsedDate.getDate()
-    });
-  };
+    toast.promise(
+      fetchData().catch(err => {
+        console.log(err);
+        throw new err;
+      }),
+      {
+        pending: 'Loading appointments...',
+        success: 'Appointments loaded successfully!',
+        error: 'Failed to load appointments.'
+      }
+    );
+  }, []);
 
   const handleSearchInputChange = (e) => {
     const value = e.target.value.toLowerCase();
@@ -150,10 +134,7 @@ export default function AppointmentCheckin() {
   return (
     <>
       <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => handleDateChange(date)}
-      />
+
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
         <TableContainer sx={{ maxHeight: 440 }}>
           <Table stickyHeader aria-label="sticky table">
