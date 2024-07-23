@@ -1,275 +1,230 @@
-import {
-  MDBCard,
-  MDBCardBody,
-  MDBCardText,
-  MDBCol,
-  MDBContainer,
-  MDBRow,
-  MDBIcon,
-  MDBModal,
-  MDBModalDialog,
-  MDBModalContent,
-  MDBModalHeader,
-  MDBModalTitle,
-  MDBModalBody,
-  MDBModalFooter,
-  MDBBtn,
-  MDBInput,
-} from 'mdb-react-ui-kit';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { MDBBadge, MDBBtn } from 'mdb-react-ui-kit';
+import SideNavForVet from '../../Component/SideNavForVet/SideNavForVet';
 import { useUser } from '../../Context/UserContext';
-import MainLayout from '../../Layouts/MainLayout';
-import { toast } from 'react-toastify';
-import UserSidebar from '../../Component/UserSidebar/UserSidebar';
-import CircularProgressWithLabel from '../../Component/CircularProgress/CircularProgressWithLabel';
+import Paper from '@mui/material/Paper';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TablePagination from '@mui/material/TablePagination';
+import TableRow from '@mui/material/TableRow';
+import TableSortLabel from '@mui/material/TableSortLabel';
+import { Link } from 'react-router-dom';
 
-function UserProfile() {
+function MedicalRecordList() {
   const [user, setUser] = useUser();
-  const [userDetails, setUserDetails] = useState(null);
+  const [appointments, setAppointments] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [filteredAppointments, setFilteredAppointments] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [progress, setProgress] = useState(0);
-  const [modal, setModal] = useState(false);
-  const [editDetails, setEditDetails] = useState({});
-
-  const toggleModal = () => setModal(!modal);
-
-  const getUserDetails = async (user) => {
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [order, setOrder] = useState('asc');
+  const [orderBy, setOrderBy] = useState('appointmentDate');
+  async function fetchData(vetId) {
     try {
       const response = await fetch(
-        `https://localhost:7206/api/account-management/accounts/${user.id}`,
+        `https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`,
         {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
           credentials: 'include',
         }
       );
       if (!response.ok) {
         throw new Error('Error fetching data');
       }
-      var userData = await response.json();
-      setUserDetails(userData);
-    } catch (error) {
-      toast.error('Error getting user details!');
-      console.error(error.message);
-    } finally {
+      const data = await response.json();
+      setAppointments(data);
+      setFilteredAppointments(data);
       setIsLoading(false);
+      console.log(data);
+    } catch (error) {
+      console.error(error.message);
     }
-  };
-
+  }
   useEffect(() => {
     if (user) {
-      getUserDetails(user);
+      fetchData(user.id);
     }
+    console.log(user.id);
   }, [user]);
 
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditDetails((prevDetails) => ({
-      ...prevDetails,
-      [name]: value,
-    }));
-  };
-
-  const handleUpdateProfile = async () => {
-    try {
-      const response = await fetch(
-        `https://localhost:7206/api/account-management/accounts/${user.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify(editDetails),
-        }
-      );
-      if (!response.ok) {
-        throw new Error('Error updating profile');
-      }
-      toast.success('Profile updated successfully!');
-      getUserDetails(user);
-      toggleModal();
-    } catch (error) {
-      toast.error('Error updating profile!');
-      console.error(error.message);
-    }
-  };
-
   if (isLoading) {
-    return (
-      <MainLayout>
-        <section style={{ backgroundColor: '#eee' }}>
-          <MDBContainer className="py-5">
-            <MDBRow>
-              <MDBCol lg="4">
-                <UserSidebar></UserSidebar>
-              </MDBCol>
-              <MDBCol lg="8">
-                <MDBCard className="mb-4">
-                  <MDBCardBody>
-                    <MDBCol
-                      lg="8"
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <CircularProgressWithLabel value={progress} />
-                    </MDBCol>
-                  </MDBCardBody>
-                </MDBCard>
-              </MDBCol>
-            </MDBRow>
-          </MDBContainer>
-        </section>
-      </MainLayout>
-    );
+    return <div>Loading...</div>; // Loading state
   }
 
-  return (
-    <>
-      <MainLayout>
-        <section style={{ backgroundColor: '#eee' }}>
-          <MDBContainer className="py-5">
-            <MDBRow>
-              <MDBCol lg="4">
-                <UserSidebar></UserSidebar>
-              </MDBCol>
-              <MDBCol lg="8">
-                <MDBCard className="mb-4">
-                  <MDBCardBody>
-                    <MDBRow>
-                      <MDBCol sm="3">
-                        <MDBCardText>Full Name</MDBCardText>
-                      </MDBCol>
-                      <MDBCol sm="7">
-                        <MDBCardText className="text-muted">
-                          {userDetails.fullName}
-                        </MDBCardText>
-                      </MDBCol>
-                      <MDBCol sm="2">
-                        <MDBIcon fas icon="edit" onClick={toggleModal} />
-                      </MDBCol>
-                    </MDBRow>
-                    <hr />
-                    <MDBRow>
-                      <MDBCol sm="3">
-                        <MDBCardText>Username</MDBCardText>
-                      </MDBCol>
-                      <MDBCol sm="9">
-                        <MDBCardText className="text-muted">
-                          {userDetails.username}
-                        </MDBCardText>
-                      </MDBCol>
-                    </MDBRow>
-                    {userDetails.dateOfBirth && (
-                      <>
-                        <hr />
-                        <MDBRow>
-                          <MDBCol sm="3">
-                            <MDBCardText>Date of birth</MDBCardText>
-                          </MDBCol>
-                          <MDBCol sm="9">
-                            <MDBCardText className="text-muted">
-                              {userDetails.dateOfBirth}
-                            </MDBCardText>
-                          </MDBCol>
-                        </MDBRow>
-                        <hr />
-                      </>
-                    )}
-                    <MDBRow>
-                      <MDBCol sm="3">
-                        <MDBCardText>Email</MDBCardText>
-                      </MDBCol>
-                      <MDBCol sm="9">
-                        <MDBCardText className="text-muted">
-                          {userDetails.email}
-                        </MDBCardText>
-                      </MDBCol>
-                    </MDBRow>
-                    {userDetails.phoneNumber && (
-                      <>
-                        <hr />
-                        <MDBRow>
-                          <MDBCol sm="3">
-                            <MDBCardText>Phone</MDBCardText>
-                          </MDBCol>
-                          <MDBCol sm="9">
-                            <MDBCardText className="text-muted">
-                              {userDetails.phoneNumber}
-                            </MDBCardText>
-                          </MDBCol>
-                        </MDBRow>
-                      </>
-                    )}
-                  </MDBCardBody>
-                </MDBCard>
-              </MDBCol>
-            </MDBRow>
-          </MDBContainer>
-        </section>
-      </MainLayout>
+  const getBadgeColor = (app) => {
+    if (app.isCancel) {
+      return 'danger'; // red
+    }
+    if (app.isCheckUp) {
+      return 'success'; // green
+    }
+    if (app.isCheckIn) {
+      return 'warning'; // yellow
+    }
+    return 'secondary'; // default color
+  };
 
-      <MDBModal tabIndex="-1" show={modal} setShow={setModal}>
-        <MDBModalDialog centered>
-          <MDBModalContent>
-            <MDBModalHeader>
-              <MDBModalTitle>Edit Profile</MDBModalTitle>
-              <MDBBtn
-                className="btn-close"
-                color="none"
-                onClick={toggleModal}
-              ></MDBBtn>
-            </MDBModalHeader>
-            <MDBModalBody>
-              <MDBInput
-                label="Full Name"
-                name="fullName"
-                value={editDetails.fullName || userDetails.fullName}
-                onChange={handleEditChange}
-                required
-              />
-              <MDBInput
-                label="Username"
-                name="username"
-                value={editDetails.username || userDetails.username}
-                onChange={handleEditChange}
-                required
-              />
-              <MDBInput
-                label="Email"
-                name="email"
-                value={editDetails.email || userDetails.email}
-                onChange={handleEditChange}
-                required
-              />
-              {userDetails.phoneNumber && (
-                <MDBInput
-                  label="Phone"
-                  name="phoneNumber"
-                  value={editDetails.phoneNumber || userDetails.phoneNumber}
-                  onChange={handleEditChange}
-                  required
-                />
-              )}
-            </MDBModalBody>
-            <MDBModalFooter>
-              <MDBBtn color="secondary" onClick={toggleModal}>
-                Close
-              </MDBBtn>
-              <MDBBtn color="primary" onClick={handleUpdateProfile}>
-                Save changes
-              </MDBBtn>
-            </MDBModalFooter>
-          </MDBModalContent>
-        </MDBModalDialog>
-      </MDBModal>
-    </>
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value.toLowerCase();
+    setSearchInput(value);
+    if (value === '') {
+      setFilteredAppointments(appointments);
+    } else {
+      setFilteredAppointments(
+        appointments.filter(
+          (app) =>
+            (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
+            (app.phoneNumber &&
+              app.phoneNumber.toLowerCase().includes(value)) ||
+            (app.appointmentDate &&
+              app.appointmentDate.toLowerCase().includes(value)) ||
+            (app.timeSlot && app.timeSlot.toLowerCase().includes(value)) ||
+            (app.appointmentId &&
+              app.appointmentId.toLowerCase().includes(value))
+        )
+      );
+    }
+  };
+  const handleRequestSort = (event, property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const sortComparator = (a, b, orderBy) => {
+    if (orderBy === 'appointmentDate') {
+      const dateA = new Date(`${a.appointmentDate} `);
+      const dateB = new Date(`${b.appointmentDate}`);
+      return dateA - dateB;
+    }
+    return a[orderBy].localeCompare(b[orderBy]);
+  };
+
+  const sortedAppointments = filteredAppointments.slice().sort((a, b) => {
+    const orderModifier = order === 'asc' ? 1 : -1;
+    return orderModifier * sortComparator(a, b, orderBy);
+  });
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+  return (
+    <div>
+      <SideNavForVet
+        searchInput={searchInput}
+        handleSearchInputChange={handleSearchInputChange}
+      />
+      <Paper sx={{ width: '100%' }}>
+        <TableContainer sx={{ maxHeight: 640 }}>
+          <Table stickyHeader aria-label="sticky table">
+            <TableHead>
+              <TableRow>
+                <TableCell>No</TableCell>
+                <TableCell>Name & Phone</TableCell>
+                <TableCell>Pet Name</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={orderBy === 'appointmentDate'}
+                    direction={orderBy === 'appointmentDate' ? order : 'asc'}
+                    onClick={(event) =>
+                      handleRequestSort(event, 'appointmentDate')
+                    }
+                  >
+                    Date & Timeslot
+                  </TableSortLabel>
+                </TableCell>
+                <TableCell>Veterinarian</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Booking Price</TableCell>
+                <TableCell>Note</TableCell>
+                <TableCell>Medical Record</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {sortedAppointments
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((app, index) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={app.id}>
+                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>
+                      <div className="d-flex align-items-center">
+                        <img
+                          src="https://mdbootstrap.com/img/new/avatars/8.jpg"
+                          alt=""
+                          style={{ width: '45px', height: '45px' }}
+                          className="rounded-circle"
+                        />
+                        <div className="ms-3">
+                          <p className="fw-bold mb-1">{app.ownerName}</p>
+                          <p className="text-muted mb-0">{app.phoneNumber}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.petName}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-bold mb-1">{app.appointmentDate}</p>
+                      <p className="text-muted mb-0">{app.timeSlot}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.veterinarianName}</p>
+                    </TableCell>
+                    <TableCell>
+                      <MDBBadge color={getBadgeColor(app)} pill>
+                        {app.isCancel
+                          ? 'Cancelled'
+                          : app.isCheckUp
+                          ? 'Checked Up'
+                          : app.isCheckIn
+                          ? 'Checked In'
+                          : 'Active'}
+                      </MDBBadge>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-bold mb-1">{app.bookingPrice}</p>
+                      <p className="text-muted mb-0">{app.appointmentType}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.appointmentNotes}</p>
+                    </TableCell>
+                    <TableCell>
+                      {!app.isCancel && !app.isCheckUp && !app.isCheckIn ? (
+                        <MDBBtn color="danger" disabled>
+                          View Detail
+                        </MDBBtn>
+                      ) : (
+                        <Link to="/vet/MedicalRecord" state={app}>
+                          <MDBBtn color="danger">View Detail</MDBBtn>
+                        </Link>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 100]}
+          component="div"
+          count={filteredAppointments.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={handleChangePage}
+          onRowsPerPageChange={handleChangeRowsPerPage}
+        />
+      </Paper>
+    </div>
   );
 }
 
-export default UserProfile;
+export default MedicalRecordList;
