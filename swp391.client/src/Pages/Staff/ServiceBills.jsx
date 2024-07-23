@@ -76,9 +76,9 @@ export default function ServiceBills() {
         }
       )
       .then(() => {
-        toast.success('Order paid');
         console.log('Payment successful');
         refreshPage();
+        toast.success('Order paid');
       })
       .finally(() => {
         setIsProcessing(false);
