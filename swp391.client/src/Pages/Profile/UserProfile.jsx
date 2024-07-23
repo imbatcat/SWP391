@@ -235,20 +235,19 @@ function UserProfile() {
               />
               <br />
               <MDBInput
-                label="Email"
-                name="email"
-                value={editDetails.email || userDetails.email}
+                label="Date of Birth"
+                name="dateOfBirth"
+                type="date"
+                value={editDetails.dateOfBirth || userDetails.dateOfBirth}
                 onChange={handleEditChange}
               />
               <br />
-              {userDetails.phoneNumber && (
-                <MDBInput
-                  label="Phone"
-                  name="phoneNumber"
-                  value={editDetails.phoneNumber || userDetails.phoneNumber}
-                  onChange={handleEditChange}
-                />
-              )}
+              <MDBInput
+                label="Phone"
+                name="phoneNumber"
+                value={editDetails.phoneNumber || userDetails.phoneNumber}
+                onChange={handleEditChange}
+              />
             </MDBModalBody>
             <MDBModalFooter>
               <MDBBtn color="secondary" onClick={toggleModal}>
