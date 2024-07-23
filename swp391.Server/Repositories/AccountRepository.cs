@@ -63,6 +63,18 @@ namespace PetHealthcare.Server.Repositories
                 await SaveChanges();
             }
         }
+        public async Task UpdateCustomerAccount(Account customer)
+        {
+            var account = await GetByCondition(a => a.AccountId == customer.AccountId);            
+            if (account != null)
+            {
+                context.Entry(account).State = EntityState.Modified;
+                account.DateOfBirth = customer.DateOfBirth;
+                account.PhoneNumber = customer.PhoneNumber;
+                account.FullName = customer.FullName;
+                await SaveChanges();
+            }
+        }
         public async Task UpdateVetAccount(Veterinarian veterinarian)
         {
             var account = await GetVet(veterinarian.RoleId, veterinarian.AccountId);            

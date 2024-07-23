@@ -89,6 +89,21 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // change the information of the account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
+        [HttpPut("accounts/customers/{id}")]
+        public async Task<IActionResult> UpdateCustomerAccount([FromRoute] string id, CustomerUpdateDTO account)
+        {
+            try
+            {
+                await _context.UpdateCustomerAccount(id, account);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException);
+            }
+            return NoContent();
+        }
+
         [HttpPut("accounts/vets/{id}")]
         public async Task<IActionResult> UpdateVetAccount([FromRoute]string id, AccountUpdateDTO account)
         {
