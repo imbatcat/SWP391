@@ -30,7 +30,7 @@ function AssignCageForm({ mRecId, petData, ownerData, vetData, toggleOpen }) {
   const [modalOpen, setModalOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState('asc'); // State to track sorting order
   const [admissionForm, setAdmissionForm] = useState({
-    dischargeDate: new Date().toISOString().split('T')[0],
+    dischargeDate: null,
     petCurrentCondition: '',
     isDischarged: false,
     petId: petData.petId,
