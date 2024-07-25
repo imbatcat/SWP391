@@ -132,9 +132,9 @@ function AppointmentForm({ toggleOpen }) {
           body: JSON.stringify(data),
         }
       );
-      console.log(fetchPromise.status);
-      if (fetchPromise.status !== 200) throw new Error();
       const responseData = await fetchPromise.json();
+      console.log(responseData);
+      if (fetchPromise.status !== 200) throw new Error(responseData.message);
       console.log(responseData.url);
       openLink(responseData.url);
     };
@@ -147,12 +147,18 @@ function AppointmentForm({ toggleOpen }) {
             setBuffer([]);
             addAppointment(nextFormData);
           }
-          throw new Error(err);
+          console.log(err.message);
+          throw new Error(err.message);
         }),
         {
           pending:
             'Processing... You will be directed to payment gateway shortly.',
-          error: 'Error registering appointment',
+          error: {
+            render({ data }) {
+              // data.message contains the error message thrown
+              return data.message || 'Error registering appointment';
+            },
+          },
         }
       )
       .finally(() => {
