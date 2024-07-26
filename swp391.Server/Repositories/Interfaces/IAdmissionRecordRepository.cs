@@ -7,5 +7,7 @@ namespace PetHealthcare.Server.Repositories.Interfaces
     {
         Task DischargePet(string petId);
         Task UpdateCondition(string petId,UpdatePetConditionDTO updatePetConditionDTO);
+
+        Task<IEnumerable<AdmissionRecordForDoctorDTO>> GetAllAdmissionRecordForVet();
     }
 }

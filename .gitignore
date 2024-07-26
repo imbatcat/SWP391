@@ -397,3 +397,10 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /swp391.Server/Core/DTOS/AdmissionRecordDTOs
+/.vscode
+.prettierrc
+/swp391.client/.env
+/swp391.Server/secrets.json
+/swp391.client/.env
+/swp391.Server/secrets.json
+/swp391.client/.env

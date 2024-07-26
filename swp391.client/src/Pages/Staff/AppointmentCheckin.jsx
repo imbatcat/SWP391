@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import SideNavForStaff from '../../Component/SideNavForStaff/SideNavForStaff';
 import { toast } from 'react-toastify';
-import "react-datepicker/dist/react-datepicker.css";
+import 'react-datepicker/dist/react-datepicker.css';
 import refreshPage from '../../Helpers/RefreshPage';
 import { AiOutlineConsoleSql } from 'react-icons/ai';
 
@@ -39,32 +39,37 @@ export default function AppointmentCheckin() {
 
   useEffect(() => {
     const now = new Date();
-    const today = now.getFullYear() + '-' +
-      ('0' + (now.getMonth() + 1)).slice(-2) + '-' +
+    const today =
+      now.getFullYear() +
+      '-' +
+      ('0' + (now.getMonth() + 1)).slice(-2) +
+      '-' +
       ('0' + now.getDate()).slice(-2);
 
     console.log(today);
     const fetchData = async () => {
-      const response = await fetch(`https://localhost:7206/api/appointment-management/dates/${today}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (response.status !== 200) throw new Error() 
+      const response = await fetch(
+        `https://localhost:7206/api/appointment-management/dates/${today}/time-slots/0/appointments/staff?isGetAllTimeSlot=true`,
+        {
+          method: 'GET',
+          credentials: 'include',
+        }
+      );
+      if (response.status !== 200) throw new Error();
       const data = await response.json();
       console.log(data);
       setAppointmentList(data);
       setFilteredAppointmentList(data);
-    }
+    };
 
     toast.promise(
-      fetchData().catch(err => {
+      fetchData().catch((err) => {
         console.log(err);
-        throw new err;
+        throw new Error(err.message);
       }),
       {
         pending: 'Loading appointments...',
-        success: 'Appointments loaded successfully!',
-        error: 'Failed to load appointments.'
+        error: 'Failed to load appointments.',
       }
     );
   }, []);
@@ -75,10 +80,13 @@ export default function AppointmentCheckin() {
     if (value === '') {
       setFilteredAppointmentList(appointmentList);
     } else {
-      setFilteredAppointmentList(appointmentList.filter(app =>
-        app.appointmentId.toLowerCase().includes(value) ||
-        app.customerName.toLowerCase().includes(value)
-      ));
+      setFilteredAppointmentList(
+        appointmentList.filter(
+          (app) =>
+            app.appointmentId.toLowerCase().includes(value) ||
+            app.customerName.toLowerCase().includes(value)
+        )
+      );
     }
   };
 
@@ -100,41 +108,49 @@ export default function AppointmentCheckin() {
     setIsProcessing(true);
 
     const fetchData = async () => {
-      const response = await fetch(`https://localhost:7206/api/appointment-management/appointments/${app.appointmentId}/check-in`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-    
+      const response = await fetch(
+        `https://localhost:7206/api/appointment-management/appointments/${app.appointmentId}/check-in`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       setAppointmentList([]);
       refreshPage();
       return response.json();
-    }
+    };
 
-    toast.promise(
-      fetchData().catch(err => {
-          console.log(err); 
-          setIsProcessing(false); 
+    toast
+      .promise(
+        fetchData().catch((err) => {
+          console.log(err);
+          setIsProcessing(false);
           if (buffer.length > 0) {
-            var nextForm = buffer.shift()
-            setBuffer([]); 
-            checkinAppointment(nextForm); 
+            var nextForm = buffer.shift();
+            setBuffer([]);
+            checkinAppointment(nextForm);
           }
-      }),
-      {
+        }),
+        {
           pending: 'Checking in...',
           success: 'Checked in!',
           error: 'There is something wrong',
-      }
-  ).finally(() => {
-      setIsProcessing(false); 
-  });
+        }
+      )
+      .finally(() => {
+        setIsProcessing(false);
+      });
   }
   return (
     <>
-      <SideNavForStaff searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
+      <SideNavForStaff
+        searchInput={searchInput}
+        handleSearchInputChange={handleSearchInputChange}
+      />
 
       <Paper sx={{ width: '100%', overflow: 'hidden' }}>
         <TableContainer sx={{ maxHeight: 540 }}>
@@ -157,13 +173,24 @@ export default function AppointmentCheckin() {
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((app) => {
                   return (
-                    <TableRow hover role="checkbox" tabIndex={-1} key={app.appointmentId}>
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={app.appointmentId}
+                    >
                       {columns.map((column) => {
                         const value = app[column.id];
                         if (column.id === 'actions') {
                           return (
                             <TableCell key={column.id} align={column.align}>
-                              <Button variant="contained" color="primary" onClick={() => checkinAppointment(app)}>Checkin</Button>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={() => checkinAppointment(app)}
+                              >
+                                Checkin
+                              </Button>
                             </TableCell>
                           );
                         }
@@ -173,14 +200,18 @@ export default function AppointmentCheckin() {
                               <Grid container alignItems="center">
                                 <Grid item>
                                   <Avatar
-                                    src='https://mdbootstrap.com/img/new/avatars/8.jpg'
-                                    alt=''
+                                    src="https://mdbootstrap.com/img/new/avatars/8.jpg"
+                                    alt=""
                                     style={{ width: '45px', height: '45px' }}
                                   />
                                 </Grid>
                                 <Grid item>
-                                  <Typography className='fw-bold mb-1'>{app.customerName}</Typography>
-                                  <Typography className='text-muted mb-0'>{app.phoneNumber}</Typography>
+                                  <Typography className="fw-bold mb-1">
+                                    {app.customerName}
+                                  </Typography>
+                                  <Typography className="text-muted mb-0">
+                                    {app.phoneNumber}
+                                  </Typography>
                                 </Grid>
                               </Grid>
                             </TableCell>

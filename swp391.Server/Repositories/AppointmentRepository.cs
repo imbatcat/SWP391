@@ -68,6 +68,7 @@ namespace PetHealthcare.Server.Repositories
                     VeterinarianId = a.Veterinarian.AccountId,
                     VeterinarianName = a.Veterinarian.FullName,
                     TimeSlot = $"{a.TimeSlot.StartTime:H\\:mm} - {a.TimeSlot.EndTime:H\\:mm}",
+                    TimeSlotId = a.TimeSlot.TimeSlotId,
                     BookingPrice = a.BookingPrice,
                     IsCancel = a.IsCancel,
                     IsCheckIn = a.IsCheckIn,
@@ -80,7 +81,7 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<Appointment?> GetByCondition(Expression<Func<Appointment, bool>> expression)
         {
-            return await context.Appointments.Include(a => a.TimeSlot).Include(a => a.Pet).Include(a => a.Veterinarian).Include(a => a.Account).FirstOrDefaultAsync(expression);
+            return await context.Appointments.Include(a => a.TimeSlot).Include(a => a.Account).Include(a => a.Pet).Include(a => a.Veterinarian).FirstOrDefaultAsync(expression);
         }
 
         public async Task SaveChanges()
@@ -90,7 +91,7 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task Update(Appointment entity)
         {
-            var appointment = await GetByCondition(a => a.AppointmentId == entity.AppointmentId);
+            var appointment = await context.Appointments.FirstOrDefaultAsync(app => entity.AppointmentId == app.AppointmentId);
             if (appointment != null)
             {
                 // this line ensures efcore to update the table.
@@ -100,6 +101,7 @@ namespace PetHealthcare.Server.Repositories
                 appointment.AppointmentNotes = entity.AppointmentNotes;
                 appointment.VeterinarianAccountId = entity.VeterinarianAccountId;
                 appointment.TimeSlotId = entity.TimeSlotId;
+                appointment.IsCancel = entity.IsCancel;
                 await SaveChanges();
             }
         }
@@ -166,6 +168,25 @@ namespace PetHealthcare.Server.Repositories
                 appointment.IsCheckUp = true;
                 await SaveChanges();
             }
+        }
+
+        public async Task<IEnumerable<RequestResAppListForCustomer>> GetAllCustomerAppointment()
+        {
+            return await context.Appointments.AsNoTracking().Include(app => app.Veterinarian).Include(app => app.Pet).Include(app => app.TimeSlot).Select(app => new RequestResAppListForCustomer
+            {
+                IsCancel = app.IsCancel,
+                IsCheckin = app.IsCheckIn,
+                BookingPrice = app.BookingPrice,
+                AppointmentDate = app.AppointmentDate,
+                AppointmentId = app.AppointmentId,
+                StartTime = app.TimeSlot.StartTime,
+                EndTime = app.TimeSlot.EndTime,
+                AccountId = app.AccountId,
+                IsCheckUp = app.IsCheckUp,
+                PetName = app.Pet.PetName,
+                VeterinarianName = app.Veterinarian.FullName,
+                
+            }).ToListAsync();
         }
     }
 }

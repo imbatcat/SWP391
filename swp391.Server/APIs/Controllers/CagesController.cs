@@ -39,7 +39,6 @@ namespace PetHealthcare.Server.APIs.Controllers
             {
                 return NotFound();
             }
-
             return cage;
         }
 
@@ -77,13 +76,6 @@ namespace PetHealthcare.Server.APIs.Controllers
             }
             await _context.UpdateCage(id, CaGe);
             return Ok(CaGe);
-        }
-
-        // DELETE api/<CagesController>/5
-        [HttpDelete("cages{id}")]
-        public void Delete(int id)
-        {
-
         }
 
         //DELETE: change isDischarge = true.

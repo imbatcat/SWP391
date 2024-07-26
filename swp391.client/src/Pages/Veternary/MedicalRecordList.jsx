@@ -11,8 +11,9 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
+import { Link } from 'react-router-dom';
 
-function  MedicalRecordList() {
+function MedicalRecordList() {
   const [user, setUser] = useUser();
   const [appointments, setAppointments] = useState([]);
   const [searchInput, setSearchInput] = useState('');
@@ -22,15 +23,17 @@ function  MedicalRecordList() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('appointmentDate');
-
   async function fetchData(vetId) {
     try {
-      const response = await fetch(`https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`, {
-        method: 'GET',
-        credentials: 'include',
-      });
+      const response = await fetch(
+        `https://localhost:7206/api/appointment-management/vets/${vetId}/appointments`,
+        {
+          method: 'GET',
+          credentials: 'include',
+        }
+      );
       if (!response.ok) {
-        throw new Error("Error fetching data");
+        throw new Error('Error fetching data');
       }
       const data = await response.json();
       setAppointments(data);
@@ -41,7 +44,6 @@ function  MedicalRecordList() {
       console.error(error.message);
     }
   }
-
   useEffect(() => {
     if (user) {
       fetchData(user.id);
@@ -64,7 +66,7 @@ function  MedicalRecordList() {
       return 'warning'; // yellow
     }
     return 'secondary'; // default color
-  }
+  };
 
   const handleSearchInputChange = (e) => {
     const value = e.target.value.toLowerCase();
@@ -72,16 +74,21 @@ function  MedicalRecordList() {
     if (value === '') {
       setFilteredAppointments(appointments);
     } else {
-      setFilteredAppointments(appointments.filter(app =>
-        (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
-        (app.ownerNumber && app.ownerNumber.toLowerCase().includes(value)) ||
-        (app.appointmentDate && app.appointmentDate.toLowerCase().includes(value)) ||
-        (app.timeSlot && app.timeSlot.toLowerCase().includes(value))||
-        (app.appointmentId && app.appointmentId.toLowerCase().includes(value))
-      ));
+      setFilteredAppointments(
+        appointments.filter(
+          (app) =>
+            (app.ownerName && app.ownerName.toLowerCase().includes(value)) ||
+            (app.phoneNumber &&
+              app.phoneNumber.toLowerCase().includes(value)) ||
+            (app.appointmentDate &&
+              app.appointmentDate.toLowerCase().includes(value)) ||
+            (app.timeSlot && app.timeSlot.toLowerCase().includes(value)) ||
+            (app.appointmentId &&
+              app.appointmentId.toLowerCase().includes(value))
+        )
+      );
     }
-  }
-
+  };
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -110,10 +117,12 @@ function  MedicalRecordList() {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
-
   return (
     <div>
-      <SideNavForVet searchInput={searchInput} handleSearchInputChange={handleSearchInputChange} />
+      <SideNavForVet
+        searchInput={searchInput}
+        handleSearchInputChange={handleSearchInputChange}
+      />
       <Paper sx={{ width: '100%' }}>
         <TableContainer sx={{ maxHeight: 640 }}>
           <Table stickyHeader aria-label="sticky table">
@@ -126,7 +135,9 @@ function  MedicalRecordList() {
                   <TableSortLabel
                     active={orderBy === 'appointmentDate'}
                     direction={orderBy === 'appointmentDate' ? order : 'asc'}
-                    onClick={(event) => handleRequestSort(event, 'appointmentDate')}
+                    onClick={(event) =>
+                      handleRequestSort(event, 'appointmentDate')
+                    }
                   >
                     Date & Timeslot
                   </TableSortLabel>
@@ -135,50 +146,70 @@ function  MedicalRecordList() {
                 <TableCell>Status</TableCell>
                 <TableCell>Booking Price</TableCell>
                 <TableCell>Note</TableCell>
+                <TableCell>Medical Record</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {sortedAppointments.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((app, index) => (
-                <TableRow hover role="checkbox" tabIndex={-1} key={app.id}>
-                  <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                  <TableCell>
-                    <div className='d-flex align-items-center'>
-                      <img
-                        src='https://mdbootstrap.com/img/new/avatars/8.jpg'
-                        alt=''
-                        style={{ width: '45px', height: '45px' }}
-                        className='rounded-circle'
-                      />
-                      <div className='ms-3'>
-                        <p className='fw-bold mb-1'>{app.ownerName}</p>
-                        <p className='text-muted mb-0'>{app.ownerNumber}</p>
+              {sortedAppointments
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((app, index) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={app.id}>
+                    <TableCell>{page * rowsPerPage + index + 1}</TableCell>
+                    <TableCell>
+                      <div className="d-flex align-items-center">
+                        <img
+                          src="https://mdbootstrap.com/img/new/avatars/8.jpg"
+                          alt=""
+                          style={{ width: '45px', height: '45px' }}
+                          className="rounded-circle"
+                        />
+                        <div className="ms-3">
+                          <p className="fw-bold mb-1">{app.ownerName}</p>
+                          <p className="text-muted mb-0">{app.phoneNumber}</p>
+                        </div>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-normal mb-1'>{app.petName}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-bold mb-1'>{app.appointmentDate}</p>
-                    <p className='text-muted mb-0'>{app.timeSlot}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-normal mb-1'>{app.veterinarianName}</p>
-                  </TableCell>
-                  <TableCell>
-                    <MDBBadge color={getBadgeColor(app)} pill>
-                      {app.isCancel ? "Cancelled" : app.isCheckUp ? "Checked Up" : app.isCheckIn ? "Checked In" : "Active"}
-                    </MDBBadge>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-bold mb-1'>{app.bookingPrice}</p>
-                    <p className='text-muted mb-0'>{app.appointmentType}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className='fw-normal mb-1'>{app.appointmentNotes}</p>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.petName}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-bold mb-1">{app.appointmentDate}</p>
+                      <p className="text-muted mb-0">{app.timeSlot}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.veterinarianName}</p>
+                    </TableCell>
+                    <TableCell>
+                      <MDBBadge color={getBadgeColor(app)} pill>
+                        {app.isCancel
+                          ? 'Cancelled'
+                          : app.isCheckUp
+                          ? 'Checked Up'
+                          : app.isCheckIn
+                          ? 'Checked In'
+                          : 'Active'}
+                      </MDBBadge>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-bold mb-1">{app.bookingPrice}</p>
+                      <p className="text-muted mb-0">{app.appointmentType}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="fw-normal mb-1">{app.appointmentNotes}</p>
+                    </TableCell>
+                    <TableCell>
+                      {!app.isCancel && !app.isCheckUp && !app.isCheckIn ? (
+                        <MDBBtn color="danger" disabled>
+                          View Detail
+                        </MDBBtn>
+                      ) : (
+                        <Link to="/vet/MedicalRecord" state={app}>
+                          <MDBBtn color="danger">View Detail</MDBBtn>
+                        </Link>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </TableContainer>

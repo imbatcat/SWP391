@@ -14,6 +14,7 @@ namespace PetHealthcare.Server.Services
     {
         private readonly IAccountRepository _accountService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
         public AccountService(IAccountRepository accountService, UserManager<ApplicationUser> userManager)
         {
@@ -55,11 +56,7 @@ namespace PetHealthcare.Server.Services
         public async Task DeleteAccount(Account Account)
         {
             var user = await _userManager.FindByEmailAsync(Account.Email);
-            user.LockoutEnabled = !user.LockoutEnabled;
-            if (user.LockoutEnabled)
-            {
-                user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
-            }
+            user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
             await _userManager.UpdateAsync(user);
             var _account = new Account
             {
@@ -67,6 +64,7 @@ namespace PetHealthcare.Server.Services
                 IsDisabled = true
             };
             await _accountService.DeleteAccount(_account);
+            await _userManager.UpdateSecurityStampAsync(user);
         }
 
         public async Task<Account?> GetAccountByCondition(Expression<Func<Account, bool>> expression)
@@ -94,18 +92,27 @@ namespace PetHealthcare.Server.Services
             return await _accountService.GetAccountsByRole(roleId);
         }
 
-        public async Task UpdateAccount(string id, AccountUpdateDTO Account)
+        public async Task UpdateAccount(string id, StaffUpdateDTO Account)
         {
-            //    var _account = new Account
-            //    {
-            //        AccountId = id,
-            //        FullName = Account.FullName,
+            var _account = new Account
+            {
+                AccountId = id,
+                PhoneNumber = Account.PhoneNumber,
+            };
+            await _accountService.Update(_account);
+        }
 
-            //        Email = Account.Email,
-            //        PhoneNumber = Account.PhoneNumber,
-            //        IsMale = Account.IsMale,
-            //    };
-            //await _accountService.Update(_account);
+        public async Task UpdateCustomerAccount(string id, CustomerUpdateDTO CustomerAccount)
+        {
+
+            var _customerAccount = new Account
+            {
+                AccountId = id,
+                PhoneNumber = CustomerAccount.PhoneNumber,
+                FullName = CustomerAccount.FullName,
+                DateOfBirth = CustomerAccount.DateOfBirth
+            };
+            await _accountService.UpdateCustomerAccount(_customerAccount);
         }
         public async Task UpdateVetAccount(string id, AccountUpdateDTO VetAccount)
         {
@@ -114,6 +121,9 @@ namespace PetHealthcare.Server.Services
             {
                 AccountId = id,
                 RoleId = 3,
+                Experience = VetAccount.Experience,
+                Description = VetAccount.Description,
+                PhoneNumber = VetAccount.PhoneNumber,
                 Position = VetAccount.Position,
                 Department = VetAccount.Department,
             };
@@ -223,6 +233,7 @@ namespace PetHealthcare.Server.Services
                 if (account != null)
                 {
                     var user = await _userManager.FindByEmailAsync(account.Email);
+                    user.LockoutEnd = null;
                     await _userManager.UpdateAsync(user);
                     await _accountService.UnlockAccount(accountId);
                 }

@@ -8,6 +8,7 @@ using PetHealthcare.Server.Models;
 using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Services.AuthInterfaces;
 using PetHealthcare.Server.Services.Interfaces;
+using System.Net.Http.Headers;
 
 namespace PetHealthcare.Server.APIs.Controllers
 {
@@ -19,15 +20,19 @@ namespace PetHealthcare.Server.APIs.Controllers
         private readonly IAccountService _context;
         private readonly IPetService _contextPet;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IAuthenticationService _authService;
 
-        public AccountsController(IAccountService context, IPetService contextPet, UserManager<ApplicationUser> userManager, IAuthenticationService authService)
+        public AccountsController(IAccountService context, IPetService contextPet, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IAuthenticationService authService)
         {
             _context = context;
             _contextPet = contextPet;
             _userManager = userManager;
+            _signInManager = signInManager;
             _authService = authService;
         }
+
+
 
         // GET: api/Accounts
         //<summary>
@@ -84,10 +89,45 @@ namespace PetHealthcare.Server.APIs.Controllers
 
         // change the information of the account
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("accounts/{id}")]
-        public async Task<IActionResult> PutAccount([FromRoute]string id, AccountUpdateDTO account)
+
+        [HttpPut("accounts/customers/{id}")]
+        public async Task<IActionResult> UpdateCustomerAccount([FromRoute] string id, CustomerUpdateDTO account)
         {
-            await _context.UpdateAccount(id, account);
+            try
+            {
+                await _context.UpdateCustomerAccount(id, account);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException);
+            }
+            return NoContent();
+        }
+
+        [HttpPut("accounts/vets/{id}")]
+        public async Task<IActionResult> UpdateVetAccount([FromRoute]string id, AccountUpdateDTO account)
+        {
+            try
+            {
+                await _context.UpdateVetAccount(id, account);
+            } catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException);
+            }
+            return NoContent();
+        }
+
+        [HttpPut("accounts/staffs/{id}")]
+        public async Task<IActionResult> UpdateStaffAccount([FromRoute]string id, StaffUpdateDTO account)
+        {
+            try
+            {
+                await _context.UpdateAccount(id, account);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException);
+            }
             return NoContent();
         }
 
@@ -147,7 +187,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         // DELETE: change the status of the account to true, not show it to the customer
-        [HttpDelete("accounts/{id}")]
+        [HttpPatch("accounts/lock-account/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteAccount(string id)
         {
@@ -158,9 +198,29 @@ namespace PetHealthcare.Server.APIs.Controllers
             }
 
             await _context.DeleteAccount(account);
-
             return NoContent();
         }
 
+        [HttpPost("img-upload")]
+        [Authorize(Roles = "Admin, Customer, Vet")]
+        public async Task<IActionResult> UploadImgUrl(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                return NotFound("No file uploaded.");
+            }
+
+            using var response = await ImageUpload.uploadImage(file);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("Error Response: " + errorBody);
+                return StatusCode((int)response.StatusCode, errorBody);
+            }
+
+            var body = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Response Body: " + body);
+            return Ok(body);
+        }
     }
 }

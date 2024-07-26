@@ -5,10 +5,6 @@
 
         public DateOnly DischargeDate { get; set; }
 
-        public string? PetCurrentCondition { get; set; }
-
-        public bool IsDischarged { get; set; }
-
         //public required string? PetId { get; set; }
 
         //public required int? CageId { get; set; }

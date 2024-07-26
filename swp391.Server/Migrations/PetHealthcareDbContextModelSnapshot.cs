@@ -106,6 +106,9 @@ namespace PetHealthcare.Server.Migrations
                     b.Property<bool>("IsDischarged")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsRemind")
+                        .HasColumnType("bit");
+
                     b.Property<string>("MedicalRecordId")
                         .IsRequired()
                         .HasColumnType("char(11)");
@@ -142,7 +145,7 @@ namespace PetHealthcare.Server.Migrations
 
                     b.Property<string>("AccountId")
                         .IsRequired()
-                        .HasColumnType("char(11)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateOnly>("AppointmentDate")
                         .HasColumnType("date");
@@ -190,8 +193,6 @@ namespace PetHealthcare.Server.Migrations
                         .HasColumnType("char(11)");
 
                     b.HasKey("AppointmentId");
-
-                    b.HasIndex("AccountId");
 
                     b.HasIndex("PetId");
 
@@ -561,12 +562,6 @@ namespace PetHealthcare.Server.Migrations
 
             modelBuilder.Entity("PetHealthcare.Server.Models.Appointment", b =>
                 {
-                    b.HasOne("PetHealthcare.Server.Models.Account", "Account")
-                        .WithMany("Appointments")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("PetHealthcare.Server.Models.Pet", "Pet")
                         .WithMany()
                         .HasForeignKey("PetId")
@@ -579,11 +574,18 @@ namespace PetHealthcare.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("PetHealthcare.Server.Models.Account", "Account")
+                        .WithMany("Appointments")
+                        .HasForeignKey("VeterinarianAccountId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PetHealthcare.Server.Models.Veterinarian", "Veterinarian")
                         .WithMany()
                         .HasForeignKey("VeterinarianAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_Appointments_Accounts_VeterinarianAccountId1");
 
                     b.Navigation("Account");
 

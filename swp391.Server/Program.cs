@@ -2,30 +2,29 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using PetHealthcare.Server.Core.Helpers;
+using Newtonsoft.Json;
 using PetHealthcare.Server.Models.ApplicationModels;
 using PetHealthcare.Server.Repositories;
 using PetHealthcare.Server.Repositories.DbContext;
 using PetHealthcare.Server.Repositories.Interfaces;
 using PetHealthcare.Server.Services;
 using PetHealthcare.Server.Services.AuthInterfaces;
+using PetHealthcare.Server.Services.BackgroundServices;
 using PetHealthcare.Server.Services.Interfaces;
+using JsonReader = PetHealthcare.Server.Core.Helpers.JsonReader;
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var config = builder.Configuration;
-const string DataSrc = "MIB\\MINHLUONG", Password = "12345";
 
 
 // Add services to the container.
 #region DBcontext
 builder.Services.AddDbContext<PetHealthcareDbContext>(
-option => option.UseSqlServer(
-        $"Data Source={DataSrc}; User = sa; Password ={Password};Initial Catalog=PetHealthCareSystem;Integrated Security=True;Connect Timeout=10;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False"));
+option => option.UseSqlServer(JsonReader.readJson("Connection:sql-app-connection")));
 builder.Services.AddDbContext<ApplicationDbContext>(
-option => option.UseSqlServer(
-        $"Data Source={DataSrc}; User = sa; Password ={Password};Initial Catalog=PetHealthCareSystemAuth;Integrated Security=True;Connect Timeout=10;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False"));
+option => option.UseSqlServer(JsonReader.readJson("Connection:sql-auth-connection")));
 #endregion
-
 
 
 #region Repositories
@@ -67,6 +66,10 @@ builder.Services.AddScoped<IServiceOrderDetailService, ServiceOrderDetailService
 // Auth services
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+// Background services
+builder.Services.AddHostedService<DischargeEmailReminderService>();
+builder.Services.AddHostedService<CancelOverdueAppointmentService>();
+
 #endregion
 
 #region Cors
@@ -118,6 +121,11 @@ builder.Services.AddIdentityApiEndpoints<ApplicationUser>(
     .AddRoles<ApplicationRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+{
+    options.ValidationInterval = TimeSpan.Zero;
+});
+
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 {
     // this sets the lifespan for generated tokens like email and reset password
@@ -129,8 +137,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
 
 var app = builder.Build();
 
-//Role seeding
-DataSeeder.SeedRoles(DataSrc, Password);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

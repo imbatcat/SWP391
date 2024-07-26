@@ -31,6 +31,11 @@ namespace PetHealthcare.Server.APIs.Controllers
             return await _context.GetAll();
         }
 
+        [HttpGet("admission-records/hospitalized-management/{vetId}")]
+        public async Task<IEnumerable<AdmissionRecordForDoctorDTO>> GetAdmissionRecordForVet([FromRoute] string vetId)
+        {
+            return await _context.GetAllAdmissionRecordForVet(vetId);
+        }
         [HttpGet("admission-records/{name}")]
         public async Task<ActionResult<ARSearchPetNameDTO>> GetAdmissionRecordByCondition([FromRoute] string name)   //----Get Addmission Record by name
         {
@@ -57,7 +62,7 @@ namespace PetHealthcare.Server.APIs.Controllers
         }
 
         [HttpPut("admission-records/{id}")]
-        [Authorize(Roles = "Staff, Admin")]
+        [Authorize(Roles = "Admin, Vet")]
         public async Task<IActionResult> UpdateAdmissionRecord([FromRoute] string id, [FromBody] AdmissionRecordDTO toUpdate)
         {
             var service = await _context.GetAdmissionRecordByPetName(p => p.AdmissionId.Equals(id));
@@ -74,9 +79,17 @@ namespace PetHealthcare.Server.APIs.Controllers
         [Authorize(Roles = "Staff,Admin, Vet")]
         public async Task<ActionResult<AdmissionRecord>> CreateAdmissionRecord([FromBody] AdmissionRecordRegisterDTO _new)
         {
-            await _context.CreateAdmissionRecord(_new);
+            try
+            {
+                await _context.CreateAdmissionRecord(_new);
+            } catch (BadHttpRequestException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
 
             return CreatedAtAction(nameof(CreateAdmissionRecord), _new.GetHashCode(), _new);
         }
+
+        
     }
 }

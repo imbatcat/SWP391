@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Diagnostics;
+using System.Drawing.Text;
 
 namespace PetHealthcare.Server.Repositories
 {
@@ -51,12 +52,20 @@ namespace PetHealthcare.Server.Repositories
                 }
                 if(isHospitalBill) //calculating hospital fees
                 {
+                    double hospitalFees = context.Services.FirstOrDefault(s => s.ServiceId == 9).ServicePrice;
+                    double priceTopay = 0;
                     AdmissionRecord adms = await context.AdmissionRecords.FirstOrDefaultAsync(ad => ad.MedicalRecordId.Equals(order.MedicalRecordId));
-                    DateOnly dischargeDate = new DateOnly(adms.DischargeDate.Value.Year, adms.DischargeDate.Value.Month, adms.DischargeDate.Value.Day);
+                    DateOnly dischargeDate = DateOnly.FromDateTime(DateTime.Today);
                     DateOnly admissionDate = new DateOnly(adms.AdmissionDate.Value.Year, adms.AdmissionDate.Value.Month, adms.AdmissionDate.Value.Day);
                     // Subtracting two DateOnly instances to get the difference in days
                     int daysDifference = (dischargeDate.ToDateTime(TimeOnly.MinValue) - admissionDate.ToDateTime(TimeOnly.MinValue)).Days;
-                    double hospitalFees = context.Services.FirstOrDefault(s => s.ServiceId == 9).ServicePrice;
+                    if (daysDifference == 0)
+                    {
+                        priceTopay = hospitalFees;
+                    } else
+                    {
+                        priceTopay = hospitalFees * daysDifference;
+                    }
 
                     ServiceOrder toCreateServiceOrder = new ServiceOrder
                     {
@@ -64,7 +73,7 @@ namespace PetHealthcare.Server.Repositories
                         OrderDate = DateOnly.FromDateTime(DateTime.Today),
                         OrderStatus = "Pending",
                         MedicalRecordId = order.MedicalRecordId,
-                        Price = hospitalFees * daysDifference,
+                        Price = priceTopay,
                     };
                     context.ServiceOrders.Add(toCreateServiceOrder);
                 } else
@@ -251,6 +260,11 @@ namespace PetHealthcare.Server.Repositories
                 PetName = serviceOrder.MedicalRecord.Pet.PetName,
             };
             return serviceOrderInfor;
+        }
+
+        public async Task<Service> GetServiceByName(string name)
+        {
+            return await context.Services.FirstOrDefaultAsync(s => s.ServiceName == name);
         }
     }
 }

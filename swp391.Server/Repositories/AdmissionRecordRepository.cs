@@ -27,12 +27,46 @@ namespace PetHealthcare.Server.Repositories
 
         public async Task<IEnumerable<AdmissionRecord>> GetAll()
         {
-            return await _context.AdmissionRecords.OrderBy(x => x.AdmissionId).ToListAsync();
+            return await _context.AdmissionRecords.Include("Pet.Account")
+                .Select(ad => new AdmissionRecord
+                {
+                    AdmissionDate = ad.AdmissionDate,
+                    AdmissionId = ad.AdmissionId,
+                    CageId = ad.CageId,
+                    VeterinarianAccountId = ad.VeterinarianAccountId,
+                    PetId = ad.PetId,
+                    CustomerEmail = ad.Pet.Account.Email,
+                    CustomerName = ad.Pet.Account.FullName,
+                    DischargeDate = ad.DischargeDate,
+                    IsDischarged = ad.IsDischarged,
+                    MedicalRecordId = ad.MedicalRecordId,
+                    PetCurrentCondition = ad.PetCurrentCondition,
+                    IsRemind = ad.IsRemind,
+                    petName = ad.Pet.PetName
+                })
+                .OrderBy(x => x.AdmissionId).ToListAsync();
         }
 
         public async Task<AdmissionRecord?> GetByCondition(Expression<Func<AdmissionRecord, bool>> expression)
         {
-            return await _context.AdmissionRecords.Include("Pet.Account").FirstOrDefaultAsync(expression);
+            return await _context.AdmissionRecords.Include("Pet.Account")
+                .Select(ad => new AdmissionRecord
+                {
+                    AdmissionDate = ad.AdmissionDate,
+                    AdmissionId = ad.AdmissionId,
+                    CageId = ad.CageId,
+                    VeterinarianAccountId = ad.VeterinarianAccountId,
+                    PetId = ad.PetId,
+                    CustomerEmail = ad.Pet.Account.Email,
+                    CustomerName = ad.Pet.Account.FullName,
+                    DischargeDate = ad.DischargeDate,
+                    IsDischarged = ad.IsDischarged,
+                    MedicalRecordId = ad.MedicalRecordId,
+                    PetCurrentCondition = ad.PetCurrentCondition,
+                    IsRemind = ad.IsRemind,
+                    petName = ad.Pet.PetName
+                })
+                .FirstOrDefaultAsync(expression);
         }
 
         public async Task SaveChanges()
@@ -46,16 +80,22 @@ namespace PetHealthcare.Server.Repositories
             if (toUpdateAdmission != null)
             {
                 _context.Entry(toUpdateAdmission).State = EntityState.Modified;
-                toUpdateAdmission.PetCurrentCondition = entity.PetCurrentCondition;
                 toUpdateAdmission.DischargeDate = entity.DischargeDate;
-                toUpdateAdmission.IsDischarged = entity.IsDischarged;
+                toUpdateAdmission.IsRemind = entity.IsRemind;
                 await SaveChanges();
             }
         }
 
         public async Task DischargePet(string petId)
         {
-            var admissionRecord = await GetByCondition(ad => ad.PetId == petId);
+            var existingRecord = _context.AdmissionRecords.Local
+            .FirstOrDefault(ad => ad.PetId == petId && ad.IsDischarged == false);
+            if (existingRecord != null)
+            {
+                _context.Entry(existingRecord).State = EntityState.Detached;
+            }
+
+            var admissionRecord = await GetByCondition(ad => ad.PetId == petId && ad.IsDischarged == false);
             if (admissionRecord != null)
             {
                 if (admissionRecord.IsDischarged == false)
@@ -81,6 +121,27 @@ namespace PetHealthcare.Server.Repositories
                     await SaveChanges();
                 }
             }
+        }
+
+        public async Task<IEnumerable<AdmissionRecordForDoctorDTO>> GetAllAdmissionRecordForVet()
+        {
+            return await _context.AdmissionRecords
+                .Include(a => a.Cage)
+                .Include(a => a.Pet)
+                .Include(a => a.Veterinarian)
+                .Select(a => new AdmissionRecordForDoctorDTO
+            {
+                AdmissionDate = a.AdmissionDate,
+                AdmissionId = a.AdmissionId,
+                cageId = a.Cage.CageId,
+                DischargeDate = a.DischargeDate,
+                IsDischarged = a.IsDischarged,
+                petId = a.Pet.PetId,
+                petName = a.Pet.PetName,
+                VeterinarianName = a.Veterinarian.FullName,
+                VetId = a.VeterinarianAccountId,
+                petImg = a.Pet.ImgUrl,
+            }).ToListAsync();
         }
     }
 }

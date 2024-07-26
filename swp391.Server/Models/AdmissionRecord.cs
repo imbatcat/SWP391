@@ -10,7 +10,12 @@ namespace PetHealthcare.Server.Models
     {
         [NotMapped]
         public string Prefix { get; } = "AR-";
-
+        [NotMapped]
+        public string CustomerEmail { get; set; }
+        [NotMapped]
+        public string CustomerName { get; set; }
+        [NotMapped]
+        public string petName { get; set; }
         [Key]
         [Column(TypeName = "char(11)")]
         [MaxLength(10)]
@@ -51,5 +56,7 @@ namespace PetHealthcare.Server.Models
         [Required]
         public Cage Cage { get; set; }
         public int CageId { get; set; }
+
+        public bool IsRemind {  get; set; } = false;
     }
 }

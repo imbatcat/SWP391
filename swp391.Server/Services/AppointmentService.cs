@@ -33,9 +33,25 @@ namespace PetHealthcare.Server.Services
             return prefix + id;
         }
         
+        public async Task<bool> IsPetAppointmentExist(string PetId, string AccountId)
+        {
+            bool result = false;
+            IEnumerable<GetAllAppointmentForAdminDTO> appList = await _appointmentRepository.GetAppointments();
+            foreach(GetAllAppointmentForAdminDTO appointment in appList)
+            {
+                if(appointment.PetId == PetId && appointment.AccountId == AccountId)
+                {
+                    if(appointment.IsCancel == false && appointment.IsCheckUp == false)
+                    {
+                        result = true;
+                    }
+                }
+            }
+            return result;
+        }
         public async Task CreateAppointment(CreateAppointmentDTO appointment, string id)
         {
-            string CheckinQRCode = QRCodeGeneratorHelper.GenerateQRCode(id);
+            string CheckinQRCode = await QRCodeGeneratorHelper.GenerateQRCode(id);
             Appointment toCreateAppointment = new Appointment
             {
                 AppointmentType = appointment.AppointmentType,
@@ -61,7 +77,7 @@ namespace PetHealthcare.Server.Services
         }
         public async Task<IEnumerable<GetAllAppointmentForAdminDTO>> GetAllAppointment()
         {
-            var appList = await _appointmentRepository.GetAppointments();
+            IEnumerable<GetAllAppointmentForAdminDTO> appList = await _appointmentRepository.GetAppointments();
             var CAList = appList.AsParallel().Select(app => new GetAllAppointmentForAdminDTO
             {
                 AppointmentId = app.AppointmentId,
@@ -72,6 +88,7 @@ namespace PetHealthcare.Server.Services
                 BookingPrice = app.BookingPrice,
                 AppointmentType = app.AppointmentType,
                 TimeSlot = app.TimeSlot,
+                TimeSlotId = app.TimeSlotId,
                 IsCancel = app.IsCancel,
                 IsCheckIn = app.IsCheckIn,
                 IsCheckUp = app.IsCheckUp,
@@ -81,10 +98,12 @@ namespace PetHealthcare.Server.Services
                 AccountId = app.AccountId,
                 PetId = app.PetId,
                 VeterinarianId = app.VeterinarianId
+                
             }).ToList();
             return CAList;
         }
 
+        
         public async Task<Appointment?> GetAppointmentByCondition(Expression<Func<Appointment, bool>> expression)
         {
             return await _appointmentRepository.GetByCondition(expression);
@@ -139,53 +158,25 @@ namespace PetHealthcare.Server.Services
                 DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
                 if (listType.Equals("history", StringComparison.OrdinalIgnoreCase))
                 {
-                    return appointment.AccountId.Equals(id) && appointment.AppointmentDate.CompareTo(currentDate) < 0;
+                    return appointment.AccountId.Equals(id) && (appointment.IsCheckUp == true || appointment.IsCancel == true);
                 }
                 else 
                 {
-                    return appointment.AccountId.Equals(id) && appointment.AppointmentDate.CompareTo(currentDate) >= 0;
+                    return appointment.AccountId.Equals(id) && appointment.AppointmentDate.CompareTo(currentDate) >= 0 && appointment.IsCheckUp == false && appointment.IsCancel == false;
                 }
             });
             var resAppListForCustomers = appointmentsList.Select(appointment =>
             {
-                DateOnly currentDate = DateOnly.FromDateTime(DateTime.Now);
-                if (appointment.AccountId.Equals(id))
+                return new ResAppListForCustomer
                 {
-                    if (listType.Equals("history", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (appointment.AppointmentDate.CompareTo(currentDate) < 0)
-                        {
-                            return new ResAppListForCustomer
-                            {
-                                AppointmentId = appointment.AppointmentId,
-                                AppointmentDate = appointment.AppointmentDate,
-                                BookingPrice = appointment.BookingPrice,
-                                PetName = appointment.PetName,
-                                VeterinarianName = appointment.VeterinarianName,
-                                TimeSlot = appointment.TimeSlot,
-                                AppointmentStatus = GetAppointmentStatus(appointment)
-                            };
-                        }
-                    }
-                    else 
-                    {
-                        if ( appointment.AppointmentDate.CompareTo(currentDate) >= 0)
-                        {
-                            return new ResAppListForCustomer
-                            {
-                                AppointmentId = appointment.AppointmentId,
-                                AppointmentDate = appointment.AppointmentDate,
-                                BookingPrice = appointment.BookingPrice,
-                                PetName = appointment.PetName,
-                                VeterinarianName = appointment.VeterinarianName,
-                                TimeSlot = appointment.TimeSlot,
-                                AppointmentStatus = GetAppointmentStatus(appointment)
-                            };
-                        }
-                    }
-                }
-                //this line exists for preventing compile error
-                return null; 
+                    AppointmentId = appointment.AppointmentId,
+                    AppointmentDate = appointment.AppointmentDate,
+                    BookingPrice = appointment.BookingPrice,
+                    PetName = appointment.PetName,
+                    VeterinarianName = appointment.VeterinarianName,
+                    TimeSlot = appointment.TimeSlot,
+                    AppointmentStatus = GetAppointmentStatus(appointment)
+                };
             }).OrderBy(a => a.AppointmentStatus).ToList();
             return resAppListForCustomers;
         }
@@ -358,19 +349,7 @@ namespace PetHealthcare.Server.Services
             {
                 return false;
             }
-            if (toCheckInAppointment.TimeSlot.EndTime < TimeOnly.FromDateTime(DateTime.Now))
-            {
-                int newTimeSlot = await getNearestFreeTimeSlot(toCheckInAppointment.VeterinarianAccountId, DateOnly.FromDateTime(DateTime.Today), toCheckInAppointment.TimeSlotId);
-                if (newTimeSlot == 0)
-                {
-                    throw new Exception("There is an error with getting nearest free timeslot");
-                }
-                else
-                {
-                    toCheckInAppointment.TimeSlotId = newTimeSlot;
-                    await _appointmentRepository.SaveChanges();
-                }   
-            }
+            
             if(toCheckInAppointment.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) == 0)
             {
                 toCheckInAppointment.IsCheckIn = true;
@@ -469,18 +448,39 @@ namespace PetHealthcare.Server.Services
             return _appointmentRepository.GetQRCodeByAppointmentId(appointmentId);
         }
 
-        public async Task<IEnumerable<AppointmentForStaffDTO>> GetAllAppointmentsForStaff()
+        public async Task CancelOverdueAppointment()
         {
-            var appointmentList = await _appointmentRepository.GetAll();
-            List<AppointmentForStaffDTO> appList = new List<AppointmentForStaffDTO>();
-            foreach (Appointment app in appointmentList)
+            IEnumerable<GetAllAppointmentForAdminDTO> appList = await _appointmentRepository.GetAppointments();
+            foreach (GetAllAppointmentForAdminDTO app in appList)
             {
                 if (app.AppointmentDate.CompareTo(DateOnly.FromDateTime(DateTime.Today)) < 0 && app.IsCheckUp == false)
                 {
                     app.IsCancel = true;
+                    await _appointmentRepository.Update(new Appointment
+                    {
+                        AccountId = app.AccountId,
+                        AppointmentDate = app.AppointmentDate,
+                        AppointmentNotes = app.AppointmentNotes,
+                        AppointmentType = app.AppointmentType,
+                        AppointmentId = app.AppointmentId,
+                        BookingPrice = app.BookingPrice,
+                        CheckinTime = app.CheckinTime,
+                        IsCancel = app.IsCancel,
+                        IsCheckIn = app.IsCheckIn,
+                        IsCheckUp = app.IsCheckUp,
+                        PetId = app.PetId,
+                        TimeSlotId = app.TimeSlotId,
+                        VeterinarianAccountId = app.VeterinarianId,
+                    });
                 }
+
             }
-            await _appointmentRepository.SaveChanges();
+        }
+        public async Task<IEnumerable<AppointmentForStaffDTO>> GetAllAppointmentsForStaff()
+        {
+            var appointmentList = await _appointmentRepository.GetAll();
+            List<AppointmentForStaffDTO> appList = new List<AppointmentForStaffDTO>();
+            
             foreach (Appointment app in appointmentList)
             {
                 appList.Add(new AppointmentForStaffDTO

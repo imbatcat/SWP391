@@ -10,6 +10,5 @@
 
         public string TimeSlot { get; set; }
         public string AppointmentStatus { get; set; }
-
     }
 }
