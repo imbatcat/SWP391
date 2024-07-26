@@ -79,7 +79,13 @@ namespace PetHealthcare.Server.APIs.Controllers
         [Authorize(Roles = "Staff,Admin, Vet")]
         public async Task<ActionResult<AdmissionRecord>> CreateAdmissionRecord([FromBody] AdmissionRecordRegisterDTO _new)
         {
-            await _context.CreateAdmissionRecord(_new);
+            try
+            {
+                await _context.CreateAdmissionRecord(_new);
+            } catch (BadHttpRequestException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
 
             return CreatedAtAction(nameof(CreateAdmissionRecord), _new.GetHashCode(), _new);
         }

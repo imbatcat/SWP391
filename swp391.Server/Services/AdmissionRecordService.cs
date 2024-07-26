@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow;
 using NanoidDotNet;
 using PetHealthcare.Server.Core.Constant;
 using PetHealthcare.Server.Core.DTOS;
@@ -24,7 +25,11 @@ namespace PetHealthcare.Server.Services
 
         public async Task CreateAdmissionRecord(AdmissionRecordRegisterDTO entity)
         {
-
+            var pet = _admissionRecordService.GetByCondition(a => a.PetId.Equals(entity.PetId));
+            if (pet != null)
+            {
+                throw new BadHttpRequestException("Pet has already been hospitalized");
+            } 
             var obj = new AdmissionRecord()
             {
                 AdmissionId = GenerateId(),
